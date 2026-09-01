@@ -64,9 +64,9 @@
         <tbody>
           <tr><td><a href="Votion_3DGS_2.0_Phase0.html">Phase 0</a></td><td>Skeleton</td><td>PySide6 window, job bus, venv, model downloader</td></tr>
           <tr><td><a href="Votion_3DGS_2.0_Phase1.html">Phase 1</a></td><td>Pano</td><td><strong>2D Images</strong> (default) / <strong>360 Images</strong> / <strong>text</strong> → 8K ERP (<code>pano.png</code>)</td></tr>
-          <tr><td><a href="Votion_3DGS_2.0_Phase2.html">Phase 2</a></td><td>First splat</td><td>Compute geometry → Plot Camera (1 rail) → SphereSfM → <code>splat.ply</code></td></tr>
+          <tr><td><a href="Votion_3DGS_2.0_Phase2.html">Phase 2</a></td><td>First splat</td><td>Compute geometry → Plot Camera (1 rail) → SphereSfM → <code>splat.ply</code> (Splat3 or MCMC)</td></tr>
           <tr><td><a href="Votion_3DGS_2.0_Phase3.html">Phase 3</a></td><td>Dataset</td><td>4 rails (+ optional 5th), WAN 720p hole-fill, 8K HiRes, dual-res SfM</td></tr>
-          <tr><td><a href="Votion_3DGS_2.0_Phase4.html">Phase 4</a></td><td>Product</td><td>Profiles, installer, Open-in-Brush/LichtFeld, UE 5.5</td></tr>
+          <tr><td><a href="Votion_3DGS_2.0_Phase4.html">Phase 4</a></td><td>Product</td><td>Profiles, installer, Splat3 / MCMC, Open-in-Brush/LichtFeld, UE 5.5</td></tr>
         </tbody>
       </table>
     </section>
@@ -85,7 +85,10 @@
         <li><strong>Venv:</strong> independent Python 3.12 + CUDA 12.8 + PyTorch cu128. Do not reuse <code>python_embeded</code>.</li>
         <li>Exact PyTorch <em>patch</em> is not pinned — write <code>requirements.lock</code> on first Phase 0 install.</li>
         <li><strong>Product name:</strong> Votion 3DGS</li>
-        <li><strong>Trainer:</strong> in-app gsplat → <code>splat.ply</code>. Brush / LichtFeld / Postshot are “Open in…”.</li>
+        <li><strong>Trainer:</strong> in-app gsplat → <code>splat.ply</code>. User picks <strong>Splat3</strong> (default) or <strong>MCMC</strong> before Train / Retrain.
+          Splat3 = gsplat <code>DefaultStrategy</code>. MCMC = gsplat <code>MCMCStrategy</code>.
+          Continue keeps the checkpoint’s strategy. ADC is not offered.
+          Brush / LichtFeld / Postshot are “Open in…”.</li>
         <li><strong>Unreal:</strong> Engine 5.5 + <strong>MLSLabsRenderer</strong> (interim) for <code>splat.ply</code> —
           <a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE">GitHub</a> ·
           <a href="https://www.fab.com/listings/f91b57cc-958d-40dd-a455-2535bf00e588">Fab</a>.
@@ -168,7 +171,7 @@
         </a>
         <a class="pvis" href="Votion_3DGS_2.0_Phase4.html">
           <img src="media/mlslabs-render.jpg" alt="MLSLabsRenderer Unreal Engine splat playback" />
-          <span><b>F · Splat</b> ply → Unreal 5.5</span>
+          <span><b>F · Splat</b> Splat3 / MCMC → Unreal 5.5</span>
         </a>
       </div>
       <div class="pipe">
@@ -182,7 +185,7 @@
         <div class="pipe-arr">→</div>
         <div class="pipe-node"><b>E</b>SphereSfM pinholes</div>
         <div class="pipe-arr">→</div>
-        <div class="pipe-node out"><b>F</b>splat.ply → UE 5.5</div>
+        <div class="pipe-node out"><b>F</b>Splat3 / MCMC → splat.ply → UE 5.5</div>
       </div>
       <p>
         Dummy of the P0 window (V1 left-rail chrome + six P0 page names). Click through
@@ -214,14 +217,14 @@
           </div>
           <div class="desk-view">
             <p class="view-lbl">Happy path</p>
-            <p class="f-hint">2D Images (or 360 / text) → 8K ERP → Compute geometry → rails → Generate → splat.ply. 2D Generate waits on Ostris.</p>
+            <p class="f-hint">2D Images (or 360 / text) → 8K ERP → Compute geometry → rails → Generate → splat.ply (Splat3 or MCMC). 2D Generate waits on Ostris.</p>
           </div>
         </div>
         <div class="desk-draws">
         <details class="desk-log-draw"><summary>Log</summary><div class="desk-log"><b>STATUS // idle</b><br />No ComfyUI. No WSL. Qt never imports torch for inference.</div></details>
         <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
           <b>FIELD GUIDE</b><br />
-          2D Images (default) or 360 / text → 8K ERP → Compute geometry → rails → Generate → splat.ply.
+          2D Images (default) or 360 / text → 8K ERP → Compute geometry → rails → Generate → splat.ply (Splat3 or MCMC).
           Ostris blocks 2D Generate until READY. h_fov 70. text keeps the trigger prefix.
           After 2D Images, prompt.txt = outpaint instruction + surroundings. WAN prompt must match the pano.
           Preview the mesh flight. Four rails usually enough. Do not skip 8K. Extra rails do not fix glass.

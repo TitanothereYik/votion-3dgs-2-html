@@ -58,7 +58,7 @@
         <div class="pipe-arr">→</div>
         <div class="pipe-node"><b>SfM</b>COLMAP pinholes</div>
         <div class="pipe-arr">→</div>
-        <div class="pipe-node out"><b>Train</b><code>splat.ply</code></div>
+        <div class="pipe-node out"><b>Train</b>Splat3 / MCMC → <code>splat.ply</code></div>
       </div>
       <div class="fig-grid">
         <figure class="fig">
@@ -294,6 +294,12 @@
         </div>
         <div class="desk-body">
           <div class="desk-rail">
+            <label class="f-lab">Train strategy</label>
+            <div class="f-tog splat-strat" role="tablist">
+              <button type="button" class="on" data-splat-strat="splat3">Splat3</button>
+              <button type="button" data-splat-strat="mcmc">MCMC</button>
+            </div>
+            <p class="f-hint splat-strat-hint">Splat3 (default): gsplat DefaultStrategy. Continue keeps this checkpoint; switch to MCMC needs Retrain. ADC is not offered.</p>
             <label class="f-lab">Max steps</label>
             <input class="f-in" value="10000" readonly />
             <label class="f-lab">Gaussian cap</label>
@@ -317,11 +323,12 @@
           </div>
         </div>
         <div class="desk-draws">
-        <details class="desk-log-draw"><summary>Log</summary><div class="desk-log"><b>STATUS // splat</b><br />outputs/alpine_01/splat.ply — Unreal check is manual (MLSLabsRenderer).</div></details>
+        <details class="desk-log-draw"><summary>Log</summary><div class="desk-log splat-strat-log"><b>STATUS // splat</b><br />strategy Splat3 · outputs/alpine_01/splat.ply — Unreal check is manual (MLSLabsRenderer).</div></details>
         <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
           <b>SPLAT</b><br />
-          Train writes <code>splat.ply</code>. Cap ~3M (1M hides 8K). Continue / Retrain / Reload from disk.
-          If gsplat failed in P0: Train disabled; Open COLMAP folder still works (Brush).
+          Pick <strong>Splat3</strong> (default, gsplat DefaultStrategy) or <strong>MCMC</strong> (gsplat MCMCStrategy), then Train.
+          Continue keeps the checkpoint’s strategy; switching needs Retrain. ADC is not offered.
+          Cap ~3M (1M hides 8K). If gsplat failed in P0: Train disabled; Open COLMAP folder still works (Brush).
           Unreal: UE 5.5 + MLSLabsRenderer. MoGe <code>pointcloud.ply</code> is not the Unreal asset.
         </div></details>
         </div>
@@ -336,7 +343,7 @@
         <li>FLOOR and SIDE visible; origin star at <code>(0,0,0)</code> and not draggable.</li>
         <li>Mesh-only flight preview plays before Confirm (black holes expected).</li>
         <li><code>colmap/sparse/0</code> exists after Reconstruct.</li>
-        <li>If gsplat passed: <code>splat.ply</code>. If failed: UI says so; COLMAP still valid for Brush.</li>
+        <li>If gsplat passed: <code>splat.ply</code> with the selected strategy (Splat3 default). Continue stays on that strategy; Splat3 ↔ MCMC needs Retrain. If failed: UI says so; COLMAP still valid for Brush.</li>
       </ul>
       <p>No Krea, no 4-rail default, no 8K HiRes, no WorldFM frames. Do not name a look mode <code>forward_look</code> or Height. Do not treat widget 9 as fps.</p>
     </section>

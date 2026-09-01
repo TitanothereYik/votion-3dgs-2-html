@@ -154,3 +154,33 @@
 
   document.querySelectorAll(".rail-pair").forEach(mount);
 })();
+
+/* Dummy Splat3 / MCMC chips on the Splat page. */
+(function () {
+  var hints = {
+    splat3: "Splat3 (default): gsplat DefaultStrategy. Continue keeps this checkpoint; switch to MCMC needs Retrain. ADC is not offered.",
+    mcmc: "MCMC: gsplat MCMCStrategy. Continue keeps this checkpoint; switch to Splat3 needs Retrain. ADC is not offered."
+  };
+  var labels = { splat3: "Splat3", mcmc: "MCMC" };
+
+  function mount(tog) {
+    var buttons = tog.querySelectorAll("[data-splat-strat]");
+    var desk = tog.closest(".desk");
+    var hint = desk ? desk.querySelector(".splat-strat-hint") : null;
+    var log = desk ? desk.querySelector(".splat-strat-log") : null;
+    buttons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        buttons.forEach(function (b) {
+          b.classList.toggle("on", b === btn);
+        });
+        var k = btn.getAttribute("data-splat-strat") || "splat3";
+        if (hint) hint.textContent = hints[k] || hints.splat3;
+        if (log) {
+          log.innerHTML = log.innerHTML.replace(/strategy (Splat3|MCMC)/, "strategy " + (labels[k] || "Splat3"));
+        }
+      });
+    });
+  }
+
+  document.querySelectorAll(".splat-strat").forEach(mount);
+})();

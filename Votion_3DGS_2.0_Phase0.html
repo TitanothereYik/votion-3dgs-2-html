@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Votion 3DGS 2.0 — Phase 0 Skeleton</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="votion-plan.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <p class="eyebrow">Phase 0 · Unlocks Phase 1 pano</p>
+      <h1>Desktop skeleton</h1>
+      <p class="tagline">Native Windows window named Votion 3DGS: model status, Hugging Face downloader, cancelable subprocess jobs. No diffusion, no browser, no WSL.</p>
+      <div class="meta-row">
+        <span>Python 3.12</span>
+        <span>CUDA 12.8</span>
+        <span>PySide6</span>
+        <span>D:\Votion3DGS\</span>
+      </div>
+    </header>
+    <nav class="phases">
+      <a href="Votion_3DGS_2.0_Index.html">Index</a>
+      <a class="here" href="Votion_3DGS_2.0_Phase0.html">P0 Skeleton</a>
+      <a href="Votion_3DGS_2.0_Phase1.html">P1 Pano</a>
+      <a href="Votion_3DGS_2.0_Phase2.html">P2 Splat</a>
+      <a href="Votion_3DGS_2.0_Phase3.html">P3 Dataset</a>
+      <a href="Votion_3DGS_2.0_Phase4.html">P4 Product</a>
+    </nav>
+    <nav class="toc">
+      <a href="#locked">01 Locked</a>
+      <a href="#home">02 Home dummy</a>
+      <a href="#venv">03 Venv / spike</a>
+      <a href="#dl">04 Downloader</a>
+      <a href="#accept">05 Acceptance</a>
+    </nav>
+
+    <section id="locked">
+      <h2><span class="num">01</span>Locked facts</h2>
+      <p>
+        Independent venv: Python <strong>3.12</strong> + CUDA <strong>12.8</strong> + PyTorch <strong>cu128</strong>.
+        Do not reuse ComfyUI <code>python_embeded</code> (3.13 + torch 2.13.0+cu130).
+        Weights lookup: <code>D:\ComfyUI_windows_portable_360\ComfyUI\models</code> first (inventory 2026-08-31: no required <code>.safetensors</code>).
+        GPU default: RTX 3090, index 0. Visual tokens from V1 <code>ui/theme.css</code> — do not invent a palette.
+      </p>
+    </section>
+
+    <section id="home">
+      <h2><span class="num">02</span>Home page (dummy)</h2>
+      <p>
+        P0 ships six named pages. Only <strong>Home</strong> is functional.
+        Chrome below copies V1’s Engineering Blueprint: brand bar, stage chips, left rail, viewport, Log drawer, Help drawer.
+        Page names are the P0 list. Fast / Scout stay disabled until Phase 4. Panorama Generate stays disabled until P1.
+      </p>
+      <div class="desk" aria-label="Dummy Votion 3DGS Home window">
+        <div class="desk-win"><span><strong>Votion 3DGS</strong></span><span class="wbtn">— □ ×</span></div>
+        <div class="desk-brand">
+          <h3>Votion 3DGS</h3>
+          <span class="live">idle</span>
+          <div class="desk-meta">
+            <span>RTX 3090</span>
+            <span>GPU 0</span>
+          </div>
+        </div>
+        <div class="desk-stages">
+          <a class="on" href="Votion_3DGS_2.0_Phase0.html">Home</a>
+          <a href="Votion_3DGS_2.0_Phase1.html">Panorama</a>
+          <a href="Votion_3DGS_2.0_Phase2.html#geo">Geometry</a>
+          <a href="Votion_3DGS_2.0_Phase3.html#gen-ui">Generate</a>
+          <a href="Votion_3DGS_2.0_Phase2.html#recon">Reconstruct</a>
+          <a href="Votion_3DGS_2.0_Phase4.html">Splat</a>
+        </div>
+        <div class="desk-body">
+          <div class="desk-rail">
+            <label class="f-lab">Scene name</label>
+            <input class="f-in" value="alpine_01" readonly />
+            <label class="f-lab">Profile</label>
+            <select class="f-sel" disabled>
+              <option selected>Quality</option>
+              <option disabled>Fast (P4)</option>
+              <option disabled>Scout (P4)</option>
+            </select>
+            <label class="f-lab">CUDA device</label>
+            <input class="f-in" value="0" readonly />
+            <label class="f-lab">Download set</label>
+            <div class="f-radio">
+              <label><input type="radio" checked disabled /> P1 subset (default)</label>
+              <label><input type="radio" disabled /> All (includes WAN 14B)</label>
+            </div>
+            <p class="f-hint">Florence-2 only if captioning is enabled. MoGe is a P2 subset — not this default.</p>
+            <div class="f-row">
+              <button class="f-btn pri" type="button">Download models</button>
+              <button class="f-btn ghost" type="button">Stop</button>
+            </div>
+          </div>
+          <div class="desk-view">
+            <p class="view-lbl">Model status</p>
+            <div class="stat-grid">
+              <div><b>Krea 2 fp8</b>MISSING_krea</div>
+              <div><b>CLIP qwen3vl</b>MISSING_clip</div>
+              <div><b>wan_2.1_vae</b>MISSING_vae</div>
+              <div><b>360 T2I LoRA</b>MISSING_lora</div>
+              <div><b>MoGe vitl</b>P2 subset</div>
+              <div><b>WAN 14B fp8</b>P3 — not this default</div>
+            </div>
+            <p class="f-hint">Status machine: <code>MISSING_*</code> | <code>READY</code>. Subset READY is OK in P0.</p>
+          </div>
+        </div>
+        <div class="desk-draws">
+        <details class="desk-log-draw"><summary>Log</summary><div class="desk-log">
+          <b>STATUS // idle</b><br />
+          Qt never imports torch. Dummy worker: 20 lines then exit. Stop kills the subprocess.
+        </div></details>
+        <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
+          <b>FIELD GUIDE</b><br />
+          2D Images (default) or 360 / text → 8K ERP → Compute geometry → rails → Generate → splat.ply.
+          Ostris blocks 2D Generate until READY. h_fov 70. text keeps the trigger prefix.
+          After 2D Images, prompt.txt = outpaint instruction + surroundings. WAN prompt must match the pano.
+          Preview the mesh flight. Four rails usually enough. Do not skip 8K. Extra rails do not fix glass.
+        </div></details>
+        </div>
+      </div>
+      <p class="desk-cap">Dummy only — not a screenshot of a running app. Stage chips are the six P0 pages. Left/right split copies V1 <code>yv-rail</code> / <code>yv-viewport</code>. <strong>Log</strong> and <strong>Help</strong> are bottom drawers.</p>
+    </section>
+
+    <section id="venv">
+      <h2><span class="num">03</span>Venv and gsplat spike</h2>
+      <div class="pipe col">
+        <div class="pipe-node"><b>0.1 Repo</b>Create <code>D:\Votion3DGS\</code>. Do not put V2 inside Yik Votion WorldFM.</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><b>0.2 Venv</b><code>py -3.12 -m venv .venv</code> then official cu128 torch from pytorch.org. If 3.12 is missing, stop.</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><b>0.3 Spike</b><code>torch.cuda.is_available()</code> on the 3090, then try <code>gsplat</code>. Record pass/fail in <code>env_report.txt</code>. Do not claim gsplat in the UI until it passes.</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node out"><b>0.4 Window</b>This Home dummy. Other pages are labeled stubs.</div>
+      </div>
+      <pre>py -3.12 -m venv D:\Votion3DGS\.venv
+.venv\Scripts\activate
+python -m pip install --upgrade pip
+# PyTorch: official cu128 command from pytorch.org at install time
+# Then: PySide6, huggingface_hub, tqdm
+python tools\env_report.py</pre>
+    </section>
+
+    <section id="dl">
+      <h2><span class="num">04</span>Downloader</h2>
+      <div class="pipe">
+        <div class="pipe-node"><b>1</b>Look in ComfyUI <code>models\&lt;folder&gt;\&lt;file&gt;</code></div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><b>2</b>If found: copy or hardlink into <code>D:\Votion3DGS\models\</code></div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><b>3</b>Else Hugging Face download</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node out"><b>4</b>Else <code>MISSING_&lt;id&gt;</code> + Index URL</div>
+      </div>
+      <p>Default download set: <strong>P1 subset</strong> (Krea 2 + LoRAs + VAE + CLIP + RealESRGAN; Florence-2 if captioning is enabled). Optional “All” so WAN 14B is not forced before Phase 3.</p>
+      <div class="fig-grid">
+        <figure class="fig">
+          <img src="media/krea2-hero.jpg" alt="Krea 2 — Phase 0 default P1 download" />
+          <figcaption>P1 subset: Krea 2. <a href="https://www.krea.ai/blog/krea-2-technical-report">technical report</a></figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/florence2-hf.png" alt="Florence-2 — optional P1 caption download" />
+          <figcaption>Optional with captioning. <a href="https://huggingface.co/microsoft/Florence-2-large">Florence-2</a></figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/moge-overview.png" alt="MoGe — Phase 2 download subset" />
+          <figcaption>P2 subset, not the P0 default. <a href="https://github.com/microsoft/MoGe">MoGe</a></figcaption>
+        </figure>
+      </div>
+      <figure class="fig">
+        <img src="media/comfy-hero.webp" alt="Comfy.org product still — Votion copies weights from ComfyUI if present, never the product UI" />
+        <figcaption>
+          Copy-if-exists from a local ComfyUI <code>models\</code>. The product itself is PySide6, not Comfy.
+          Source: <a href="https://www.comfy.org/">comfy.org</a>
+        </figcaption>
+      </figure>
+      <pre>D:\Votion3DGS\
+  app\main.py
+  app\windows\main_window.py
+  app\theme.qss
+  engine\job.py
+  engine\workers\dummy.py
+  tools\download_models.py
+  tools\model_manifest.json
+  tools\env_report.py
+  tools\launch.bat</pre>
+    </section>
+
+    <section id="accept">
+      <h2><span class="num">05</span>Acceptance · risks</h2>
+      <ul class="check">
+        <li><code>tools\launch.bat</code> opens a desktop window titled Votion 3DGS (not a browser).</li>
+        <li><code>env_report.txt</code> shows Python 3.12, CUDA 12.8 torch, <code>cuda.is_available() True</code>.</li>
+        <li>Krea 2 fp8 + CLIP + VAE reach <code>models\</code> or a clear missing-URL error. MoGe may still be missing.</li>
+        <li>Dummy job streams; Stop kills the subprocess.</li>
+        <li>No WSL, no localhost:7860, no ComfyUI process.</li>
+      </ul>
+      <table>
+        <thead><tr><th>Risk</th><th>Mitigation</th></tr></thead>
+        <tbody>
+          <tr><td>gsplat vs 3.12/cu128 unknown</td><td>Spike 0.3; Brush fallback in P2</td></tr>
+          <tr><td>Python 3.12 not installed</td><td>Stop before venv</td></tr>
+          <tr><td>Driver too old for CUDA 12.8</td><td>nvidia-smi in env_report</td></tr>
+          <tr><td>Disk</td><td>Check free space before WAN 14B</td></tr>
+        </tbody>
+      </table>
+      <p>Do not wrap Gradio, call WorldFM, vendor full SplatKit until P2, or pin a fictional torch version.</p>
+      <div class="fig-grid">
+        <figure class="fig">
+          <img src="media/sage-og.png" alt="SageAttention GitHub preview" />
+          <figcaption>Optional accel: <a href="https://github.com/thu-ml/SageAttention">SageAttention</a> — try in P3, not required</figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/triton-og.png" alt="Triton GitHub preview" />
+          <figcaption>Optional accel: <a href="https://github.com/triton-lang/triton">Triton</a> / triton-windows</figcaption>
+        </figure>
+      </div>
+    </section>
+    <footer>Votion 3DGS 2.0 · Phase 0 · <a href="Votion_3DGS_2.0_Phase0.md">markdown</a></footer>
+  </div>
+</body>
+</html>

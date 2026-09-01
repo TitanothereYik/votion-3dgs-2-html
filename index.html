@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Votion 3DGS 2.0 — Phase Plan Index</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="votion-plan.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <p class="eyebrow">Votion 3DGS · Engineering Blueprint</p>
+      <h1>Phase plan index</h1>
+      <p class="tagline">
+        Native Windows desktop app: 2D Images, 360 Images, or text → explorable Gaussian splat for Unreal&nbsp;5.5.
+        No ComfyUI, no WSL. Code lives at <code>D:\Votion3DGS\</code>.
+      </p>
+      <div class="meta-row">
+        <span>RTX 3090 24GB</span>
+        <span>Python 3.12 · CUDA 12.8</span>
+        <span>WAN 14B fp8 + LightX2V</span>
+        <span>UE 5.5 MLSLabsRenderer</span>
+      </div>
+      <figure class="hero-media">
+        <img src="media/video-mickmumpitz.jpg" alt="Mickmumpitz: We Open Sourced World Generation — video still" />
+        <figcaption>
+          Still from Mickmumpitz,
+          <a href="https://www.youtube.com/watch?v=eJuYBNrD8HI">We Open Sourced World Generation</a>.
+        </figcaption>
+      </figure>
+    </header>
+
+    <nav class="phases" aria-label="Phases">
+      <a class="here" href="Votion_3DGS_2.0_Index.html">Index</a>
+      <a href="Votion_3DGS_2.0_Phase0.html">P0 Skeleton</a>
+      <a href="Votion_3DGS_2.0_Phase1.html">P1 Pano</a>
+      <a href="Votion_3DGS_2.0_Phase2.html">P2 Splat</a>
+      <a href="Votion_3DGS_2.0_Phase3.html">P3 Dataset</a>
+      <a href="Votion_3DGS_2.0_Phase4.html">P4 Product</a>
+    </nav>
+
+    <nav class="toc" aria-label="On this page">
+      <a href="#read">01 · How to read</a>
+      <a href="#certainty">02 · Certainty log</a>
+      <a href="#pipeline">03 · Pipeline</a>
+      <a href="#tree">04 · Folder tree</a>
+      <a href="#models">05 · Model files</a>
+      <a href="#vram">06 · VRAM profiles</a>
+      <a href="#visuals">07 · Visual sources</a>
+      <a href="#p5">08 · P5 stretch</a>
+    </nav>
+
+    <section id="read">
+      <h2><span class="num">01</span>How to read</h2>
+      <p>
+        Yik Votion WorldFM (Gradio + WSL) is the <strong>V1 archive</strong>. Do not mix it into V2.
+        Markdown sources sit next to these HTML files. P5 is an appendix here, not its own file.
+      </p>
+      <table>
+        <thead><tr><th>Page</th><th>Phase</th><th>Goal</th></tr></thead>
+        <tbody>
+          <tr><td><a href="Votion_3DGS_2.0_Phase0.html">Phase 0</a></td><td>Skeleton</td><td>PySide6 window, job bus, venv, model downloader</td></tr>
+          <tr><td><a href="Votion_3DGS_2.0_Phase1.html">Phase 1</a></td><td>Pano</td><td><strong>2D Images</strong> (default) / <strong>360 Images</strong> / <strong>text</strong> → 8K ERP (<code>pano.png</code>)</td></tr>
+          <tr><td><a href="Votion_3DGS_2.0_Phase2.html">Phase 2</a></td><td>First splat</td><td>Compute geometry → Plot Camera (1 rail) → SphereSfM → <code>splat.ply</code></td></tr>
+          <tr><td><a href="Votion_3DGS_2.0_Phase3.html">Phase 3</a></td><td>Dataset</td><td>4 rails (+ optional 5th), WAN 720p hole-fill, 8K HiRes, dual-res SfM</td></tr>
+          <tr><td><a href="Votion_3DGS_2.0_Phase4.html">Phase 4</a></td><td>Product</td><td>Profiles, installer, Open-in-Brush/LichtFeld, UE 5.5</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="certainty">
+      <h2><span class="num">02</span>Certainty log</h2>
+      <p>Locked by you in this planning thread. Everything else is either copied from a named source or marked unknown.</p>
+      <ol>
+        <li><strong>Engine:</strong> native Python. No ComfyUI in the product. No WSL.</li>
+        <li><strong>Shell:</strong> PySide6. Engineering Blueprint look from V1.</li>
+        <li><strong>Docs:</strong> index + one file per phase (markdown + HTML).</li>
+        <li><strong>Code home:</strong> <code>D:\Votion3DGS\</code>. Docs also copied here.</li>
+        <li><strong>GPU / WAN:</strong> RTX 3090 24GB. Quality = WAN 2.1 I2V <strong>14B fp8 720p</strong> + LightX2V.</li>
+        <li><strong>Weights:</strong> copy from ComfyUI if present; else Hugging Face into <code>D:\Votion3DGS\models</code>.</li>
+        <li><strong>ComfyUI root:</strong> <code>D:\ComfyUI_windows_portable_360</code></li>
+        <li><strong>Venv:</strong> independent Python 3.12 + CUDA 12.8 + PyTorch cu128. Do not reuse <code>python_embeded</code>.</li>
+        <li>Exact PyTorch <em>patch</em> is not pinned — write <code>requirements.lock</code> on first Phase 0 install.</li>
+        <li><strong>Product name:</strong> Votion 3DGS</li>
+        <li><strong>Trainer:</strong> in-app gsplat → <code>splat.ply</code>. Brush / LichtFeld / Postshot are “Open in…”.</li>
+        <li><strong>Unreal:</strong> Engine 5.5 + <strong>MLSLabsRenderer</strong> (interim) for <code>splat.ply</code> —
+          <a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE">GitHub</a> ·
+          <a href="https://www.fab.com/listings/f91b57cc-958d-40dd-a455-2535bf00e588">Fab</a>.
+          Update slot held for a future better UE renderer.</li>
+        <li><strong>Pano inputs:</strong> three first-class Phase 1 modes — (1) <strong>2D Images</strong> → ERP (default), (2) <strong>360 Images</strong>, (3) <strong>text</strong> → ERP. Happy path is (1) then Phase 2 splat then Phase 3 WAN.</li>
+        <li><strong>2D Images surroundings:</strong> type a sentence or local Florence-2 caption (editable). Exact Hub id is not pinned — write it to <code>model_manifest.json</code> on first successful P1 install.</li>
+        <li><strong>Ostris:</strong> native port required for 2D Images. Until READY, disable 2D Images Generate. 360 Images and text still work; Phase 2 can splat those.</li>
+        <li><strong>Chrome:</strong> V1 left rail + right viewport + six P0 stage chips. Log and Help are matching bottom drawers.</li>
+        <li><strong>Panorama viewport:</strong> 2:1 ERP still left, drag-to-look 360 right.</li>
+        <li><strong>Seeds visible:</strong> 2D <code>12345</code> / seam <code>12345</code>; text <code>322344328372862</code> / seam <code>8</code>; WAN <code>0</code>.</li>
+        <li><strong>Geometry viewport:</strong> drag knots and look arrows; star locked; Preview flight is a third pane with Play on the pane (no rail Preview button).</li>
+      </ol>
+
+      <h3>Measured on this PC (not guessed)</h3>
+      <table>
+        <thead><tr><th>Item</th><th>Fact</th><th>Source</th></tr></thead>
+        <tbody>
+          <tr><td>ComfyUI Python</td><td>3.13 (<code>python313._pth</code>)</td><td><code>D:\ComfyUI_windows_portable_360\python_embeded\python313._pth</code></td></tr>
+          <tr><td>ComfyUI torch</td><td><code>2.13.0+cu130</code> (CUDA 13.0)</td><td><code>torch\version.py</code></td></tr>
+          <tr><td>Required Krea/WAN/LoRA in that <code>models\</code></td><td><strong>Not present</strong> (no <code>.safetensors</code>; no extra_model_paths)</td><td>Inventory 2026-08-31</td></tr>
+          <tr><td>Copy-from-Comfy</td><td>No-op until those files appear</td><td>Same</td></tr>
+          <tr><td>V1 app</td><td>Gradio + WSL2 + WorldFM + <code>train_splat_live.py</code></td><td>Yik Votion WorldFM</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout warn">
+        <strong>Still unknown — do not invent:</strong> PyTorch cu128 patch number;
+        whether gsplat / triton-windows / SageAttention wheels exist for Python 3.12 + CUDA 12.8 on Windows;
+        exact Florence-2 Hub id / revision; Warp widget names other than h_fov=70;
+        Harmonize / UltimateSDUpscale extra names (copy JSON arrays); native Ostris port;
+        free disk on D: for ~45–60 GB models.
+      </div>
+    </section>
+
+    <section id="pipeline">
+      <h2><span class="num">03</span>Pipeline</h2>
+      <h3>Phase 1 inputs (three first-class modes)</h3>
+      <div class="mode-grid">
+        <figure class="fig">
+          <img src="media/matrix3d-i2p.png" alt="Single 2D photo lifted toward a 3D scene" />
+          <figcaption><strong>2D Images</strong> (default) — warp a photo onto green ERP, then Krea outpaint. <a href="https://github.com/SkyworkAI/Matrix-3D">Matrix-3D</a></figcaption>
+        </figure>
+        <figure class="fig erp">
+          <img src="media/polyhaven-venice.png" alt="Poly Haven Venice Sunset equirectangular HDRI" />
+          <figcaption><strong>360 Images</strong> — load an existing 2:1 ERP. Skips Krea. <a href="https://polyhaven.com/hdris">Poly Haven</a></figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/krea2-hero.jpg" alt="Krea 2 generated imagery for text-to-pano" />
+          <figcaption><strong>text</strong> — Krea 2 Turbo + 360 T2I LoRA. <a href="https://www.krea.ai/blog/krea-2-technical-report">Krea 2</a></figcaption>
+        </figure>
+      </div>
+      <figure class="fig contain">
+        <img src="media/matrix3d-overview.png" alt="Matrix-3D overview: mesh-conditioned panoramic video lifted to an explorable 3D Gaussian world" />
+        <figcaption>
+          After the 8K ERP: mesh-conditioned panoramic video, then lift to 3DGS.
+          Source: <a href="https://matrix-3d.github.io/">matrix-3d.github.io</a>
+          · <a href="https://arxiv.org/abs/2508.08086">arXiv:2508.08086</a>
+        </figcaption>
+      </figure>
+      <div class="pipeline-visual">
+        <a class="pvis" href="Votion_3DGS_2.0_Phase1.html">
+          <img src="media/matrix3d-arxiv-teaser.png" alt="Input image, panoramic video, 3D scene" />
+          <span><b>A · P1 pano</b> 2D / 360 / text → 8K ERP</span>
+        </a>
+        <a class="pvis" href="Votion_3DGS_2.0_Phase2.html">
+          <img src="media/moge-overview.png" alt="MoGe monocular geometry overview" />
+          <span><b>B · P2 MoGe</b> Compute geometry + one rail</span>
+        </a>
+        <a class="pvis" href="Votion_3DGS_2.0_Phase3.html">
+          <img src="media/wan-i2v.png" alt="Wan 2.1 image-to-video results" />
+          <span><b>C · P3 WAN</b> 720p hole-fill</span>
+        </a>
+        <a class="pvis" href="Votion_3DGS_2.0_Phase3.html">
+          <img src="media/matrix3d-mesh.png" alt="Matrix-3D mesh-render camera condition" />
+          <span><b>D · HiRes</b> 8K reprojection</span>
+        </a>
+        <a class="pvis" href="Votion_3DGS_2.0_Phase2.html">
+          <img src="media/colmap-sparse.webp" alt="COLMAP sparse reconstruction" />
+          <span><b>E · SphereSfM</b> COLMAP pinholes</span>
+        </a>
+        <a class="pvis" href="Votion_3DGS_2.0_Phase4.html">
+          <img src="media/mlslabs-render.jpg" alt="MLSLabsRenderer Unreal Engine splat playback" />
+          <span><b>F · Splat</b> ply → Unreal 5.5</span>
+        </a>
+      </div>
+      <div class="pipe">
+        <div class="pipe-node"><b>A P1</b>2D / 360 / text → 8K ERP</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><b>B P2</b>Compute geometry · 1 rail · SfM</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><b>C P3</b>WAN 720p hole-fill</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><b>D</b>HiRes 8K geometry</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><b>E</b>SphereSfM pinholes</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node out"><b>F</b>splat.ply → UE 5.5</div>
+      </div>
+      <p>
+        Dummy of the P0 window (V1 left-rail chrome + six P0 page names). Click through
+        <a href="Votion_3DGS_2.0_Phase0.html">P0</a>–<a href="Votion_3DGS_2.0_Phase4.html">P4</a> for each page.
+      </p>
+      <div class="desk">
+        <div class="desk-win"><span><strong>Votion 3DGS</strong></span><span class="wbtn">— □ ×</span></div>
+        <div class="desk-brand">
+          <h3>Votion 3DGS</h3>
+          <span class="live">idle</span>
+          <div class="desk-meta"><span>Quality</span><span>GPU 0</span></div>
+        </div>
+        <div class="desk-stages">
+          <a class="on" href="Votion_3DGS_2.0_Phase0.html">Home</a>
+          <a href="Votion_3DGS_2.0_Phase1.html">Panorama</a>
+          <a href="Votion_3DGS_2.0_Phase2.html#geo">Geometry</a>
+          <a href="Votion_3DGS_2.0_Phase3.html#gen-ui">Generate</a>
+          <a href="Votion_3DGS_2.0_Phase2.html#recon">Reconstruct</a>
+          <a href="Votion_3DGS_2.0_Phase4.html">Splat</a>
+        </div>
+        <div class="desk-body">
+          <div class="desk-rail">
+            <label class="f-lab">Scene</label>
+            <input class="f-in" value="alpine_01" readonly />
+            <div class="f-row">
+              <button class="f-btn pri" type="button">Download models</button>
+              <button class="f-btn ghost" type="button">Stop</button>
+            </div>
+          </div>
+          <div class="desk-view">
+            <p class="view-lbl">Happy path</p>
+            <p class="f-hint">2D Images (or 360 / text) → 8K ERP → Compute geometry → rails → Generate → splat.ply. 2D Generate waits on Ostris.</p>
+          </div>
+        </div>
+        <div class="desk-draws">
+        <details class="desk-log-draw"><summary>Log</summary><div class="desk-log"><b>STATUS // idle</b><br />No ComfyUI. No WSL. Qt never imports torch for inference.</div></details>
+        <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
+          <b>FIELD GUIDE</b><br />
+          2D Images (default) or 360 / text → 8K ERP → Compute geometry → rails → Generate → splat.ply.
+          Ostris blocks 2D Generate until READY. h_fov 70. text keeps the trigger prefix.
+          After 2D Images, prompt.txt = outpaint instruction + surroundings. WAN prompt must match the pano.
+          Preview the mesh flight. Four rails usually enough. Do not skip 8K. Extra rails do not fix glass.
+        </div></details>
+        </div>
+      </div>
+      <div class="callout good">
+        Hard rules from the Mickmumpitz video: WAN is capped at 720p / 1440×720 ERP (structure OK, softness is the problem).
+        Sharpness is the 8K reprojection trick, not a bigger video model and <strong>not SeedVR</strong> (tried; slow; little gain).
+        All rails start at the pano-center star so that 8K texture can reproject. Preview the mesh flight before a 14B run.
+        Four rails is usually enough; extra rails buy volume, not sharper views, and do not fix glass.
+        Keep view-dependent reflections (why 3DGS, why Marble was rejected).
+      </div>
+      <p>
+        V1 is not upgraded. Do not re-open: slice-and-SHARP (seams + non-commercial), UniSHARP (falls apart off-center),
+        HY-World 2.0 (two huge models, four GPUs), Lyra (91 GB, Linux, ~6 min start), Marble (closed, small roam, dead reflections).
+        Selected path: Matrix-3D LoRA on Wan 2.1, trained with a UE5 360° drone across 500 game worlds.
+      </p>
+      <div class="fig-grid">
+        <figure class="fig">
+          <img src="media/matrix3d-scene-a.png" alt="Matrix-3D generated scene still A" />
+          <figcaption>Explorable scene sample. <a href="https://matrix-3d.github.io/">Matrix-3D</a></figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/matrix3d-scene-b.png" alt="Matrix-3D generated scene still B" />
+          <figcaption>Second sample from the same project page.</figcaption>
+        </figure>
+        <figure class="fig contain">
+          <img src="media/matrix3d-pano-vs-pers.png" alt="Panoramic versus perspective coverage comparison from Matrix-3D" />
+          <figcaption>Why ERP coverage beats a perspective crop. <a href="https://arxiv.org/abs/2508.08086">arXiv:2508.08086</a></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="tree">
+      <h2><span class="num">04</span>Target tree</h2>
+      <pre>D:\Votion3DGS\
+  app\                 PySide6
+  engine\              pipeline + workers (subprocess isolation)
+  vendor\splatkit\     core/ + shim/ (MIT, no ComfyUI imports)
+  vendor\moge\
+  bin\                 colmap_sphere.exe
+  models\              HF downloads
+  outputs\&lt;scene&gt;\
+  docs\                these phase plans
+  tools\               download_models.py, model_manifest.json
+  requirements.lock    written in Phase 0 — not invented now</pre>
+    </section>
+
+    <section id="models">
+      <h2><span class="num">05</span>Model files</h2>
+      <p>
+        Filenames and URLs copied from MarkdownNote nodes in
+        <code>d:\AI_3DGS\260825_MICKMUMPITZ_Krea2-360Pano-Creator_1-0.json</code> and
+        <code>d:\AI_3DGS\260825_MICKMUMPITZ_3DGS-Dataset-Creator_1-0_SMPL.json</code>.
+        Sizes are omitted unless a source stated them.
+      </p>
+      <h3>Panorama (Phase 1; downloader can fetch in Phase 0)</h3>
+      <table>
+        <thead><tr><th>File</th><th>Folder</th><th>Source</th></tr></thead>
+        <tbody>
+          <tr><td><code>krea2_turbo_fp8_scaled.safetensors</code></td><td>diffusion_models</td><td><a href="https://huggingface.co/Comfy-Org/Krea-2/resolve/main/diffusion_models/krea2_turbo_fp8_scaled.safetensors">Comfy-Org/Krea-2</a></td></tr>
+          <tr><td><code>krea2_t2i_360_erp_lora_v1.safetensors</code></td><td>loras</td><td><a href="https://huggingface.co/mickmumpitz/Krea2-360-ERP-LoRAs/resolve/main/krea2_t2i_360_erp_lora_v1.safetensors">Krea2-360-ERP-LoRAs</a></td></tr>
+          <tr><td><code>krea2_oedit_360_erp_outpaint_lora_v1.safetensors</code></td><td>loras</td><td><a href="https://huggingface.co/mickmumpitz/Krea2-360-ERP-LoRAs/resolve/main/krea2_oedit_360_erp_outpaint_lora_v1.safetensors">same repo</a></td></tr>
+          <tr><td><code>qwen3vl_4b_fp8_scaled.safetensors</code></td><td>text_encoders</td><td><a href="https://huggingface.co/Comfy-Org/Krea-2/resolve/main/text_encoders/qwen3vl_4b_fp8_scaled.safetensors">Comfy-Org/Krea-2</a></td></tr>
+          <tr><td><code>wan_2.1_vae.safetensors</code></td><td>vae</td><td><a href="https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/vae/wan_2.1_vae.safetensors">Comfy-Org Wan 2.1</a></td></tr>
+          <tr><td><code>RealESRGAN_x2.pth</code></td><td>upscale_models</td><td><a href="https://huggingface.co/ai-forever/Real-ESRGAN/resolve/main/RealESRGAN_x2.pth">ai-forever/Real-ESRGAN</a></td></tr>
+        </tbody>
+      </table>
+      <p>Optional nvfp4 Krea file is for RTX 50xx — <strong>not</strong> the 3090 Quality default.</p>
+      <h3>Video / dataset (Phase 3)</h3>
+      <table>
+        <thead><tr><th>File</th><th>Folder</th><th>Source</th></tr></thead>
+        <tbody>
+          <tr><td><code>Wan2_1-I2V-14B-720P_fp8_e4m3fn.safetensors</code></td><td>diffusion_models</td><td><a href="https://huggingface.co/Kijai/WanVideo_comfy/blob/main/Wan2_1-I2V-14B-720P_fp8_e4m3fn.safetensors">Kijai/WanVideo_comfy</a></td></tr>
+          <tr><td><code>pano_video_gen_720p_comfy.safetensors</code></td><td>loras</td><td><a href="https://huggingface.co/mickmumpitz/Wan2.1-Pano360-LoRA/blob/main/pano_video_gen_720p_comfy.safetensors">mickmumpitz Pano360 LoRA</a></td></tr>
+          <tr><td><code>lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank64_bf16.safetensors</code></td><td>loras</td><td><a href="https://huggingface.co/Kijai/WanVideo_comfy/blob/main/Lightx2v/lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank64_bf16.safetensors">Kijai Lightx2v</a></td></tr>
+          <tr><td><code>umt5_xxl_fp8_e4m3fn_scaled.safetensors</code></td><td>text_encoders</td><td><a href="https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/blob/main/split_files/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors">Comfy-Org</a></td></tr>
+          <tr><td><code>clip_vision_h.safetensors</code></td><td>clip_vision</td><td><a href="https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/blob/main/split_files/clip_vision/clip_vision_h.safetensors">Comfy-Org</a></td></tr>
+          <tr><td><code>4x-UltraSharp.pth</code></td><td>upscale_models</td><td><a href="https://huggingface.co/Kim2091/UltraSharp/blob/main/4x-UltraSharp.pth">Kim2091/UltraSharp</a></td></tr>
+        </tbody>
+      </table>
+      <p>
+        GGUF Q4 is the workflow’s 16GB option — not the 3090 Quality default.
+        MoGe: <code>Ruicheng/moge-vitl</code> <code>model.pt</code> (Phase 2 subset).
+        SphereSfM: <code>colmap_sphere.exe</code> with SplatKit’s SHA check — do not invent a hash.
+        Florence-2 (optional P1 caption): Microsoft Florence-2, Apache-2.0. Exact repo id/revision unknown until first successful P1 install — write it into <code>model_manifest.json</code>. Do not invent a quantized fork.
+      </p>
+    </section>
+
+    <section id="vram">
+      <h2><span class="num">06</span>VRAM profiles</h2>
+      <table>
+        <thead><tr><th>Profile</th><th>Assumption</th><th>WAN</th><th>HiRes</th><th>Rails</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Quality</strong> (locked)</td><td>RTX 3090 24GB</td><td>14B fp8 720p + LightX2V</td><td>8K geometry</td><td>4</td></tr>
+          <tr><td>Fast</td><td>16GB class</td><td>GGUF Q4 or Matrix-3D 5B</td><td>8K optional</td><td>2–4</td></tr>
+          <tr><td>Scout</td><td>12GB class</td><td>5B or skip WAN</td><td>skip</td><td>1–2</td></tr>
+        </tbody>
+      </table>
+      <p>Matrix-3D PanoLRM (~80GB in their README) is out of 2.0.</p>
+    </section>
+
+    <section id="visuals">
+      <h2><span class="num">07</span>Visual sources (from Org_Idea.md)</h2>
+      <p>
+        Stills grabbed from the project pages and repos listed in
+        <a href="Org_Idea.md">Org_Idea.md</a>. They illustrate the idea — they are not Votion UI mocks.
+      </p>
+      <h3>Selected pipeline (in 2.0)</h3>
+      <div class="fig-grid">
+        <figure class="fig">
+          <img src="media/krea2-hero.jpg" alt="Krea 2 generated imagery" />
+          <figcaption><a href="https://www.krea.ai/blog/krea-2-technical-report">Krea 2</a> — P1 generate</figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/florence2-hf.png" alt="Microsoft Florence-2 on Hugging Face" />
+          <figcaption><a href="https://huggingface.co/microsoft/Florence-2-large">Florence-2</a> — optional 2D caption</figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/moge-overview.png" alt="MoGe geometry overview" />
+          <figcaption><a href="https://github.com/microsoft/MoGe">MoGe</a> — P2 mesh</figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/wan-i2v.png" alt="Wan 2.1 image-to-video" />
+          <figcaption><a href="https://github.com/Wan-Video/Wan2.1">Wan 2.1</a> — P3 hole-fill</figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/lightx2v.png" alt="LightX2V distillation overview" />
+          <figcaption><a href="https://github.com/ModelTC/LightX2V">LightX2V</a> distill LoRA</figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/mlslabs-render.jpg" alt="MLSLabsRenderer Unreal splat" />
+          <figcaption><a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE">MLSLabsRenderer</a> — UE 5.5</figcaption>
+        </figure>
+      </div>
+      <h3>Evaluated, not selected (stay archived)</h3>
+      <div class="fig-grid">
+        <figure class="fig">
+          <img src="media/sharp-teaser.jpg" alt="Apple SHARP single-image Gaussian view synthesis" />
+          <figcaption><a href="https://apple.github.io/ml-sharp/">Apple SHARP</a> — non-commercial</figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/unisharp-og.png" alt="Insta360 UniSHARP GitHub preview" />
+          <figcaption><a href="https://github.com/Insta360-Research-Team/UniSHARP">UniSHARP</a> — off-center geometry breaks</figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/hyworld-og.png" alt="Tencent HY-World 2.0 GitHub preview" />
+          <figcaption><a href="https://github.com/Tencent-Hunyuan/HY-World-2.0">HY-World 2.0</a> — four GPUs</figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/lyra-method.png" alt="NVIDIA Lyra method diagram" />
+          <figcaption><a href="https://github.com/nv-tlabs/lyra">NVIDIA Lyra</a> — 91 GB, Linux</figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/marble-og.jpeg" alt="World Labs Marble" />
+          <figcaption><a href="https://marble.worldlabs.ai/">World Labs Marble</a> — closed; small roam; no reflections</figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/seedvr-teaser.png" alt="ByteDance SeedVR teaser" />
+          <figcaption><a href="https://github.com/ByteDance-Seed/SeedVR">SeedVR2</a> — tried; slow; P5 only</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="p5">
+      <h2><span class="num">08</span>P5 stretch (not a 2.0 blocker)</h2>
+      <ul>
+        <li>Matrix-3D 5B as default Fast path</li>
+        <li>SeedVR2 as an experiment only — video: slow, little gain; not a substitute for 8K reprojection</li>
+        <li>Matrix-3D optimization reconstruction as an advanced alternative to SphereSfM</li>
+        <li>macOS: SplatKit SphereSfM is Windows/Linux only today</li>
+      </ul>
+      <figure class="fig">
+        <img src="media/seedvr-teaser.png" alt="SeedVR restoration teaser" />
+        <figcaption>SeedVR teaser — P5 experiment only. Source: <a href="https://github.com/ByteDance-Seed/SeedVR">ByteDance-Seed/SeedVR</a></figcaption>
+      </figure>
+    </section>
+
+    <footer>
+      Votion 3DGS 2.0 · also at <code>D:\Votion3DGS\docs</code> · markdown siblings in this folder
+      · stills from sources in <a href="Org_Idea.md">Org_Idea.md</a>
+    </footer>
+  </div>
+</body>
+</html>

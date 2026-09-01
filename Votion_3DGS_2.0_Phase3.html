@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Votion 3DGS 2.0 — Phase 3 Dataset</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="votion-plan.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <p class="eyebrow">Phase 3 · Depends on P2 splat plumbing + P1 8K pano</p>
+      <h1>WAN, 8K reprojection, multi-rail SfM</h1>
+      <p class="tagline">Native port of the Mickmumpitz dataset graph. Four drones, 720p hole-fill, 8K geometry composite. There is no camera count that produces a perfect scan.</p>
+    </header>
+    <nav class="phases">
+      <a href="Votion_3DGS_2.0_Index.html">Index</a>
+      <a href="Votion_3DGS_2.0_Phase0.html">P0 Skeleton</a>
+      <a href="Votion_3DGS_2.0_Phase1.html">P1 Pano</a>
+      <a href="Votion_3DGS_2.0_Phase2.html">P2 Splat</a>
+      <a class="here" href="Votion_3DGS_2.0_Phase3.html">P3 Dataset</a>
+      <a href="Votion_3DGS_2.0_Phase4.html">P4 Product</a>
+    </nav>
+    <nav class="toc">
+      <a href="#locked">01 Locked</a>
+      <a href="#cameras">02 How many cameras</a>
+      <a href="#geo-ui">03 Geometry UI</a>
+      <a href="#wan">04 WAN hole-fill</a>
+      <a href="#gen-ui">05 Generate UI</a>
+      <a href="#hires">06 HiRes</a>
+      <a href="#accept">07 Acceptance</a>
+    </nav>
+
+    <figure class="fig contain">
+      <img src="media/matrix3d-arxiv-overview.png" alt="Matrix-3D paper overview of panoramic video generation and 3D lift" />
+      <figcaption>
+        Paper overview of the dataset idea Votion ports natively.
+        Source: <a href="https://arxiv.org/abs/2508.08086">Matrix-3D arXiv:2508.08086</a>
+      </figcaption>
+    </figure>
+
+    <section id="locked">
+      <h2><span class="num">01</span>Locked facts</h2>
+      <p>
+        Source graph: <code>docs/260825_MICKMUMPITZ_3DGS-Dataset-Creator_1-0_SMPL.json</code>
+        (<code>last_node</code> 175, 77 nodes). Groups: SETUP, LOAD DIFFUSION MODELS, CAMERA PLOT 1–4, WAN INPAINT ×4, ADD TO DATASET.
+      </p>
+      <ul>
+        <li>Quality: WAN 2.1 I2V <strong>14B fp8 720p</strong> + LightX2V on RTX 3090 24GB. GGUF loader in the graph is for ≤16 GB cards, not this GPU.</li>
+        <li>LoRA order from JSON links 1 → 2 → 4: UNET fp8 → <strong>pano LoRA 0.98</strong> → <strong>LightX2V 1.0</strong> → <code>ModelSamplingSD3</code> shift <strong>5</strong>.</li>
+        <li>Wan Conditioning widgets <code>[1440, 720, 81, 'black', False]</code> = width, height, length, <code>hole_fill</code>, <code>invert_mask</code>.</li>
+        <li>KSampler stored steps widget is 4; <strong>linked STEPS = 8</strong> (PrimitiveInt id 55). Seed 0, cfg 1, <code>euler</code>, <code>normal</code>, denoise 1.</li>
+        <li>HiRes: <code>base_mode=geometry</code>, <code>output_width=8192</code>, frames <code>0-80/2</code> (graph + node default). <code>0-15,16-/8</code> is an optional preset, not a silent substitute.</li>
+        <li>Four Plot Camera nodes; optional 5th via Add-to-dataset. Each rail owns <code>rail_json</code>.</li>
+        <li>Empty <code>prompt.txt</code> → block WAN. Graph generic positive is not a silent replacement for the scene.</li>
+        <li>SageAttention / Triton-Windows: try; continue if missing. If Sage is on, apply the black-frame patch (vendor pin).</li>
+        <li>Do not use SeedVR as the sharpness path. Sharpness is 8K geometry composite. Do not shell out to ComfyUI.</li>
+      </ul>
+      <div class="callout warn">
+        Native WAN i2v is the largest P3 unknown. Port Diffusers WanPipeline or Matrix-3D video code on Windows (their README is Linux-tested).
+      </div>
+      <div class="fig-grid">
+        <figure class="fig">
+          <img src="media/wan-i2v.png" alt="Wan 2.1 image-to-video result grid" />
+          <figcaption><a href="https://github.com/Wan-Video/Wan2.1">Wan 2.1</a> I2V — 720p cap</figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/lightx2v.png" alt="LightX2V step-distill method figure" />
+          <figcaption><a href="https://github.com/ModelTC/LightX2V">LightX2V</a> — why steps = 8</figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/wan-arch.jpg" alt="Wan video DiT architecture diagram" />
+          <figcaption>Wan DiT architecture. Same repo.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="cameras">
+      <h2><span class="num">02</span>How many camera sets</h2>
+      <p>
+        <strong>There is no count that produces a perfect scan.</strong>
+        Extra rails do not raise per-view fidelity — every path reprojects the same MoGe depth.
+        They buy explorable volume (SplatKit measured six paths reaching 1.12 from the anchor vs 0.80).
+        Glass, mirrors, and depth silhouettes stay MoGe failures no matter how many drones you add.
+        Shorter travel per rail plus more rails beats one long rail: 8K coverage decays as you leave the origin
+        (garden example: 0.85 at frame 0 → 0.49 at frame 80).
+      </p>
+      <figure class="fig">
+        <img src="media/matrix3d-dataset.png" alt="Matrix-Pano synthetic dataset samples — many 360 drone paths" />
+        <figcaption>
+          Matrix-3D trained the pano LoRA by flying a 360° drone through 500 UE5 worlds.
+          Votion reuses that LoRA; we do not re-simulate Unreal.
+          Source: <a href="https://matrix-3d.github.io/">matrix-3d.github.io</a>
+        </figcaption>
+      </figure>
+      <table>
+        <thead><tr><th>Case</th><th>Rails</th><th>Why</th><th>Source</th></tr></thead>
+        <tbody>
+          <tr><td>P2 scout</td><td><strong>1</strong></td><td>Plumbing. Black holes OK.</td><td>P2 lock</td></tr>
+          <tr><td>Quality default</td><td><strong>4</strong></td><td>Graph CAMERA 1–4. Video: “usually more than enough.” Suggest-paths default 4.</td><td>JSON + transcript + <code>path_suggest.py</code></td></tr>
+          <tr><td>Optional extra</td><td><strong>+1</strong></td><td>Add-to-dataset node. HiRes <code>auto_name=True</code>.</td><td>JSON</td></tr>
+          <tr><td>Suggest-paths cap</td><td>≤ 8</td><td><code>suggest_paths</code> clamps count to 8.</td><td>SplatKit</td></tr>
+          <tr><td>Hero (pond, statue)</td><td>4, one of them <code>look_at_target</code></td><td>Video: circle / aim at a pond. Graph camera 1.</td><td>Transcript + node 27</td></tr>
+          <tr><td>High then descend</td><td>One <code>crane-rise</code></td><td>Video extra-drone example.</td><td>Transcript + suggest</td></tr>
+          <tr><td>Corridor</td><td><code>push-in</code> <code>look_forward</code></td><td>Along the open azimuth, stay in clearance.</td><td>Suggest archetype 1</td></tr>
+          <tr><td>Open garden / plaza</td><td>4 short rails, not one long path</td><td>Coverage dies at the far end of a long rail.</td><td>HiRes known limits</td></tr>
+          <tr><td>Glass / mirrors</td><td>Do not add rails expecting a fix</td><td>Same wrong depth, more views. Water stays view-dependent after train.</td><td>HiRes + video pond</td></tr>
+        </tbody>
+      </table>
+      <h3>Suggest-path archetypes (SplatKit, all start at the star)</h3>
+      <table>
+        <thead><tr><th>#</th><th>Label</th><th>Look</th><th>Motion</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><code>push-in</code></td><td><code>look_forward</code></td><td>S-dolly into the most open direction</td></tr>
+          <tr><td>2</td><td><code>arc-sweep</code></td><td><code>look_forward</code></td><td>Lateral S-arc while advancing</td></tr>
+          <tr><td>3</td><td><code>crane-rise</code></td><td><code>per_point_look</code></td><td>Rise while pushing in; aim on the wall ahead</td></tr>
+          <tr><td>4</td><td><code>pull-back</code></td><td><code>per_point_look</code></td><td>Retreat, hold aim forward (reveal)</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Quality default on first P3 open: copy the four SMPL knot sets (studio-garden demo), not a blank editor.
+        <strong>Suggest paths</strong> is the “fit this room” button — same as SplatKit “✦ Suggest paths (all selected)”.
+        Do not overwrite Confirm’d rails without asking.
+      </p>
+      <h3>SMPL demo rails (first knot always origin)</h3>
+      <p>All <code>length=81</code>, <code>moge_level=9</code>.</p>
+      <p><strong>Rail 0</strong> node 27 · <code>look_at_target</code> <code>-0.108, 0.073, 1.953</code></p>
+      <pre>0.000, 0.000, 0.000
+0.199, 0.219, 0.488
+-0.184, -0.093, 0.920
+-0.065, 0.039, 1.404</pre>
+      <p><strong>Rail 1</strong> node 122 · <code>per_point_look</code> (6-float lines)</p>
+      <pre>0.000, 0.000, 0.000, 0.386, 0.021, 1.085
+0.430, 0.021, 0.843, 1.784, 0.043, 1.931
+0.819, 0.043, -0.292, 2.525, 0.032, -0.347
+0.808, 0.032, -1.413, 2.411, 0.021, -1.983</pre>
+      <p>Rails 2–4 are in the <a href="Votion_3DGS_2.0_Phase3.md">markdown</a> (nodes 133, 144, optional 157). Copy them; do not invent a fifth path schema.</p>
+    </section>
+
+    <section id="geo-ui">
+      <h2><span class="num">03</span>Geometry page in P3 (dummy)</h2>
+      <p>
+        Same Compute geometry chrome as <a href="Votion_3DGS_2.0_Phase2.html">Phase 2</a>.
+        P3 adds four rail slots, Suggest paths, and optional Add rail.
+        <code>moge_level</code> is shared (graph uses 9 on every Plot Camera).
+      </p>
+      <div class="desk">
+        <div class="desk-win"><span><strong>Votion 3DGS</strong></span><span class="wbtn">— □ ×</span></div>
+        <div class="desk-brand">
+          <h3>Votion 3DGS</h3>
+          <span class="live">geometry</span>
+          <div class="desk-meta"><span>4 rails</span><span>moge_level 9</span></div>
+        </div>
+        <div class="desk-stages">
+          <a class="done" href="Votion_3DGS_2.0_Phase0.html">Home</a>
+          <a class="done" href="Votion_3DGS_2.0_Phase1.html">Panorama</a>
+          <a class="on" href="Votion_3DGS_2.0_Phase3.html#geo-ui">Geometry</a>
+          <a href="Votion_3DGS_2.0_Phase3.html#gen-ui">Generate</a>
+          <a href="Votion_3DGS_2.0_Phase2.html#recon">Reconstruct</a>
+          <a href="Votion_3DGS_2.0_Phase4.html">Splat</a>
+        </div>
+        <div class="desk-body">
+          <div class="desk-rail">
+            <div class="f-row">
+              <button class="f-btn ghost" type="button">Compute geometry</button>
+              <button class="f-btn" type="button">Suggest paths</button>
+            </div>
+            <label class="f-lab">Active rail</label>
+            <select class="f-sel" disabled>
+              <option selected>1 look_at_target · pond</option>
+              <option>2 per_point_look</option>
+              <option>3 per_point_look</option>
+              <option>4 per_point_look</option>
+            </select>
+            <label class="f-lab">Look</label>
+            <select class="f-sel" disabled>
+              <option selected>look_at_target</option>
+              <option>look_forward</option>
+              <option>per_point_look</option>
+            </select>
+            <label class="f-lab">Anchors</label>
+            <textarea class="f-ta" readonly>0.000, 0.000, 0.000
+0.199, 0.219, 0.488
+-0.184, -0.093, 0.920
+-0.065, 0.039, 1.404</textarea>
+            <div class="f-row">
+              <button class="f-btn ghost" type="button">+ Add rail</button>
+            </div>
+            <div class="f-row">
+              <button class="f-btn pri" type="button">Confirm rails</button>
+            </div>
+            <p class="f-hint">Active rail solid on FLOOR/SIDE; others dimmed. Star locked. Confirm gates Generate.</p>
+          </div>
+          <div class="desk-view">
+            <div class="geo-view">
+              <div class="rail-pair" data-mode="look_at_target">
+                <div class="rail-panel" data-view="floor">
+                  <span class="lbl">FLOOR X → Z ↑ · drag 1–3 + orange look-at</span>
+                  <div class="rail-tools">
+                    <button type="button" class="rail-mini">geo</button>
+                    <button type="button" class="rail-mini">reset view</button>
+                  </div>
+                  <div class="rail-cloud floor"></div>
+                  <svg class="rail-svg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+                  <span class="rail-hint">★ 0 = pano origin (locked) · red 1–3 draggable · cyan arrow = look</span>
+                </div>
+                <div class="rail-panel" data-view="side">
+                  <span class="lbl">SIDE Z → Y ↑</span>
+                  <div class="rail-tools">
+                    <button type="button" class="rail-mini">geo</button>
+                    <button type="button" class="rail-mini">reset view</button>
+                  </div>
+                  <div class="rail-cloud side"></div>
+                  <svg class="rail-svg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+                </div>
+              </div>
+              <div class="preview-flight">
+                <span class="lbl">Preview flight</span>
+                <button class="play" type="button">Play</button>
+                <img src="media/geo-preview-overall.png" alt="Preview flight — overall street view" />
+              </div>
+            </div>
+            <p class="f-hint">Active rail solid; others dimmed (dummy shows one rail). Star locked. Drag cameras 1–3 and the orange look-at. Play lives on the Preview flight pane.</p>
+          </div>
+        </div>
+        <div class="desk-draws">
+        <details class="desk-log-draw"><summary>Log</summary><div class="desk-log"><b>STATUS // geometry</b><br />Four clips usually enough. Preview mesh flight before a 14B run.</div></details>
+        <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
+          <b>GEOMETRY</b><br />
+          Four rails (+ optional 5th). Suggest paths fits this room (cap 8). Active rail solid; others dimmed.
+          Extra rails buy volume, not sharper views, and do not fix glass.
+          Preview the mesh flight before a 14B run. Confirm gates Generate.
+        </div></details>
+        </div>
+      </div>
+      <p class="desk-cap">Dummy of P3 Geometry. Video extras (pond orbit, high-then-descend) are Suggest-path archetypes or edited knots — not extra unnamed dropdowns.</p>
+      <div class="fig-grid">
+        <figure class="fig contain">
+          <img src="media/moge-pano-pipeline.png" alt="MoGe panorama pipeline" />
+          <figcaption>Compute geometry. <a href="https://github.com/microsoft/MoGe">MoGe</a></figcaption>
+        </figure>
+        <figure class="fig contain">
+          <img src="media/matrix3d-mesh.png" alt="Mesh render used as video-generation condition" />
+          <figcaption>Plot Camera control (holes still black). <a href="https://arxiv.org/abs/2508.08086">Matrix-3D</a></figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/polyhaven-venice.png" alt="Equirectangular 360 environment" />
+          <figcaption>The 8K pano every rail must start from.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="wan">
+      <h2><span class="num">04</span>How WAN fills missing area</h2>
+      <p>
+        One panorama cannot constrain a 3D scene. The pack invents the missing viewpoints, then reconstructs them with classical SfM.
+      </p>
+      <div class="pipe">
+        <div class="pipe-node"><b>Control</b>mesh reproject · black = unseen · mask white=known</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><b>Mask I2V</b>1440×720 · 81 · hole_fill black</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><b>Sample</b>8 steps · cfg 1 · euler · pano LoRA then LightX2V</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><b>HiRes geo</b>8K pano back · WAN only in holes</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node out"><b>SfM</b>dual-res COLMAP pinholes</div>
+      </div>
+      <figure class="fig contain">
+        <img src="media/matrix3d-mesh.png" alt="Mesh-conditioned camera path with disocclusions" />
+        <figcaption>
+          Step 1: mesh flight. Holes are the assignment WAN gets — not a defect to hide.
+          Flying through a wall is allowed; Wan invents a fitting far side (video). Preview so that is intentional.
+        </figcaption>
+      </figure>
+      <div class="fig-grid">
+        <figure class="fig">
+          <img src="media/wan-i2v.png" alt="Wan 2.1 filling motion from a still" />
+          <figcaption>Step 3: Wan 2.1 I2V. Stays 1440×720.</figcaption>
+        </figure>
+        <figure class="fig contain">
+          <img src="media/matrix3d-pano-vs-pers.png" alt="Panoramic versus perspective coverage" />
+          <figcaption>Why the clip is ERP, not perspective.</figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/matrix3d-scene-a.png" alt="Explorable scene after panoramic video lift" />
+          <figcaption>After train: explorable 3DGS, specular still view-dependent (video pond).</figcaption>
+        </figure>
+      </div>
+      <h3>Prompts</h3>
+      <p>
+        SplatKit README: the prompt must describe the <em>actual</em> panorama — a wrong prompt visibly degrades the holes.
+        Product: <strong>positive = <code>prompt.txt</code></strong>. Empty → block Generate.
+        Graph generic (id 10) is an optional style suffix, not a silent replacement:
+      </p>
+      <pre>A high quality panoramic video of the scene, photorealistic, very clear, smooth camera movement, ultra-detailed, high resolution. Panorama.</pre>
+      <p>Negative (id 11), copy as-is:</p>
+      <pre>The video is not of a high quality, it has a low resolution. Distortion. strange artifacts.</pre>
+      <h3>What the mask means after HiRes</h3>
+      <div class="gate-legend">
+        <span><i class="sw w"></i>white = real 8K photograph</span>
+        <span><i class="sw k"></i>black = WAN fill (5.7× stretch of 720p)</span>
+      </div>
+      <figure class="mask-split">
+        <img src="media/ref-hires-mask-split.png" alt="Split view: HiRes binary gate mask on the left, source 8K equirectangular panorama on the right" />
+        <figcaption>Left = <code>gate_masks</code> after HiRes geometry composite. Right = the 8K pano those whites were reprojected from. White follows building/ground volumes; black is WAN (sky, pond interior, unseen sides).</figcaption>
+      </figure>
+      <p>
+        Coverage is the white fraction. Typical geometry-mode at 8192 (SplatKit bathroom):
+        forward 0.85/0.73, orbit 0.84/0.71, up 0.91/0.86.
+        Coverage ≈ 0 usually means <code>output_width</code> is too small for the 8K source.
+        The hole region measures ~1.7× softer than the source region — coverage is the lever, not a bigger video model.
+      </p>
+    </section>
+
+    <section id="gen-ui">
+      <h2><span class="num">05</span>Generate page (dummy)</h2>
+      <p>One 3090 cannot hold 14B + 8K composite + SfM. Rails <strong>sequential</strong>. Empty <code>prompt.txt</code> blocks Generate.</p>
+      <div class="desk">
+        <div class="desk-win"><span><strong>Votion 3DGS</strong></span><span class="wbtn">— □ ×</span></div>
+        <div class="desk-brand">
+          <h3>Votion 3DGS</h3>
+          <span class="live">wan rail 1</span>
+          <div class="desk-meta"><span>8 steps</span><span>1440×720</span></div>
+        </div>
+        <div class="desk-stages">
+          <a class="done" href="Votion_3DGS_2.0_Phase0.html">Home</a>
+          <a class="done" href="Votion_3DGS_2.0_Phase1.html">Panorama</a>
+          <a class="done" href="Votion_3DGS_2.0_Phase2.html#geo">Geometry</a>
+          <a class="on" href="Votion_3DGS_2.0_Phase3.html#gen-ui">Generate</a>
+          <a href="Votion_3DGS_2.0_Phase2.html#recon">Reconstruct</a>
+          <a href="Votion_3DGS_2.0_Phase4.html">Splat</a>
+        </div>
+        <div class="desk-body">
+          <div class="desk-rail">
+            <label class="f-lab">prompt.txt (required)</label>
+            <textarea class="f-ta" readonly>alpine village, mill, pond</textarea>
+            <label class="f-lab">Seed (WAN)</label>
+            <input class="f-in" value="0" readonly />
+            <label class="f-lab">Style suffix (graph id 10, optional)</label>
+            <textarea class="f-ta" readonly>A high quality panoramic video of the scene, photorealistic, very clear, smooth camera movement, ultra-detailed, high resolution. Panorama.</textarea>
+            <label class="f-lab">Negative (graph id 11)</label>
+            <textarea class="f-ta" readonly>The video is not of a high quality, it has a low resolution. Distortion. strange artifacts.</textarea>
+            <label class="f-lab">HiRes frames</label>
+            <select class="f-sel" disabled>
+              <option selected>0-80/2 (graph default, 41)</option>
+              <option>0-15,16-/8 (SplatKit rec, 25)</option>
+              <option>all (81)</option>
+            </select>
+            <label class="f-lab">Debug save</label>
+            <div class="f-radio">
+              <label><input type="radio" checked disabled /> off (product default)</label>
+              <label><input type="radio" disabled /> all (graph widget; disk-heavy)</label>
+            </div>
+            <div class="f-row">
+              <button class="f-btn pri" type="button">Generate</button>
+              <button class="f-btn ghost" type="button">Stop</button>
+            </div>
+            <div class="f-row">
+              <button class="f-btn" type="button">Open frames folder</button>
+            </div>
+          </div>
+          <div class="desk-view">
+            <p class="view-lbl">Rail progress · sequential on 3090</p>
+            <div class="rail-row active" style="margin-top:0">
+              <span>Rail 1</span>
+              <span>WAN 8/8 · HiRes 12/41 · cov 0.85</span>
+            </div>
+            <div class="progress"><i style="width:62%"></i></div>
+            <div class="rail-row"><span>Rail 2</span><span>queued</span></div>
+            <div class="rail-row"><span>Rail 3</span><span>queued</span></div>
+            <div class="rail-row"><span>Rail 4</span><span>queued</span></div>
+            <p class="view-lbl" style="margin-top:0.7rem">gate_masks after HiRes</p>
+            <div class="gate-legend" style="margin:0.2rem 0 0.4rem">
+              <span><i class="sw w"></i>8K photograph</span>
+              <span><i class="sw k"></i>WAN fill</span>
+            </div>
+            <figure class="mask-split compact" style="margin:0">
+              <img src="media/ref-hires-mask-split.png" alt="HiRes gate mask split with source panorama" />
+            </figure>
+          </div>
+        </div>
+        <div class="desk-draws">
+        <details class="desk-log-draw"><summary>Log</summary><div class="desk-log"><b>STATUS // generate</b><br />engine.workers.wan exits before hires. Then dual-res sfm.</div></details>
+        <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
+          <b>GENERATE</b><br />
+          prompt.txt must describe this pano. Empty blocks WAN. Style suffix is optional. Negative is editable (graph default shown).
+          WAN stays 1440×720. Sharpness is 8K reprojection, not SeedVR. Rails run one at a time on the 3090. Open frames folder for HiRes PNGs.
+        </div></details>
+        </div>
+      </div>
+      <p class="desk-cap">Workers: <code>wan</code> → <code>hires</code> → <code>sfm</code>. 8K PNGs to disk, never one giant GPU tensor. Style suffix and Negative are visible, graph defaults, user may edit.</p>
+    </section>
+
+    <section id="hires">
+      <h2><span class="num">06</span>HiRes (copy, do not “improve”)</h2>
+      <p>
+        WAN repaints the whole frame. Fine for video; expensive for a splat (views disagree → blur).
+        <code>geometry</code> mode: the reprojected 8K <em>is</em> the image wherever the mesh can answer.
+        <code>wan</code> mode is for watching video (low-frequency drift) — not the splat default.
+      </p>
+      <ul>
+        <li><code>output_width</code> must equal source pano width (8192). Smaller minifies 8K away.</li>
+        <li><code>panorama_geometry</code> must be the same pano Plot Camera / WAN saw. A re-upscale collapses coverage (0.51 → 0.04 measured).</li>
+        <li>Use each Plot Camera’s <code>rail_json</code>, not a shared <code>condition_dir</code>.</li>
+        <li>SMPL frames spec <code>0-80/2</code> (41 frames). Optional preset <code>0-15,16-/8</code> (25 frames, budget near origin). <code>all</code> is 81 and ~10× SfM matching work.</li>
+        <li>Graph <code>debug_save='all'</code> is disk-heavy; product maps it to a Debug checkbox default <strong>off</strong>.</li>
+        <li>Plot Camera <code>moge_level=9</code>, HiRes <code>moge_level=6</code> — copy both; do not silently unify.</li>
+        <li>Graph <code>tone_mode='off'</code>. SplatKit default is <code>luma</code>. Copy <code>off</code>.</li>
+        <li>If Phase 1 pano is not 8192 wide: refuse Quality HiRes.</li>
+      </ul>
+      <div class="fig-grid">
+        <figure class="fig">
+          <img src="media/matrix3d-scene-b.png" alt="Second explorable Matrix-3D scene still" />
+          <figcaption>Quality dataset goal: roam, keep reflections. <a href="https://matrix-3d.github.io/">Matrix-3D</a></figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/colmap-sparse.webp" alt="COLMAP sparse reconstruction" />
+          <figcaption>Dual-res SphereSfM → pinhole cube faces. <a href="https://colmap.github.io/">COLMAP</a></figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/lightx2v.png" alt="LightX2V distillation" />
+          <figcaption>Hole-fill is 8 distilled steps, then 4x-UltraSharp on WAN only.</figcaption>
+        </figure>
+      </div>
+      <h3>Models (graph notes)</h3>
+      <table>
+        <thead><tr><th>File</th><th>Role</th></tr></thead>
+        <tbody>
+          <tr><td><code>Wan2_1-I2V-14B-720P_fp8_e4m3fn.safetensors</code></td><td>Quality UNET</td></tr>
+          <tr><td><code>pano_video_gen_720p_comfy.safetensors</code></td><td>Matrix-3D pano LoRA (Comfy keys)</td></tr>
+          <tr><td><code>lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank64_bf16.safetensors</code></td><td>Distill strength 1</td></tr>
+          <tr><td><code>umt5_xxl_fp8_e4m3fn_scaled.safetensors</code></td><td>CLIP type <code>wan</code></td></tr>
+          <tr><td><code>clip_vision_h.safetensors</code></td><td>CLIP-Vision, encode <code>center</code></td></tr>
+          <tr><td><code>wan_2.1_vae.safetensors</code></td><td>VAE</td></tr>
+          <tr><td><code>4x-UltraSharp.pth</code></td><td>Hole-fill upscaler</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="accept">
+      <h2><span class="num">07</span>Acceptance · risks · do not</h2>
+      <ul class="check">
+        <li>Four rails, sequential WAN, four <code>rail_json</code> files that do not overwrite.</li>
+        <li>Optional 5th Add-rail via <code>SphereSfMAddToDatasetDualRes</code> without colliding.</li>
+        <li>WAN resolution measured and recorded in <code>env_report</code> (expect 1440×720 ERP).</li>
+        <li>Empty <code>prompt.txt</code> blocks Generate.</li>
+        <li>HiRes frames 8192×4096; mean coverage logged; not 0.0; <code>gate_masks</code> visible in UI.</li>
+        <li>COLMAP <code>images/</code> are pinhole cube faces, not equirect.</li>
+        <li>In-app train with 3M cap after WAN process has exited, no OOM on 3090.</li>
+        <li>SageAttention missing → log warning, job completes. If Sage is on: no all-black Wan frames.</li>
+        <li>Suggest paths fills four distinct archetypes, all starting at the star.</li>
+      </ul>
+      <ul>
+        <li>14B fp8 + 24GB: LightX2V + fp8 file; unload before HiRes (~11 GB peak in SplatKit doc on a 5090).</li>
+        <li>Do not load Skywork <code>.ckpt</code> without <code>convert_pano_lora.py</code>.</li>
+        <li>Do not stretch WAN to 8K and skip composite. Do not use SeedVR instead of HiRes.</li>
+        <li>Do not enable <code>base_mode=wan</code> as splat default. Do not run PanoLRM.</li>
+        <li>Do not claim extra rails fix glass. Do not default frames to <code>0-15,16-/8</code> while the graph is <code>0-80/2</code>.</li>
+      </ul>
+    </section>
+    <footer>Votion 3DGS 2.0 · Phase 3 · <a href="Votion_3DGS_2.0_Phase3.md">markdown</a></footer>
+  </div>
+  <script src="rail-dummy.js"></script>
+</body>
+</html>

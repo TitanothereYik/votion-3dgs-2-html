@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Votion 3DGS 2.0 — Phase 1 Pano (2D / 360 / text)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="votion-plan.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <p class="eyebrow">Phase 1 · Depends on P0 · Unlocks P2</p>
+      <h1>2D Images / 360 Images / text → 8K ERP</h1>
+      <p class="tagline">
+        Happy path is <strong>one 2D image → a full 3DGS scene</strong>. This phase only makes
+        <code>outputs/&lt;scene&gt;/pano.png</code>.
+      </p>
+    </header>
+    <nav class="phases">
+      <a href="Votion_3DGS_2.0_Index.html">Index</a>
+      <a href="Votion_3DGS_2.0_Phase0.html">P0 Skeleton</a>
+      <a class="here" href="Votion_3DGS_2.0_Phase1.html">P1 Pano</a>
+      <a href="Votion_3DGS_2.0_Phase2.html">P2 Splat</a>
+      <a href="Votion_3DGS_2.0_Phase3.html">P3 Dataset</a>
+      <a href="Votion_3DGS_2.0_Phase4.html">P4 Product</a>
+    </nav>
+    <nav class="toc">
+      <a href="#ui">01 Panorama dummy</a>
+      <a href="#modes">02 Three modes</a>
+      <a href="#pipes">03 Graphs as diagrams</a>
+      <a href="#accept">04 Acceptance</a>
+    </nav>
+
+    <section id="ui">
+      <h2><span class="num">01</span>Panorama page (dummy)</h2>
+      <p>
+        Toggle labels are locked: <strong>2D Images</strong> (default) / <strong>360 Images</strong> / <strong>text</strong>.
+        Click the dummy toggle. Until native Ostris is READY, 2D Images Generate stays disabled — do not run a fake outpaint.
+        Comfy needed a dummy INPUT IMAGE in text mode; <strong>Votion must not</strong>.
+      </p>
+      <div class="desk" aria-label="Dummy Panorama page">
+        <div class="desk-win"><span><strong>Votion 3DGS</strong></span><span class="wbtn">— □ ×</span></div>
+        <div class="desk-brand">
+          <h3>Votion 3DGS</h3>
+          <span class="live">idle</span>
+          <div class="desk-meta"><span>scene alpine_01</span><span>Quality</span></div>
+        </div>
+        <div class="desk-stages">
+          <a class="done" href="Votion_3DGS_2.0_Phase0.html">Home</a>
+          <a class="on" href="Votion_3DGS_2.0_Phase1.html">Panorama</a>
+          <a href="Votion_3DGS_2.0_Phase2.html#geo">Geometry</a>
+          <a href="Votion_3DGS_2.0_Phase3.html#gen-ui">Generate</a>
+          <a href="Votion_3DGS_2.0_Phase2.html#recon">Reconstruct</a>
+          <a href="Votion_3DGS_2.0_Phase4.html">Splat</a>
+        </div>
+        <div class="desk-body">
+          <div class="desk-rail">
+            <label class="f-lab">Input</label>
+            <div class="f-tog" id="mode-tog" role="tablist">
+              <button type="button" class="on" data-mode="2d">2D Images</button>
+              <button type="button" data-mode="360">360 Images</button>
+              <button type="button" data-mode="text">text</button>
+            </div>
+
+            <div class="pane on" id="pane-2d">
+              <label class="f-lab">2D image</label>
+              <div class="f-drop"><img src="media/matrix3d-i2p.png" alt="Example 2D still" /></div>
+              <label class="f-lab">h_fov <span id="hfov-val" style="color:var(--text)">70</span></label>
+              <input class="f-range" id="hfov" type="range" min="30" max="120" value="70" />
+              <p class="f-hint">Live warp on the 2:1 preview. Slider min/max <code>30–120</code> is dummy until Mickmumpitz-Nodes <code>INPUT_TYPES</code>. Other Warp slots unnamed.</p>
+              <label class="f-lab">Surroundings</label>
+              <div class="f-radio" id="surr-radios">
+                <label><input type="radio" name="surr" value="type" checked /> Type a sentence</label>
+                <label><input type="radio" name="surr" value="florence" /> Florence-2 caption, then edit</label>
+              </div>
+              <div class="f-row" id="caption-row" hidden>
+                <button class="f-btn" id="caption-btn" type="button">Caption</button>
+              </div>
+              <textarea class="f-ta" id="surr-box" placeholder="Empty → block Generate"></textarea>
+              <p class="f-hint">Graph demo <code>Professional photography of living room.</code> is demo, not a silent default. Caption runs <code>engine.workers.caption</code> and fills this box. After a successful Generate, <code>prompt.txt</code> = outpaint instruction + space + surroundings. Left pane then switches to the 8K ERP.</p>
+              <label class="f-lab">Seed (IMAGE→PANO)</label>
+              <input class="f-in" value="12345" readonly />
+              <label class="f-lab">Seed (seam INPAINT, node 63)</label>
+              <input class="f-in" value="12345" readonly />
+              <label class="f-lab">Upscaler prompt</label>
+              <input class="f-in" value="High resolution photography" readonly />
+              <div class="f-warn">Ostris Edit not READY — Generate disabled. Use 360 Images or text.</div>
+              <div class="f-row">
+                <button class="f-btn dis" type="button" disabled>Generate</button>
+                <button class="f-btn ghost" type="button">Stop</button>
+              </div>
+            </div>
+
+            <div class="pane" id="pane-360">
+              <label class="f-lab">360 file (2:1 only)</label>
+              <div class="f-drop">Drop ERP · reject non-2:1 · do not letterbox</div>
+              <label class="f-lab">prompt.txt (WAN later)</label>
+              <textarea class="f-ta" readonly>alpine village, mill, pond</textarea>
+              <p class="f-hint">Empty OK in P1. Phase 3 blocks WAN if empty. Store as-is even if not 8192. Quality HiRes refuses other widths unless you Upscale to 8K.</p>
+              <div class="f-row">
+                <button class="f-btn pri" type="button">Use as pano.png</button>
+                <button class="f-btn" type="button">Upscale to 8K</button>
+                <button class="f-btn ghost" type="button">Stop</button>
+              </div>
+            </div>
+
+            <div class="pane" id="pane-text">
+              <label class="f-lab">Trigger prefix (locked)</label>
+              <span class="f-prefix">img-txt-2-360 A full 360 degree equirectangular panorama in 2:1 spherical projection,</span>
+              <textarea class="f-ta" readonly>alpine village with a mill and a small pond</textarea>
+              <p class="f-hint">User sentence after the comma. Empty scene → block Generate. No 2D image in this mode. After Generate, <code>prompt.txt</code> = locked prefix + sentence.</p>
+              <label class="f-lab">prompt.txt (WAN later)</label>
+              <textarea class="f-ta" readonly>img-txt-2-360 A full 360 degree equirectangular panorama in 2:1 spherical projection, alpine village with a mill and a small pond</textarea>
+              <label class="f-lab">Seed (TEXT→PANO)</label>
+              <input class="f-in" value="322344328372862" readonly />
+              <label class="f-lab">Seed (seam INPAINT, node 31)</label>
+              <input class="f-in" value="8" readonly />
+              <label class="f-lab">Upscaler prompt</label>
+              <input class="f-in" value="High resolution photography" readonly />
+              <div class="f-row">
+                <button class="f-btn pri" type="button">Generate</button>
+                <button class="f-btn ghost" type="button">Stop</button>
+              </div>
+            </div>
+          </div>
+          <div class="desk-view">
+            <div class="pano-split">
+              <div>
+                <p class="view-lbl" id="left-lbl">2:1 · live h_fov warp</p>
+                <div class="warp-wrap on" id="warp-wrap">
+                  <div class="fov-stage">
+                    <div class="fov-green" id="warp-preview" style="--patch: 28%">
+                      <span class="fov-cross">+</span>
+                      <div class="fov-window">
+                        <img src="media/matrix3d-i2p.png" alt="2D photo placed on green ERP canvas" />
+                      </div>
+                    </div>
+                    <div class="fov-bar">2048 × 1024</div>
+                  </div>
+                </div>
+                <img class="erp-preview erp-result" id="erp-result" src="media/polyhaven-venice.png" alt="Unwrapped equirectangular still" />
+              </div>
+              <div>
+                <p class="view-lbl">360 · drag to look</p>
+                <div class="sphere-dummy photo" id="sphere-dummy" title="Drag to look around" role="img" aria-label="Dummy 360 viewer"></div>
+              </div>
+            </div>
+            <p class="f-hint" id="view-hint">2D Images: drag h_fov — photo sits in a green 2:1 ERP canvas (Warp). Generate stays blocked until Ostris READY. Right = drag-to-look.</p>
+          </div>
+        </div>
+        <div class="desk-draws">
+        <details class="desk-log-draw"><summary>Log</summary><div class="desk-log" id="pano-log">
+          <b>STATUS // panorama</b><br />
+          engine.workers.pano — one process, then exit. Florence-2 is engine.workers.caption (fills the box only).
+        </div></details>
+        <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
+          <b>PANORAMA</b> · graph how-to (MarkdownNote id 4), Votion labels<br />
+          Pick <strong>2D Images</strong> (photo on the sphere, Ostris + ERP outpaint), <strong>360 Images</strong> (load 2:1 ERP; skip Krea), or <strong>text</strong> (Krea 2 + 360 LoRA).
+          2D Images: load the photo, drag h_fov (live warp on green), one sentence for the surroundings.
+          text: scene sentence after the locked trigger prefix. After Generate, prompt.txt = prefix + sentence.
+          Votion does not need a dummy 2D image in text mode. 2D Generate waits on Ostris.
+        </div></details>
+        </div>
+      </div>
+      <p class="desk-cap">Dummy widgets match the P1 lock list. 2D Images: live h_fov warp on the left (green canvas). 360/text: 2:1 still left, drag-to-look 360 right. Log and Help are drawers. Main seeds and seam seeds are visible.</p>
+    </section>
+
+    <section id="modes">
+      <h2><span class="num">02</span>Three inputs, one output</h2>
+      <div class="mode-grid">
+        <figure class="fig">
+          <img src="media/matrix3d-i2p.png" alt="Single 2D photo as the start of a 3D scene" />
+          <figcaption><strong>2D Images</strong> (default). <a href="https://github.com/SkyworkAI/Matrix-3D">Matrix-3D</a></figcaption>
+        </figure>
+        <figure class="fig erp">
+          <img src="media/polyhaven-venice.png" alt="Equirectangular 360 HDRI" />
+          <figcaption><strong>360 Images</strong>. <a href="https://polyhaven.com/hdris">Poly Haven</a></figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/krea2-hero.jpg" alt="Krea 2 generated panorama-style still" />
+          <figcaption><strong>text</strong>. <a href="https://www.krea.ai/blog/krea-2-technical-report">Krea 2</a></figcaption>
+        </figure>
+      </div>
+      <p>Graph: <code>d:\AI_3DGS\260825_MICKMUMPITZ_Krea2-360Pano-Creator_1-0.json</code>. How-to MarkdownNote id 4 → Panorama help, do not rewrite the meaning.</p>
+      <div class="fig-grid">
+        <figure class="fig">
+          <img src="media/florence2-hf.png" alt="Microsoft Florence-2 model card still" />
+          <figcaption>Optional local captioner. <a href="https://huggingface.co/microsoft/Florence-2-large">Florence-2</a></figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/matrix3d-i2p-b.png" alt="Second 2D-to-scene example" />
+          <figcaption>2D seed is a normal photo, not a 360.</figcaption>
+        </figure>
+        <figure class="fig erp">
+          <img src="media/polyhaven-peppermint.png" alt="Poly Haven Peppermint Powerplant HDRI" />
+          <figcaption>360 Images fixture. Same library.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="pipes">
+      <h2><span class="num">03</span>Graphs as diagrams</h2>
+      <h3>2D Images (blocked until Ostris READY)</h3>
+      <div class="pipe">
+        <div class="pipe-node"><b>Warp</b>h_fov 70 onto green <code>#00ff00</code></div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><b>Ostris</b>outpaint LoRA str 1 + surroundings</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><b>KSampler</b>seed 12345 · 10 · cfg 1 · er_sde</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><b>Seam 63</b>cfg 4 · euler · denoise 0.45 · MODEL_EDIT</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node out"><b>8K tail</b>8192×4096</div>
+      </div>
+      <p>Outpaint instruction (leave as-is):
+        <code>Fill the green spaces according to the image. Outpaint as a seamless 360 equirectangular panorama (2:1). Keep the horizon level. Match left and right edges.</code>
+      </p>
+      <h3>text</h3>
+      <div class="pipe">
+        <div class="pipe-node"><b>Prefix</b>locked trigger + scene sentence</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><b>Krea 2</b>T2I 360 LoRA str 1 · 2048×1024</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><b>KSampler</b>seed 322344328372862 · 10 · cfg 1</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><b>Seam 31</b>seed 8 · cfg 1 · er_sde · denoise 0.55 · MODEL_360</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node out"><b>8K tail</b>same as 2D</div>
+      </div>
+      <h3>360 Images</h3>
+      <div class="pipe">
+        <div class="pipe-node"><b>Picker</b>2:1 ERP only</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><b>Store</b><code>pano.png</code> as-is + optional <code>prompt.txt</code></div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node out"><b>Upscale to 8K</b>optional shared tail</div>
+      </div>
+      <h3>Shared 8K tail (2D Images and text only)</h3>
+      <div class="pipe">
+        <div class="pipe-node"><b>ESRGAN</b>RealESRGAN_x2</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><b>Scale</b>lanczos 8192×4096</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><b>Sharpen</b>0.5</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><b>Noise</b>0.01</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><b>USD</b>tile 1024</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node out"><b>Save</b>pano.png</div>
+      </div>
+      <p>
+        UltimateSDUpscale node 77 widgets copied as-is. If unportable: MVP = Real-ESRGAN 2× + lanczos and <strong>label</strong> the mismatch.
+        Upscaler prompt is a visible box, default <code>High resolution photography</code>, user may edit.
+      </p>
+    </section>
+
+    <section id="accept">
+      <h2><span class="num">04</span>Acceptance · do not</h2>
+      <ul class="check">
+        <li><strong>2D Images</strong> is the default toggle.</li>
+        <li><strong>360 Images:</strong> 2:1 file becomes <code>pano.png</code> without Krea.</li>
+        <li><strong>text:</strong> 2:1 image without a 2D input; trigger prefix still on the Krea prompt.</li>
+        <li><strong>2D Images</strong> Generate stays disabled until native Ostris is READY.</li>
+        <li>Once Ostris READY: original 2D region recognizable; outpaint string unchanged; seam not a visible cut.</li>
+        <li>Florence-2 fills the surroundings box; user can edit; empty manual box blocks Generate.</li>
+        <li><strong>2D Images</strong> and <strong>text:</strong> final size measured (expect 8192×4096).</li>
+      </ul>
+      <p>Do not shell out to ComfyUI if Ostris is late. Do not invent Warp names, Florence-2 Hub revision, or strip the trigger / outpaint strings. Do not generate at 8K natively in Krea. Do not skip seam roll.</p>
+    </section>
+    <footer>Votion 3DGS 2.0 · Phase 1 · <a href="Votion_3DGS_2.0_Phase1.md">markdown</a></footer>
+  </div>
+  <script>
+    (function () {
+      var tog = document.getElementById("mode-tog");
+      var hint = document.getElementById("view-hint");
+      var log = document.getElementById("pano-log");
+      var warp = document.getElementById("warp-wrap");
+      var result = document.getElementById("erp-result");
+      var leftLbl = document.getElementById("left-lbl");
+      var sphere = document.getElementById("sphere-dummy");
+      var hints = {
+        "2d": "2D Images: drag h_fov — photo sits on the green 2:1 ERP canvas (curved FOV window). Generate blocked until Ostris READY.",
+        "360": "360 Images: store as pano.png. Optional Upscale to 8K. Preview shows the loaded 2:1 file.",
+        "text": "text: no 2D image. Prefix stays locked. After Generate, prompt.txt = prefix + scene sentence."
+      };
+      function showMode(mode) {
+        if (warp) warp.classList.toggle("on", mode === "2d");
+        if (result) result.classList.toggle("on", mode !== "2d");
+        if (leftLbl) leftLbl.textContent = mode === "2d" ? "2:1 · live h_fov warp" : "2:1 ERP";
+        if (sphere) sphere.classList.toggle("photo", mode === "2d");
+        if (hint) hint.textContent = hints[mode];
+        if (log) log.innerHTML = "<b>STATUS // panorama</b><br />mode " + mode;
+      }
+      if (tog) {
+        tog.addEventListener("click", function (e) {
+          var btn = e.target.closest("button[data-mode]");
+          if (!btn) return;
+          tog.querySelectorAll("button").forEach(function (b) { b.classList.toggle("on", b === btn); });
+          var mode = btn.getAttribute("data-mode");
+          document.querySelectorAll(".pane").forEach(function (p) {
+            p.classList.toggle("on", p.id === "pane-" + mode);
+          });
+          showMode(mode);
+        });
+      }
+      var sl = document.getElementById("hfov");
+      var val = document.getElementById("hfov-val");
+      var box = document.getElementById("warp-preview");
+      function patch(v) {
+        return (16 + (Number(v) - 30) / 90 * 27).toFixed(1) + "%";
+      }
+      if (sl && box) {
+        sl.addEventListener("input", function () {
+          if (val) val.textContent = sl.value;
+          box.style.setProperty("--patch", patch(sl.value));
+        });
+        box.style.setProperty("--patch", patch(sl.value));
+      }
+      var surr = document.getElementById("surr-radios");
+      var capRow = document.getElementById("caption-row");
+      var capBtn = document.getElementById("caption-btn");
+      var surrBox = document.getElementById("surr-box");
+      if (surr && capRow) {
+        surr.addEventListener("change", function (e) {
+          var t = e.target;
+          if (!t || t.name !== "surr") return;
+          capRow.hidden = t.value !== "florence";
+        });
+      }
+      if (capBtn && surrBox) {
+        capBtn.addEventListener("click", function () {
+          surrBox.value = "[Florence-2] edit this sentence before Generate";
+          if (log) log.innerHTML = "<b>STATUS // caption</b><br />engine.workers.caption filled the surroundings box.";
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

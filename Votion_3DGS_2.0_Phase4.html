@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Votion 3DGS 2.0 — Phase 4 Product</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="votion-plan.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <p class="eyebrow">Phase 4 · Depends on P0–P3 Quality path</p>
+      <h1>Productize</h1>
+      <p class="tagline">Installable Windows app: profiles, small installer, field guide, crash reload, UE 5.5 export, Open in Brush / LichtFeld / Postshot.</p>
+    </header>
+    <nav class="phases">
+      <a href="Votion_3DGS_2.0_Index.html">Index</a>
+      <a href="Votion_3DGS_2.0_Phase0.html">P0 Skeleton</a>
+      <a href="Votion_3DGS_2.0_Phase1.html">P1 Pano</a>
+      <a href="Votion_3DGS_2.0_Phase2.html">P2 Splat</a>
+      <a href="Votion_3DGS_2.0_Phase3.html">P3 Dataset</a>
+      <a class="here" href="Votion_3DGS_2.0_Phase4.html">P4 Product</a>
+    </nav>
+
+    <figure class="fig">
+      <img src="media/mlslabs-render.jpg" alt="MLSLabsRenderer playing a Gaussian splat in Unreal Engine 5" />
+      <figcaption>
+        Interim Unreal playback: MLSLabsRenderer in UE 5.5.
+        Source: <a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE">MLSLabsGaussianSplattingRenderer-UE</a>
+        · <a href="https://www.fab.com/listings/f91b57cc-958d-40dd-a455-2535bf00e588">Fab</a>
+      </figcaption>
+    </figure>
+
+    <section>
+      <h2><span class="num">01</span>Locked facts</h2>
+      <ul>
+        <li>Small installer: app + venv bootstrap; models download after install. No HF token UI for the default manifest.</li>
+        <li>Native Windows — reuse SmallInstaller <em>ideas</em> from V1, not WSL scripts.</li>
+        <li>In-app gsplat remains default; external trainers are one-click folder open.</li>
+        <li>Gaussian cap ~3M (1M hides 8K gain).</li>
+        <li>Crash reload: port V1 “Reload path / Reload 3DGS from disk”.</li>
+        <li><strong>Unreal Engine 5.5</strong> + <strong>MLSLabsRenderer</strong> (interim) for <code>splat.ply</code> playback —
+          <a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE">GitHub</a> ·
+          <a href="https://www.fab.com/listings/f91b57cc-958d-40dd-a455-2535bf00e588">Fab</a>.
+          MoGe <code>pointcloud.ply</code> is not the Unreal asset. V1 Luma/NanoGS superseded.</li>
+      </ul>
+      <table>
+        <thead><tr><th>Profile</th><th>WAN</th><th>HiRes</th><th>Rails</th></tr></thead>
+        <tbody>
+          <tr><td>Quality</td><td>14B fp8 720p + LightX2V</td><td>8K geometry</td><td>4</td></tr>
+          <tr><td>Fast</td><td>GGUF Q4 or Matrix-3D 5B</td><td>8K optional</td><td>2–4</td></tr>
+          <tr><td>Scout</td><td>5B or skip WAN</td><td>skip</td><td>1</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2><span class="num">02</span>Installer</h2>
+      <div class="pipe">
+        <div class="pipe-node"><b>Inno / NSIS</b>Default Inno if unset. App + venv bootstrap only.</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node"><b>Start Menu</b>Launch · Download models · Setup (venv + driver check)</div>
+        <div class="pipe-arr">→</div>
+        <div class="pipe-node out"><b>Install dir</b><code>D:\Votion3DGS</code> · also test a path with spaces. Do not embed WAN 14B.</div>
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="num">03</span>Open in… (Splat page dummy)</h2>
+      <p>If the exe is missing: open the docs URL. Do not invent install flags. Gaussian cap ~3M.</p>
+      <div class="desk">
+        <div class="desk-win"><span><strong>Votion 3DGS</strong></span><span class="wbtn">— □ ×</span></div>
+        <div class="desk-brand">
+          <h3>Votion 3DGS</h3>
+          <span class="live">splat</span>
+        </div>
+        <div class="desk-stages">
+          <a class="done" href="Votion_3DGS_2.0_Phase0.html">Home</a>
+          <a class="done" href="Votion_3DGS_2.0_Phase1.html">Panorama</a>
+          <a class="done" href="Votion_3DGS_2.0_Phase2.html#geo">Geometry</a>
+          <a class="done" href="Votion_3DGS_2.0_Phase3.html#gen-ui">Generate</a>
+          <a class="done" href="Votion_3DGS_2.0_Phase2.html#recon">Reconstruct</a>
+          <a class="on" href="Votion_3DGS_2.0_Phase4.html">Splat</a>
+        </div>
+        <div class="desk-body">
+          <div class="desk-rail">
+            <label class="f-lab">This scene</label>
+            <input class="f-in" value="outputs/alpine_01" readonly />
+            <div class="f-row"><button class="f-btn pri" type="button">Continue train</button></div>
+            <div class="f-row"><button class="f-btn ghost" type="button">Reload 3DGS from disk</button></div>
+            <label class="f-lab">Open in</label>
+            <div class="f-row"><button class="f-btn" type="button">Explorer (colmap)</button></div>
+            <div class="f-row"><button class="f-btn" type="button">Brush</button></div>
+            <div class="f-row"><button class="f-btn" type="button">LichtFeld Studio</button></div>
+            <div class="f-row"><button class="f-btn" type="button">Postshot</button></div>
+            <p class="f-hint">Brush: Directory → outputs/&lt;scene&gt; → Start. LichtFeld: ~3M primitive cap.</p>
+          </div>
+          <div class="desk-view">
+            <img src="media/mlslabs-play.jpg" alt="Splat playback stand-in" style="width:100%;max-height:180px;object-fit:cover;border:1px solid var(--line)" />
+            <p class="f-hint">Unreal is outside this window: UE 5.5 + MLSLabsRenderer import splat.ply. MoGe pointcloud.ply is not the Unreal asset.</p>
+          </div>
+        </div>
+        <div class="desk-draws">
+        <details class="desk-log-draw"><summary>Log</summary><div class="desk-log"><b>STATUS // splat</b><br />Crash reload ports V1 Reload path / Reload 3DGS from disk.</div></details>
+        <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
+          <b>SPLAT</b><br />
+          Continue / Retrain / Reload 3DGS from disk. Open in Brush: Directory → outputs/&lt;scene&gt; → Start.
+          LichtFeld primitive cap ~3M. If the exe is missing, open the docs URL — do not invent install flags.
+          Unreal: import splat.ply in UE 5.5 + MLSLabsRenderer.
+        </div></details>
+        </div>
+      </div>
+      <div class="fig-grid">
+        <figure class="fig">
+          <img src="media/brush-og.png" alt="Brush splat trainer GitHub preview" />
+          <figcaption><a href="https://github.com/ArthurBrussee/brush">Brush</a></figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/lichtfeld-botanics.webp" alt="LichtFeld Studio botanics scene preview" />
+          <figcaption><a href="https://github.com/MrNeRF/LichtFeld-Studio">LichtFeld Studio</a> · <a href="https://lichtfeld.io/">lichtfeld.io</a></figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/lichtfeld-studio.jpg" alt="LichtFeld Studio product still" />
+          <figcaption>Trainer UI still from <a href="https://lichtfeld.io/">lichtfeld.io</a></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="num">04</span>Unreal</h2>
+      <p><strong>Locked (interim):</strong> UE 5.5 + <strong>MLSLabsRenderer</strong> for real-time <code>splat.ply</code> playback.</p>
+      <ul>
+        <li>GitHub (Lite / source): <a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE">mlslabs/MLSLabsGaussianSplattingRenderer-UE</a></li>
+        <li>Fab: <a href="https://www.fab.com/listings/f91b57cc-958d-40dd-a455-2535bf00e588">listing f91b57cc…</a></li>
+      </ul>
+      <p>Install/enable the plugin, import <code>splat.ply</code>, place the Gaussian actor. MoGe <code>pointcloud.ply</code> is not the Unreal asset.</p>
+      <div class="fig-grid">
+        <figure class="fig">
+          <img src="media/mlslabs-import.jpg" alt="MLSLabsRenderer import-single-PLY toolbar in Unreal" />
+          <figcaption>Import single PLY. Plugin docs.</figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/mlslabs-select.jpg" alt="MLSLabsRenderer actor select in Unreal" />
+          <figcaption>Place the Gaussian actor in the level.</figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/mlslabs-7m.jpg" alt="MLSLabsRenderer 7 million Gaussians at 50-plus FPS" />
+          <figcaption>7M Gaussians, 50+ FPS (plugin claim, RTX 4070 Ti).</figcaption>
+        </figure>
+      </div>
+      <div class="callout">
+        <strong>Update slot — UE Renderer (future):</strong> empty placeholder. If a better Unreal 3DGS/4DGS player appears, put it here and update the Index certainty log. Until then, MLSLabs is the documented path.
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="num">05</span>Field guide &amp; config</h2>
+      <p>Rewrite V1 <code>ui/field_guide.md</code> for V2. Help is a <strong>bottom drawer</strong> (same chrome as Log), not a Home accordion and not a seventh page.</p>
+      <div class="mode-grid">
+        <figure class="fig">
+          <img src="media/matrix3d-i2p.png" alt="2D Images field-guide input" />
+          <figcaption>2D Images (default)</figcaption>
+        </figure>
+        <figure class="fig erp">
+          <img src="media/polyhaven-venice.png" alt="360 Images field-guide input" />
+          <figcaption>360 Images</figcaption>
+        </figure>
+        <figure class="fig">
+          <img src="media/krea2-hero.jpg" alt="text field-guide input" />
+          <figcaption>text</figcaption>
+        </figure>
+      </div>
+      <div class="desk">
+        <div class="desk-win"><span><strong>Votion 3DGS</strong></span><span class="wbtn">— □ ×</span></div>
+        <div class="desk-brand">
+          <h3>Votion 3DGS</h3>
+          <span class="live">idle</span>
+        </div>
+        <div class="desk-stages">
+          <a class="on" href="Votion_3DGS_2.0_Phase0.html">Home</a>
+          <a href="Votion_3DGS_2.0_Phase1.html">Panorama</a>
+          <a href="Votion_3DGS_2.0_Phase2.html#geo">Geometry</a>
+          <a href="Votion_3DGS_2.0_Phase3.html#gen-ui">Generate</a>
+          <a href="Votion_3DGS_2.0_Phase2.html#recon">Reconstruct</a>
+          <a href="Votion_3DGS_2.0_Phase4.html">Splat</a>
+        </div>
+        <div class="desk-body">
+          <div class="desk-rail">
+            <label class="f-lab">Profile (P4 unlocks Fast/Scout)</label>
+            <select class="f-sel" disabled>
+              <option selected>Quality · 14B + 8K · 4 rails</option>
+              <option>Fast · GGUF or 5B · 2–4 rails</option>
+              <option>Scout · skip WAN/HiRes · 1 rail</option>
+            </select>
+            <label class="f-lab">config.json</label>
+            <p class="f-hint">GPU index, ComfyUI root, Brush/LichtFeld/Postshot paths, last scene, profile. No HF tokens.</p>
+          </div>
+          <div class="desk-view">
+            <p class="view-lbl">Home · settings</p>
+            <p class="f-hint">Field guide is the Help drawer below — not an accordion in this viewport. Fast/Scout unlock in P4.</p>
+          </div>
+        </div>
+        <div class="desk-draws">
+        <details class="desk-log-draw"><summary>Log</summary><div class="desk-log"><b>STATUS // idle</b><br />Log is a drawer. Help is a matching drawer (locked 2026-08-31).</div></details>
+        <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
+          <b>FIELD GUIDE</b><br />
+          2D Images (default) or 360 / text → 8K ERP → Compute geometry → rails → Generate → splat.ply.
+          Ostris blocks 2D Generate until READY. h_fov 70. text keeps the trigger prefix.
+          After 2D Images, prompt.txt = outpaint instruction + surroundings. WAN prompt must match the pano.
+          Preview the mesh flight. Four rails usually enough. Do not skip 8K. Extra rails do not fix glass.
+          Brush: Directory → outputs/&lt;scene&gt; → Start. Unreal: UE 5.5 + MLSLabsRenderer import splat.ply.
+        </div></details>
+        </div>
+      </div>
+      <figure class="fig">
+        <img src="media/mlslabs-play.jpg" alt="MLSLabsRenderer playing a Gaussian splat in Unreal" />
+        <figcaption>Field-guide recipe target: play <code>splat.ply</code> in UE 5.5. Source: <a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE">MLSLabsRenderer</a></figcaption>
+      </figure>
+      <p><code>D:\Votion3DGS\config.json</code>: GPU index, ComfyUI root (default <code>D:\ComfyUI_windows_portable_360</code>), trainer exe paths, last scene, profile. No HF tokens.</p>
+    </section>
+
+    <section>
+      <h2><span class="num">06</span>Acceptance</h2>
+      <ul class="check">
+        <li>Fresh Win11 + 3090: Setup → Download Quality models → Launch → <strong>2D Images (or 360 Images / text)</strong> → 8K ERP → rails → Generate → <code>splat.ply</code> without WSL or ComfyUI running. 2D Images requires Ostris READY; until then 360 Images / text still complete the product loop.</li>
+        <li>Fast/Scout selectable; Scout skips HiRes.</li>
+        <li>Kill mid-WAN: cancel works; scene reloadable.</li>
+        <li>Open-in-Explorer works even if Brush is not installed.</li>
+        <li>Installer is small relative to the model pack.</li>
+        <li><code>splat.ply</code> imports and plays in UE 5.5 via MLSLabsRenderer (manual check).</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2><span class="num">07</span>P5 is not this phase</h2>
+      <p>5B as Fast default, SeedVR2 experiment only (video: slow, little gain vs 8K reproject), macOS, Matrix-3D opt reconstruction — see the <a href="Votion_3DGS_2.0_Index.html#p5">Index appendix</a>.</p>
+    </section>
+    <footer>Votion 3DGS 2.0 · Phase 4 · <a href="Votion_3DGS_2.0_Phase4.md">markdown</a></footer>
+  </div>
+</body>
+</html>

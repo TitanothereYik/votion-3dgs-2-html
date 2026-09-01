@@ -38,6 +38,7 @@ If Phase 1 **2D Images** is blocked on Ostris, Phase 2 still runs on **360 Image
 - **Mesh flight preview:** a **third pane under FLOOR / SIDE**. **Play lives on that pane** — no Preview button on the left rail (locked 2026-08-31). Play the control video there (black holes OK) before Confirm.
 - Reconstruction: SphereSfM → COLMAP `images/` + `sparse/0` (ordinary `SIMPLE_PINHOLE` cube faces). Not WorldFM `transforms.json`.
 - Trainer happy path: evolve `Yik Votion WorldFM/tools/train_splat_live.py`. If gsplat failed in P0, P2 still **writes COLMAP** and shows “Open folder”.
+- **Train strategy (locked 2026-09-01):** user picks **Splat3** or **MCMC** on the Splat page. Default **Splat3**. Both write `splat.ply` at the ~3M cap. Splat3 → gsplat `DefaultStrategy`. MCMC → gsplat `MCMCStrategy`. Continue keeps the checkpoint’s strategy; switching needs Retrain. ADC is not a third choice.
 - Vendor SplatKit `core/` + `shim/` (MIT). Rasterizer is the torch/triton shim — **not** nvdiffrast. Do not use Matrix-3D PanoLRM.
 
 ---
@@ -65,7 +66,7 @@ P1 pano.png
   → Render control_video + control_mask + rail_json
   → (Optional) WAN hole-fill if 14B READY; else keep control video
   → SphereSfM (single trajectory; dual-res HiRes is Phase 3)
-  → train_splat_live on COLMAP pinholes
+  → train_splat_live on COLMAP pinholes (Splat3 or MCMC)
   → outputs/<scene>/splat.ply
 ```
 
@@ -152,7 +153,7 @@ Dummy: [Phase 2 HTML §04](Votion_3DGS_2.0_Phase2.html#recon). Left: **Reconstru
 
 ### Splat page
 
-Dummy: same HTML, second window. Max steps **10000**, Gaussian cap **3M**, Train / Continue / Retrain / Export `splat.ply`. Viewport: live train stats (loss / step). Help = splat.ply, Brush fallback if gsplat failed.
+Dummy: same HTML, second window. **Splat3 | MCMC** chips (default Splat3), max steps **10000**, Gaussian cap **3M**, Train / Continue / Retrain / Export `splat.ply`. Viewport: live train stats (loss / step). Help = strategy choice + splat.ply, Brush fallback if gsplat failed.
 
 ---
 
@@ -163,7 +164,7 @@ Dummy: same HTML, second window. Max steps **10000**, Gaussian cap **3M**, Train
 | `ui/job_control.py` | Cancel flag (already sketched in P0) |
 | `ui/camera_presets.py` | Rail **templates** only. Map lookaround / orbit / dolly onto SplatKit archetypes later in P3; P2 only needs the node-27 default + free edit. |
 | `ui/camera_path_viz.py` | FLOOR + SIDE + star + LOOK rays. Port matplotlib/plotly to vispy **or** QWebEngine. Pick one; do not ship both. Do not embed Comfy `camera_plot_geo.js`. |
-| `tools/train_splat_live.py` | COLMAP cameras.bin/images.bin (or text). Keep live loss, checkpoint, `splat.ply`. |
+| `tools/train_splat_live.py` | COLMAP cameras.bin/images.bin (or text). Keep live loss, checkpoint, `splat.ply`. Pass Splat3 (`DefaultStrategy`) or MCMC (`MCMCStrategy`). |
 | `ui/theme.css` | Qt stylesheet tokens |
 
 Do **not** copy `worldfm/`, WorldFM `pipeline_runner.py`, or WSL scripts.
@@ -217,7 +218,8 @@ splat.ply
 - [ ] After compute: FLOOR and SIDE visible; origin star at `(0,0,0)` and not draggable; 2+ knots do not crash.
 - [ ] Mesh-only flight preview plays **before** Confirm (black holes expected).
 - [ ] `colmap/sparse/0` exists after Reconstruct.
-- [ ] If gsplat spike passed: `splat.ply` written; V1-style Continue works on the same scene name.
+- [ ] If gsplat spike passed: `splat.ply` written with the selected strategy (Splat3 default); V1-style Continue works on the same scene name **and the same strategy**.
+- [ ] Switching Splat3 ↔ MCMC disables Continue until Retrain (or Continue stays on the checkpoint strategy).
 - [ ] If gsplat failed: UI says so; COLMAP folder still valid for Brush.
 - [ ] Unreal import of `splat.ply` is a **manual** check via **MLSLabsRenderer**. Document pass/fail in `outputs/<scene>/unreal_check.txt` — do not claim Unreal success in code.
 

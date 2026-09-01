@@ -116,7 +116,7 @@
         </div></details>
         <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
           <b>FIELD GUIDE</b><br />
-          2D Images (default) or 360 / text → 8K ERP → Compute geometry → rails → Generate → splat.ply.
+          2D Images (default) or 360 / text → 8K ERP → Compute geometry → rails → Generate → splat.ply (Splat3 or MCMC).
           Ostris blocks 2D Generate until READY. h_fov 70. text keeps the trigger prefix.
           After 2D Images, prompt.txt = outpaint instruction + surroundings. WAN prompt must match the pano.
           Preview the mesh flight. Four rails usually enough. Do not skip 8K. Extra rails do not fix glass.
@@ -133,7 +133,7 @@
         <div class="pipe-arr">→</div>
         <div class="pipe-node"><b>0.2 Venv</b><code>py -3.12 -m venv .venv</code> then official cu128 torch from pytorch.org. If 3.12 is missing, stop.</div>
         <div class="pipe-arr">→</div>
-        <div class="pipe-node"><b>0.3 Spike</b><code>torch.cuda.is_available()</code> on the 3090, then try <code>gsplat</code>. Record pass/fail in <code>env_report.txt</code>. Do not claim gsplat in the UI until it passes.</div>
+        <div class="pipe-node"><b>0.3 Spike</b><code>torch.cuda.is_available()</code> on the 3090, then try <code>gsplat</code> including <code>DefaultStrategy</code> (Splat3) and <code>MCMCStrategy</code> (MCMC). Record pass/fail in <code>env_report.txt</code>. Do not claim gsplat in the UI until it passes.</div>
         <div class="pipe-arr">→</div>
         <div class="pipe-node out"><b>0.4 Window</b>This Home dummy. Other pages are labeled stubs.</div>
       </div>

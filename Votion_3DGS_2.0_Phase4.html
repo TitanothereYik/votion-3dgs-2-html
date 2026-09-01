@@ -39,7 +39,7 @@
       <ul>
         <li>Small installer: app + venv bootstrap; models download after install. No HF token UI for the default manifest.</li>
         <li>Native Windows — reuse SmallInstaller <em>ideas</em> from V1, not WSL scripts.</li>
-        <li>In-app gsplat remains default; external trainers are one-click folder open.</li>
+        <li>In-app gsplat remains the trainer. User picks <strong>Splat3</strong> (default) or <strong>MCMC</strong> on the Splat page. External trainers are one-click folder open.</li>
         <li>Gaussian cap ~3M (1M hides 8K gain).</li>
         <li>Crash reload: port V1 “Reload path / Reload 3DGS from disk”.</li>
         <li><strong>Unreal Engine 5.5</strong> + <strong>MLSLabsRenderer</strong> (interim) for <code>splat.ply</code> playback —
@@ -89,6 +89,12 @@
           <div class="desk-rail">
             <label class="f-lab">This scene</label>
             <input class="f-in" value="outputs/alpine_01" readonly />
+            <label class="f-lab">Train strategy</label>
+            <div class="f-tog splat-strat" role="tablist">
+              <button type="button" class="on" data-splat-strat="splat3">Splat3</button>
+              <button type="button" data-splat-strat="mcmc">MCMC</button>
+            </div>
+            <p class="f-hint splat-strat-hint">Splat3 (default): gsplat DefaultStrategy. Continue keeps this checkpoint; switch to MCMC needs Retrain. ADC is not offered.</p>
             <div class="f-row"><button class="f-btn pri" type="button">Continue train</button></div>
             <div class="f-row"><button class="f-btn ghost" type="button">Reload 3DGS from disk</button></div>
             <label class="f-lab">Open in</label>
@@ -104,10 +110,11 @@
           </div>
         </div>
         <div class="desk-draws">
-        <details class="desk-log-draw"><summary>Log</summary><div class="desk-log"><b>STATUS // splat</b><br />Crash reload ports V1 Reload path / Reload 3DGS from disk.</div></details>
+        <details class="desk-log-draw"><summary>Log</summary><div class="desk-log splat-strat-log"><b>STATUS // splat</b><br />strategy Splat3 · Crash reload ports V1 Reload path / Reload 3DGS from disk.</div></details>
         <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
           <b>SPLAT</b><br />
-          Continue / Retrain / Reload 3DGS from disk. Open in Brush: Directory → outputs/&lt;scene&gt; → Start.
+          Pick <strong>Splat3</strong> (default) or <strong>MCMC</strong>, then Train / Retrain. Continue keeps the checkpoint’s strategy.
+          Open in Brush: Directory → outputs/&lt;scene&gt; → Start.
           LichtFeld primitive cap ~3M. If the exe is missing, open the docs URL — do not invent install flags.
           Unreal: import splat.ply in UE 5.5 + MLSLabsRenderer.
         </div></details>
@@ -196,7 +203,7 @@
               <option>Scout · skip WAN/HiRes · 1 rail</option>
             </select>
             <label class="f-lab">config.json</label>
-            <p class="f-hint">GPU index, ComfyUI root, Brush/LichtFeld/Postshot paths, last scene, profile. No HF tokens.</p>
+            <p class="f-hint">GPU index, ComfyUI root, Brush/LichtFeld/Postshot paths, last scene, profile, last splat strategy (splat3 / mcmc). No HF tokens.</p>
           </div>
           <div class="desk-view">
             <p class="view-lbl">Home · settings</p>
@@ -211,7 +218,7 @@
           Ostris blocks 2D Generate until READY. h_fov 70. text keeps the trigger prefix.
           After 2D Images, prompt.txt = outpaint instruction + surroundings. WAN prompt must match the pano.
           Preview the mesh flight. Four rails usually enough. Do not skip 8K. Extra rails do not fix glass.
-          Brush: Directory → outputs/&lt;scene&gt; → Start. Unreal: UE 5.5 + MLSLabsRenderer import splat.ply.
+          In-app train: Splat3 (default) or MCMC. Brush: Directory → outputs/&lt;scene&gt; → Start. Unreal: UE 5.5 + MLSLabsRenderer import splat.ply.
         </div></details>
         </div>
       </div>
@@ -219,13 +226,14 @@
         <img src="media/mlslabs-play.jpg" alt="MLSLabsRenderer playing a Gaussian splat in Unreal" />
         <figcaption>Field-guide recipe target: play <code>splat.ply</code> in UE 5.5. Source: <a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE">MLSLabsRenderer</a></figcaption>
       </figure>
-      <p><code>D:\Votion3DGS\config.json</code>: GPU index, ComfyUI root (default <code>D:\ComfyUI_windows_portable_360</code>), trainer exe paths, last scene, profile. No HF tokens.</p>
+      <p><code>D:\Votion3DGS\config.json</code>: GPU index, ComfyUI root (default <code>D:\ComfyUI_windows_portable_360</code>), trainer exe paths, last scene, profile, last splat strategy (<code>splat3</code> / <code>mcmc</code>). No HF tokens.</p>
     </section>
 
     <section>
       <h2><span class="num">06</span>Acceptance</h2>
       <ul class="check">
         <li>Fresh Win11 + 3090: Setup → Download Quality models → Launch → <strong>2D Images (or 360 Images / text)</strong> → 8K ERP → rails → Generate → <code>splat.ply</code> without WSL or ComfyUI running. 2D Images requires Ostris READY; until then 360 Images / text still complete the product loop.</li>
+        <li>Splat page: Splat3 (default) and MCMC both train to <code>splat.ply</code>; switching strategy requires Retrain.</li>
         <li>Fast/Scout selectable; Scout skips HiRes.</li>
         <li>Kill mid-WAN: cancel works; scene reloadable.</li>
         <li>Open-in-Explorer works even if Brush is not installed.</li>
@@ -240,5 +248,6 @@
     </section>
     <footer>Votion 3DGS 2.0 · Phase 4 · <a href="Votion_3DGS_2.0_Phase4.md">markdown</a></footer>
   </div>
+  <script src="rail-dummy.js"></script>
 </body>
 </html>

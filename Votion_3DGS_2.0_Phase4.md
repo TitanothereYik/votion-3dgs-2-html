@@ -26,7 +26,7 @@ Reuse ideas from `Yik Votion WorldFM/docs/SmallInstaller_EasyUsers_Plan.md` (ung
 | Fast | GGUF Q4 **or** Matrix-3D 5B | 8K optional | 2–4 | 5B weights optional download |
 | Scout | 5B or skip WAN | skip | 1 | Plumbing / path check |
 
-- In-app gsplat remains default trainer; external trainers are one-click folder open.
+- In-app gsplat remains the trainer; the user chooses **Splat3** (default) or **MCMC** on the Splat page. External trainers are one-click folder open.
 - Gaussian cap ~3M; document why 1M is wrong for 8K datasets (SplatKit HiRes doc).
 - Crash reload: V1 already has “Reload path from disk” / “Reload 3DGS from disk” — port that behavior.
 
@@ -92,7 +92,7 @@ Port structure of `Yik Votion WorldFM/ui/field_guide.md`, rewritten for V2.
 
 **HTML dummy:** [Phase 4 HTML](Votion_3DGS_2.0_Phase4.html). Two windows:
 
-1. **Splat** — Continue train, Reload 3DGS from disk, Open in Explorer / Brush / LichtFeld / Postshot. Viewport = splat playback stand-in. Help = Brush click path + UE 5.5 MLSLabsRenderer.
+1. **Splat** — **Splat3 | MCMC** chips, Continue train, Reload 3DGS from disk, Open in Explorer / Brush / LichtFeld / Postshot. Viewport = splat playback stand-in. Help = strategy + Brush click path + UE 5.5 MLSLabsRenderer.
 2. **Home / settings** — Quality / Fast / Scout dropdown (P4 unlocks Fast/Scout). `config.json` hint. Help drawer holds the field guide (not an accordion in the viewport).
 
 Installer is a `.pipe` diagram (Inno/NSIS → Start Menu → install dir), not an in-app page.
@@ -111,6 +111,7 @@ Content to port:
 - Glass/mirrors: extra rails will not fix MoGe (SplatKit HiRes “known limits”). Water/spec should stay **view-dependent** after splat train (video pond).
 - Why 3DGS: polygons fail on foliage / hair / glass; Gaussians are ellipsoids + spherical harmonics, real-time, no ray tracing.
 - Open in Brush (video click path): Brush → Directory → `outputs/<scene>` (COLMAP folder) → Start. Live cloud on top, training frame below.
+- In-app train: pick **Splat3** (default) or **MCMC** before Train. Continue keeps the checkpoint’s strategy.
 - Recipes: first Unreal splat (MLSLabsRenderer); fast path check; corridor; orbit / pond circle / high-then-descend
 
 ---
@@ -122,6 +123,7 @@ Content to port:
 - Paths to Brush / LichtFeld / Postshot  
 - Last scene name  
 - Profile  
+- Last splat strategy (`splat3` or `mcmc`)  
 
 Do not store HF tokens.
 
@@ -130,6 +132,7 @@ Do not store HF tokens.
 ## Acceptance tests
 
 - [ ] Fresh Windows 11 + 3090: Setup → Download Quality models → Launch → **2D Images (or 360 Images / text)** → 8K ERP → Confirm rails → Generate → `splat.ply` without WSL or ComfyUI running. 2D Images requires Ostris READY; until then, 360 Images / text still complete the product loop.
+- [ ] Splat page: **Splat3** (default) and **MCMC** both train to `splat.ply`; switching requires Retrain.
 - [ ] Fast/Scout selectable; Scout skips HiRes.
 - [ ] Kill mid-WAN: cancel works; scene reloadable.
 - [ ] Open-in-Explorer on COLMAP works even if Brush is not installed.

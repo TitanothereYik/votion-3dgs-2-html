@@ -43,6 +43,7 @@ During development, several state-of-the-art monocular 3D and world-generation m
    * Formats camera data and frames into a COLMAP-compatible dataset folder.
 4. **Gaussian Splat Training [00:15:45]:**
    * Imports the generated COLMAP dataset into trainers like Brush, LichtFeld Studio, or Postshot to finalize the 3D environment.
+   * **Votion in-app (locked 2026-09-01):** gsplat with a user choice of **Splat3** (default) or **MCMC**. Brush / LichtFeld / Postshot stay “Open in…”.
 
 ---
 

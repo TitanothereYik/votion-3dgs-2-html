@@ -65,6 +65,7 @@ After torch installs, try `import torch; torch.cuda.is_available()` on the 3090.
 Then attempt `gsplat` install. **UNKNOWN** whether a Windows wheel exists for 3.12 + cu128. Outcomes to record in `env_report.txt`:
 
 - wheel installs and a 1-step dummy raster works → P2 trainer path is unblocked
+- also record that `DefaultStrategy` (Splat3) and `MCMCStrategy` (MCMC) import — both are required for the Splat page choice
 - wheel missing / compile fails → P2 must say “trainer blocked; COLMAP export still proceeds” (external Brush) until solved
 
 Do not claim gsplat works in the UI until this spike passes.

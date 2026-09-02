@@ -60,6 +60,7 @@ These are the only product facts treated as **locked**. Everything else in the p
 27. **Profiles at 2.0 launch:** Quality **and** Fast **and** Scout all ship. Fast/Scout stay disabled in the P0 dummy until P4 unlocks them.
 28. **moge_level:** Plot Camera **9** and HiRes **6** — copy both forever; do not unify.
 29. **Hub cache (2026-09-02):** On **Download models**, Hugging Face hub + Xet cache is `<install_root>\.hf_cache\` (`HF_HOME`, `HF_HUB_CACHE`, `HF_XET_CACHE`). `<install_root>` is the folder the user selected in the Inno Setup installer (dev default `D:\Votion3DGS`). Do **not** write Hub cache to `C:\Users\<user>\.cache\huggingface`.
+30. **Download progress (2026-09-03):** During **Download models**, each Home model-status cell shows its own progress bar (queued empty; the active file shows % from measured bytes). Not log-only.
 
 ### Measured on this PC (not guessed)
 

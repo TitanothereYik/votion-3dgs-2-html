@@ -31,7 +31,7 @@ This phase does **not** generate panoramas or splats.
 1. Folder `D:\Votion3DGS\` with the tree on the Index page (empty `engine` packages with `__init__.py` is enough).
 2. PySide6 main window: title **Votion 3DGS**, scene name field, GPU index, Log drawer, Help drawer, **Download models**, **Stop**.
 3. `tools/model_manifest.json` listing every file from the Index tables (id, repo, filename, local relative path, `public: true`). No invented file sizes.
-4. `tools/download_models.py` — copy-if-exists from ComfyUI, else `huggingface_hub` into `<install_root>\.hf_cache` then hardlink/copy into `models\`. Progress lines in the log pane.
+4. `tools/download_models.py` — copy-if-exists from ComfyUI, else `huggingface_hub` into `<install_root>\.hf_cache` then hardlink/copy into `models\`. Each Home status cell shows a progress bar (`PROGRESS` lines; not log-only).
 5. Model status machine: `MISSING_*` | `READY` (subset READY is OK in P0: downloader itself must work even if WAN files are still missing).
 6. Job bus: start worker subprocess, stream stdout, cancel (port logic from `Yik Votion WorldFM/ui/job_control.py` — file exists).
 7. `tools/env_report.py` — writes `docs/env_report.txt` with: `nvidia-smi`, `python --version`, `torch.__version__`, `torch.version.cuda`. This is the anti-hallucination record.
@@ -83,7 +83,7 @@ Pages (stubs with labels only except Home):
 
 Home is functional: scene name, profile dropdown (Quality / Fast / Scout — Fast/Scout **disabled** until P4), GPU index, model status list, Download, Stop. **Log** and **Help** are bottom drawers (not a permanent pane, not a Home accordion). Panorama Generate stays disabled until P1.
 
-**HTML dummy:** [Phase 0 HTML](Votion_3DGS_2.0_Phase0.html). Window chrome is V1 Engineering Blueprint: title **Votion 3DGS**, stage chips (Home on), left rail (scene `alpine_01`, Quality, CUDA `0`, download set **P1 subset** vs All), right viewport = model status grid (`MISSING_*` / `READY`). Log + Help drawers. This is the shell every later page reuses.
+**HTML dummy:** [Phase 0 HTML](Votion_3DGS_2.0_Phase0.html). Window chrome is V1 Engineering Blueprint: title **Votion 3DGS**, stage chips (Home on), left rail (scene `alpine_01`, Quality, CUDA `0`, download set **P1 subset** vs All), right viewport = model status grid (`MISSING_*` / `READY`). During **Download models**, each cell has its own progress bar. Log + Help drawers. This is the shell every later page reuses.
 
 ### 0.5 Downloader
 
@@ -127,6 +127,7 @@ D:\Votion3DGS\
 - [ ] `env_report.txt` exists and shows Python 3.12, CUDA 12.8 torch, `cuda.is_available() True` on the 3090.
 - [ ] Download of **Krea 2 fp8 + CLIP + VAE** reaches `models\` (or a clear missing-URL error — not a hang). MoGe may still be missing.
 - [ ] A Hub download writes cache under `<install_root>\.hf_cache\` (P0: `D:\Votion3DGS\.hf_cache`), not `C:\Users\<user>\.cache\huggingface`.
+- [ ] During Download models, each Home status cell shows its own progress bar.
 - [ ] Dummy job streams logs; Stop ends the subprocess.
 - [ ] No WSL, no `localhost:7860`, no ComfyUI process.
 

@@ -101,14 +101,14 @@
           <div class="desk-view">
             <p class="view-lbl">Model status</p>
             <div class="stat-grid">
-              <div><b>Krea 2 fp8</b>MISSING_krea</div>
-              <div><b>CLIP qwen3vl</b>MISSING_clip</div>
-              <div><b>wan_2.1_vae</b>MISSING_vae</div>
-              <div><b>360 T2I LoRA</b>MISSING_lora</div>
+              <div><b>Krea 2 fp8</b>42%<div class="progress"><i style="width:42%"></i></div></div>
+              <div><b>CLIP qwen3vl</b>queued<div class="progress"><i style="width:0%"></i></div></div>
+              <div><b>wan_2.1_vae</b>queued<div class="progress"><i style="width:0%"></i></div></div>
+              <div><b>360 T2I LoRA</b>queued<div class="progress"><i style="width:0%"></i></div></div>
               <div><b>MoGe vitl</b>P2 subset</div>
               <div><b>WAN 14B fp8</b>P3 — not this default</div>
             </div>
-            <p class="f-hint">Status machine: <code>MISSING_*</code> | <code>READY</code>. Subset READY is OK in P0.</p>
+            <p class="f-hint">Status machine: <code>MISSING_*</code> | <code>READY</code>. During Download models, each cell has its own bar (queued empty; active file shows % from measured bytes). Subset READY is OK in P0.</p>
           </div>
         </div>
         <div class="desk-draws">
@@ -160,7 +160,7 @@ python tools\env_report.py</pre>
         <div class="pipe-arr">→</div>
         <div class="pipe-node out"><b>4</b>Else <code>MISSING_&lt;id&gt;</code> + Index URL</div>
       </div>
-      <p>Default download set: <strong>P1 subset</strong> (Krea 2 + LoRAs + VAE + CLIP + RealESRGAN; Florence-2 if captioning is enabled). Optional “All” so WAN 14B is not forced before Phase 3. Hub cache never uses <code>C:\Users\&lt;user&gt;\.cache\huggingface</code>.</p>
+      <p>Default download set: <strong>P1 subset</strong> (Krea 2 + LoRAs + VAE + CLIP + RealESRGAN; Florence-2 if captioning is enabled). Optional “All” so WAN 14B is not forced before Phase 3. Hub cache never uses <code>C:\Users\&lt;user&gt;\.cache\huggingface</code>. Home status cells each show a progress bar during the download.</p>
       <div class="fig-grid">
         <figure class="fig">
           <img src="media/krea2-hero.jpg" alt="Krea 2 — Phase 0 default P1 download" />
@@ -201,6 +201,7 @@ python tools\env_report.py</pre>
         <li><code>env_report.txt</code> shows Python 3.12, CUDA 12.8 torch, <code>cuda.is_available() True</code>.</li>
         <li>Krea 2 fp8 + CLIP + VAE reach <code>models\</code> or a clear missing-URL error. MoGe may still be missing.</li>
         <li>A Hub download writes cache under <code>&lt;install_root&gt;\.hf_cache\</code> (P0: <code>D:\Votion3DGS\.hf_cache</code>), not <code>C:\Users\&lt;user&gt;\.cache\huggingface</code>.</li>
+        <li>During Download models, each Home status cell shows its own progress bar.</li>
         <li>Dummy job streams; Stop kills the subprocess.</li>
         <li>No WSL, no localhost:7860, no ComfyUI process.</li>
       </ul>

@@ -1193,6 +1193,7 @@ footer {
   color: var(--muted);
 }
 .stat-grid b { color: var(--text); display: block; }
+.stat-grid .progress { margin-top: 0.3rem; }
 
 .pane { display: none; }
 .pane.on { display: block; }

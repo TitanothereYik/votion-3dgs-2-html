@@ -101,10 +101,10 @@ Installer is a `.pipe` diagram (Inno/NSIS → Start Menu → install dir), not a
 Content to port:
 
 - Inputs (Phase 1, three first-class modes): **(1) 2D Images → ERP (default)**, **(2) 360 Images**, **(3) text → ERP**. Happy path is (1) → Phase 2 splat → Phase 3 WAN.
-- **2D Images** surroundings: type a sentence **or** local Florence-2 caption (editable). Empty manual box → block Generate. Graph demo `Professional photography of living room.` is a demo string, not a silent default.
-- **2D Images blocked** until native Ostris Edit is READY. **360 Images** and **text** are not blocked.
+- **2D Images** surroundings: type a sentence **or** local Florence-2 caption (editable). Always append **`no peoples, no cars`**. Empty manual box → block Generate. Graph demo `Professional photography of living room.` is a demo string, not a silent default.
+- **Ostris Edit is native READY** (2026-09-03). Do not shell out to ComfyUI.
 - **text:** keep the Krea 360 trigger prefix; one sentence for the actual scene.
-- **2D Images:** green wrap; surroundings prompt; h_fov slider default **70**; check 360 preview for stretch.
+- **2D Images:** green wrap; surroundings prompt; h_fov **type or drag**, default **70**, range **10–170**; left pane **Fit / 100%**; right 360 is spherical (yaw + pitch). Check stretch in that look.
 - WAN prompt must match the pano
 - Look modes: `look_forward` (Look Forward), `look_at_target`, `per_point_look` (Per Point Look). Height is the Y of a knot, not a dropdown.
 - **Preview the mesh drone flight** (FLOOR + SIDE) before Generate. Star = origin. Four rails usually enough; optional 5th. Wall clip = Wan invents the other side (intentional).
@@ -132,7 +132,7 @@ Do not store HF tokens.
 
 ## Acceptance tests
 
-- [ ] Fresh Windows 11 + 3090: Setup → Download Quality models → Launch → **2D Images (or 360 Images / text)** → 8K ERP → Confirm rails → Generate → `splat.ply` without WSL or ComfyUI running. 2D Images requires Ostris READY; until then, 360 Images / text still complete the product loop.
+- [ ] Fresh Windows 11 + 3090: Setup → Download Quality models → Launch → **2D Images (or 360 Images / text)** → 8K ERP → Confirm rails → Generate → `splat.ply` without WSL or ComfyUI running. Ostris is READY for 2D Images.
 - [ ] Splat page: **Splat3** (default) and **MCMC** both train to `splat.ply`; switching requires Retrain.
 - [ ] Fast/Scout selectable; Scout skips HiRes.
 - [ ] Kill mid-WAN: cancel works; scene reloadable.

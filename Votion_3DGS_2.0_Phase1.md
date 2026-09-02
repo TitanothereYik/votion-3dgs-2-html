@@ -28,9 +28,9 @@ How-to text is **in the graph** (MarkdownNote id 4). Copy it into the Panorama p
 
 - Product default is **2D Images**. **360 Images** and **text** stay first-class.
 - Native Python. No ComfyUI in the product. No WSL.
-- **Ostris Edit** (`Krea2OstrisEditModelPatch` + `TextEncodeKrea2OstrisEdit`, pack [ostris/ComfyUI-Krea2-Ostris-Edit](https://github.com/ostris/ComfyUI-Krea2-Ostris-Edit) pin `7756566160c4a1b24bb1bd9f0ff3ced1a83d7547` in the graph): **2D Images is blocked** until a native port works. **360 Images** and **text** are not blocked. Phase 2 may still splat a 360 Image or text-made pano (or a fixture ERP).
-- Surroundings (2D Images): user types a sentence **or** runs **Florence-2** (open-source, local) to caption the 2D image, then **may edit** the box before Generate. Exact Hub id **UNKNOWN** until first successful install — record it in `model_manifest.json` (family: Microsoft Florence-2, Apache-2.0). Use a short caption task (one sentence), not an invented prompt style.
-- **h_fov:** user slider, default **70**, **live Warp preview** on the 2:1 pane: green `#00ff00` ERP canvas, curved FOV window, `+` crosshair, bar `2048 × 1024` (locked 2026-08-31). Dummy slider min/max **30–120** until `INPUT_TYPES` is read — do not treat those limits as product truth. That 70 is widget index 3 on `MickmumpitzPanoWarp` titled “Photo on ERP canvas (set h_fov)” (graph title — keep). **Other warp slots stay unnamed** until `INPUT_TYPES` is read from [ComfyUI-Mickmumpitz-Nodes](https://github.com/mickmumpitz/ComfyUI-Mickmumpitz-Nodes) at graph pin `e3df7e1199c8170335fe8c7d3dc0ecf1839d2784`. Raw widget list to copy, do not invent labels: `[2048, 1024, 1, 70, 0, 0, 0, 2, 10, 0.55, "#000000"]` (width/height also linked from ResolutionPicker).
+- **Ostris Edit** (`Krea2OstrisEditModelPatch` + `TextEncodeKrea2OstrisEdit`, pack [ostris/ComfyUI-Krea2-Ostris-Edit](https://github.com/ostris/ComfyUI-Krea2-Ostris-Edit) pin `7756566160c4a1b24bb1bd9f0ff3ced1a83d7547` in the graph): native port **READY** (2026-09-03). 2D Images Generate is enabled. Do **not** shell out to ComfyUI.
+- Surroundings (2D Images): user types a sentence **or** runs **Florence-2** (open-source, local) to caption the 2D image, then **may edit** the box before Generate. Always append **`no peoples, no cars`** (typed or caption). Empty box still blocks Generate. Hub: `florence-community/Florence-2-large` rev `4271c66b88cdbc05735372ec13b2360108de5317`.
+- **h_fov:** slider **and** typed number, default **70**, range **10–170**, step **0.5** (`MickmumpitzPanoWarp` `INPUT_TYPES`). **Live Warp preview** on the 2:1 pane: green `#00ff00` ERP canvas, curved FOV window, `+` crosshair, bar `2048 × 1024` (locked 2026-08-31). That 70 is widget index 3 on `MickmumpitzPanoWarp` titled “Photo on ERP canvas (set h_fov)” (graph title — keep). **Other warp slots stay unnamed** until `INPUT_TYPES` is read from [ComfyUI-Mickmumpitz-Nodes](https://github.com/mickmumpitz/ComfyUI-Mickmumpitz-Nodes) at graph pin `e3df7e1199c8170335fe8c7d3dc0ecf1839d2784`. Raw widget list to copy, do not invent labels: `[2048, 1024, 1, 70, 0, 0, 0, 2, 10, 0.55, "#000000"]` (width/height also linked from ResolutionPicker).
 - Generate resolution: **2048×1024** (ResolutionPicker “Pano resolution (keep 2:1)”). Final: **8192×4096** (second ResolutionPicker + `ImageScale` lanczos).
 - ComfyUI required a dummy INPUT IMAGE even in text mode. **Votion must not.**
 
@@ -42,7 +42,7 @@ Copied from the JSON. Do not invent nodes.
 
 ```
 2D image
-  → MickmumpitzPanoWarp (h_fov slider, default 70)
+  → MickmumpitzPanoWarp (h_fov type or drag, default 70, 10–170 step 0.5)
   → green canvas #00ff00 + ImageCompositeMasked “Control canvas (photo on green)”
   → Krea2OstrisEditModelPatch (widget true) + ERP OUTPAINT LoRA krea2_oedit_360_erp_outpaint_lora_v1 strength 1
   → TextEncodeKrea2OstrisEdit
@@ -59,7 +59,7 @@ Copied from the JSON. Do not invent nodes.
 
 `Fill the green spaces according to the image. Outpaint as a seamless 360 equirectangular panorama (2:1). Keep the horizon level. Match left and right edges.`
 
-**Surroundings** — graph demo widget is `Professional photography of living room.` That is **demo content**, not a hidden default. If the user chose Manual and the box is empty → **block Generate**. If they chose Florence-2, fill the box from the caption, then they can edit.
+**Surroundings** — graph demo widget is `Professional photography of living room.` That is **demo content**, not a hidden default. Always append **`no peoples, no cars`** to typed text and to Florence-2 captions. If the box is empty (before suffix) → **block Generate**. If they chose Florence-2, fill the box from the caption + suffix, then they can edit.
 
 **StringConcatenate** “Prompt = instruction + scene” separator is a single space (`" "`). After a successful 2D Images Generate, write that same concat to `prompt.txt` for later WAN (locked 2026-08-31).
 
@@ -93,6 +93,7 @@ Empty scene sentence → **block Generate**. After a successful text Generate, w
 
 - File picker, 2:1 only. Reject non-2:1; do not letterbox.
 - Store as-is even if width ≠ 8192. Visible **Upscale to 8K** runs the shared 8K tail (locked 2026-08-31). Quality HiRes later refuses if width ≠ 8192.
+- Keep the **upscaler prompt** box on this rail (graph ⑤). Default `High resolution photography`.
 - No Krea, no Ostris, no Florence-2 required.
 - Still store `prompt.txt` (needed later for WAN). Empty is OK in P1; Phase 3 blocks WAN if empty.
 
@@ -112,7 +113,7 @@ Copied from JSON node titles/widgets:
 6. Upscaler prompt CLIPTextEncode: visible box, default `High resolution photography`, user may edit (locked 2026-08-31). Video: do **not** put scene details here.
 7. Save `outputs/<scene>/pano.png`. 360 preview.
 
-If UltimateSDUpscale cannot be ported: MVP = Real-ESRGAN 2× + lanczos to 8K only, and **label** that it does not match graph ⑤. Do not silently claim graph parity.
+If UltimateSDUpscale cannot be ported: that is a **Quality blocker**. Do **not** ship Real-ESRGAN 2× + lanczos as Quality. Quality 8K tail **must match graph ⑤** (locked 2026-09-01).
 
 **Seam INPAINT is not shared.** Two KSamplers in the JSON (id 86 is only a label, ignore it):
 
@@ -131,16 +132,17 @@ Dummy: [Phase 1 HTML](Votion_3DGS_2.0_Phase1.html). Same window chrome as P0 (ch
 
 ### Left rail
 
-- Toggle: **2D Images (default)** / **360 Images** / **text**. Until Ostris READY, 2D Images stays selected and Generate stays disabled (locked 2026-08-31).
-- **2D Images:** image drop, **h_fov** slider default **70** (dummy range 30–120 until Warp `INPUT_TYPES`), surroundings radios **Type a sentence** | **Florence-2 caption, then edit**, **Caption** button only when Florence-2 is selected (`engine.workers.caption`). Seeds IMAGE→PANO `12345` and seam INPAINT (node 63) `12345`. Upscaler prompt `High resolution photography`. Ostris banner + disabled Generate.
-- **360 Images:** 2:1 picker; `prompt.txt` (empty OK in P1); **Use as pano.png** and **Upscale to 8K**.
+- Toggle: **2D Images (default)** / **360 Images** / **text**. Native Ostris is READY — 2D Generate is enabled when a photo is loaded and surroundings are non-empty (locked 2026-09-03).
+- **2D Images:** image drop **shows a thumbnail**. **h_fov** slider **and** typed number, default **70**, range **10–170**, step **0.5**. Surroundings radios **Type a sentence** | **Florence-2 caption, then edit**, **Caption** button only when Florence-2 is selected (`engine.workers.caption`). Always append **`no peoples, no cars`**. Seeds IMAGE→PANO `12345` and seam INPAINT (node 63) `12345`. Upscaler prompt `High resolution photography`.
+- **360 Images:** 2:1 picker; `prompt.txt` (empty OK in P1); **Use as pano.png** and **Upscale to 8K**; keep the upscaler prompt box.
 - **text:** locked trigger prefix, scene sentence, `prompt.txt` preview = prefix + sentence, seeds TEXT→PANO `322344328372862` and seam (node 31) `8`, Generate enabled.
 
 ### Viewport
 
-- Split: **left 2:1**, **right drag-to-look 360**.
-- **2D Images before Generate:** left is the Warp **green `#00ff00` ERP canvas** (2:1), photo in a **curved FOV window**, **+** crosshair, footer **2048 × 1024**. Dragging h_fov widens/narrows that window. Right 360 uses the same still. After a successful Generate, left becomes the **8K ERP** and right looks around that file.
-- **360 Images / text:** left = unwrapped 2:1 ERP, right = 360 of that file.
+- Split is **user-draggable**. **Left** 2:1 ERP. **Right** spherical look (yaw + pitch) — HDRI-style, not a pan-only unwrapped strip.
+- Left pane **Fit** = full picture in the pane. **100%** = native pixels + 2D slide. Right 360 pane stays the spherical look.
+- **2D Images before Generate:** left is the Warp **green `#00ff00` ERP canvas** (2:1), photo in a **curved FOV window**, **+** crosshair, footer **2048 × 1024**. Type or drag h_fov to widen/narrow that window. Right 360 is the same still, warped to a sphere. After a successful Generate, left becomes the **8K ERP** and right looks around that file.
+- **360 Images / text:** left = unwrapped 2:1 ERP, right = spherical look of that file.
 
 ### Drawers
 
@@ -164,9 +166,12 @@ Florence-2 is a **separate** short job (`engine.workers.caption`) that only fill
 - [ ] **2D Images** is the default toggle.
 - [ ] **360 Images:** 2:1 file becomes `pano.png` without Krea.
 - [ ] **text:** 2:1 image **without** a 2D input image; trigger prefix still on the Krea prompt.
-- [ ] **2D Images:** Generate stays disabled until native Ostris is READY (log says so).
-- [ ] **2D Images,** once Ostris READY: original image region recognizable; outpaint instruction string unchanged; left/right seam not a visible cut in the 360 viewer.
-- [ ] Florence-2 fills the surroundings box; user can edit; empty manual box blocks Generate.
+- [ ] **2D Images:** Generate is enabled when Ostris is READY, a photo is loaded, and surroundings are non-empty.
+- [ ] **2D Images:** original image region recognizable; outpaint instruction string unchanged; left/right seam not a visible cut in the 360 viewer.
+- [ ] Florence-2 fills the surroundings box **and** appends `no peoples, no cars`; user can edit; empty manual box blocks Generate.
+- [ ] Typed surroundings also end with `no peoples, no cars` in `prompt.txt`.
+- [ ] Left 2:1 **Fit / 100%** and a draggable split; right 360 tilts and looks spherical.
+- [ ] **h_fov** accepts a typed value as well as the slider (10–170, step 0.5).
 - [ ] **2D Images** and **text:** final size **measured** (expect 8192×4096) and recorded in `env_report` / scene log.
 - [ ] Same 8K file is what Phase 3 HiRes uses as geometry pano **and** texture.
 
@@ -174,11 +179,11 @@ Florence-2 is a **separate** short job (`engine.workers.caption`) that only fill
 
 ## Risks · do not
 
-- Do not shell out to ComfyUI if Ostris is late.
+- Do not shell out to ComfyUI.
 - Do not invent Warp widget names; read `INPUT_TYPES` at the Mickmumpitz-Nodes pin.
-- Do not invent a Florence-2 Hub revision — pin the first working id in the manifest.
+- Do not invent a Florence-2 Hub revision — pin the first working id in the manifest (done: `florence-community/Florence-2-large` @ `4271c66`).
 - Do not generate at 8K natively in Krea. Do not skip seam roll.
-- Do not strip trigger prefix / outpaint instruction.
+- Do not strip trigger prefix / outpaint instruction / surroundings suffix `no peoples, no cars`.
 - Do not bring HunyuanWorld / FLUX Fill back.
 
 ---

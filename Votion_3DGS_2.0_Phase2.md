@@ -14,7 +14,7 @@ Prove the **splat path without WAN**: take the Phase 1 ERP, run **Compute geomet
 
 This is the first Unreal-validating slice. Phase 1 already created or loaded the pano. Phase 3 later *fills holes* with WAN and adds three more rails. Phase 2 may use a **fixture control video** (mesh reprojection only) if WAN weights are not downloaded yet — that video will have black holes. SfM/train still must run so the plumbing is real.
 
-If Phase 1 **2D Images** is blocked on Ostris, Phase 2 still runs on **360 Images** or **text** (or a fixture 360).
+If Phase 1 **2D Images** is unavailable, Phase 2 still runs on **360 Images** or **text** (or a fixture 360). Ostris is READY as of 2026-09-03.
 
 ---
 
@@ -163,7 +163,7 @@ Dummy: same HTML, second window. **Splat3 | MCMC** chips (default Splat3), max s
 |---------|--------|
 | `ui/job_control.py` | Cancel flag (already sketched in P0) |
 | `ui/camera_presets.py` | Rail **templates** only. Map lookaround / orbit / dolly onto SplatKit archetypes later in P3; P2 only needs the node-27 default + free edit. |
-| `ui/camera_path_viz.py` | FLOOR + SIDE + star + LOOK rays. Port matplotlib/plotly to vispy **or** QWebEngine. Pick one; do not ship both. Do not embed Comfy `camera_plot_geo.js`. |
+| `ui/camera_path_viz.py` | FLOOR + SIDE + star + LOOK rays. Port matplotlib/plotly to **vispy** (locked 2026-09-01). Do not ship QWebEngine. Do not embed Comfy `camera_plot_geo.js`. |
 | `tools/train_splat_live.py` | COLMAP cameras.bin/images.bin (or text). Keep live loss, checkpoint, `splat.ply`. Pass Splat3 (`DefaultStrategy`) or MCMC (`MCMCStrategy`). |
 | `ui/theme.css` | Qt stylesheet tokens |
 

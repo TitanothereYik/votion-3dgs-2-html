@@ -44,21 +44,22 @@ These are the only product facts treated as **locked**. Everything else in the p
 11. **Trainer:** in-app gsplat → `splat.ply`. User picks **Splat3** (default) or **MCMC** on the Splat page before Train / Retrain. Splat3 = gsplat `DefaultStrategy` (original 3DGS densify / split / prune). MCMC = gsplat `MCMCStrategy` ([3DGS as MCMC](https://arxiv.org/abs/2404.09591)). ADC / Splat Density is not offered. Continue uses the checkpoint’s strategy; switching Splat3 ↔ MCMC requires Retrain. In-app Splat3 is **not** Jawset Postshot’s binary. Brush / LichtFeld / Postshot stay “Open in…”.
 12. **Unreal:** Engine **5.5** + **MLSLabsRenderer** (interim) for `splat.ply` playback — [GitHub](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE) · [Fab](https://www.fab.com/listings/f91b57cc-958d-40dd-a455-2535bf00e588). Hold an **update slot** for a better UE renderer later.
 13. **Pano inputs (2.0):** three first-class modes on Phase 1 — **(1) 2D Images → ERP (default)**, **(2) 360 Images**, **(3) text → ERP**. Happy path is (1) then Phase 2 splat then Phase 3 WAN.
-14. **2D Images surroundings:** user types a sentence **or** local **Florence-2** captions the 2D image (editable). Exact Florence-2 Hub id is **not** pinned here — record it in `model_manifest.json` on first successful P1 install.
-15. **Ostris:** native port required for **2D Images**. Until READY, disable 2D Images Generate; **360 Images** and **text** still work; Phase 2 can splat those.
+14. **2D Images surroundings:** user types a sentence **or** local **Florence-2** captions the 2D image (editable). Always append **`no peoples, no cars`** at the end (typed or caption). Empty box still blocks Generate. Florence Hub (measured first successful P1 caption): `florence-community/Florence-2-large` rev `4271c66b88cdbc05735372ec13b2360108de5317`.
+15. **Ostris:** native port **READY** (2026-09-03, pack pin `7756566160c4a1b24bb1bd9f0ff3ced1a83d7547`). 2D Images Generate is enabled. Do **not** shell out to ComfyUI.
 16. **Chrome:** V1 left rail + right viewport + six P0 names as stage chips. Chips **navigate** the six pages. **Log** and **Help** are matching bottom drawers (not a Home accordion, not a seventh page).
-17. **Panorama viewport:** 2:1 ERP still left, drag-to-look 360 right.
+17. **Panorama viewport (2026-09-03):** user-draggable split. **Left** = unwrapped 2:1 ERP (live h_fov warp before 2D Generate, then the 8K file). **Fit** = full picture in the pane. **100%** = native pixels + 2D slide. **Right** = spherical HDRI-style look (yaw + pitch), not a pan-only 2:1 strip. 2D drop shows a thumbnail; live warp shows the photo.
 18. **Seeds visible and editable:** 2D IMAGE→PANO `12345`, 2D seam `12345`, text TEXT→PANO `322344328372862`, text seam `8`, WAN `0`.
-19. **Upscaler prompt:** visible box, default `High resolution photography`, editable.
-20. **Geometry editor:** SplatKit Plot Camera chrome. Cyan **star 0** (pano origin) is locked. Red cameras **1, 2, 3…** are draggable. Each camera has a **cyan look arrow**. In `look_at_target`, one **orange look-at** aims every arrow (drag the orange). `look_forward` + drag a look arrow → `per_point_look`. FLOOR / SIDE / Preview flight use the three street plates in `docs/media/geo-*.png`.
-21. **Seam INPAINT:** keep two recipes (TEXT node 31 vs IMAGE node 63). Do not copy TEXT onto 2D Images.
-22. **360 Images size:** store as-is; visible **Upscale to 8K** runs the shared tail.
-23. **Owner / license / audience (2026-09-01):** owner **Yik** (personal); license **MIT**; first audience a **small private team**. No telemetry.
-24. **Geometry viewport:** **vispy**. Do not ship QWebEngine.
-25. **Installer:** **Inno Setup**.
-26. **Profiles at 2.0 launch:** Quality **and** Fast **and** Scout all ship. Fast/Scout stay disabled in the P0 dummy until P4 unlocks them.
-27. **moge_level:** Plot Camera **9** and HiRes **6** — copy both forever; do not unify.
-28. **Hub cache (2026-09-02):** On **Download models**, Hugging Face hub + Xet cache is `<install_root>\.hf_cache\` (`HF_HOME`, `HF_HUB_CACHE`, `HF_XET_CACHE`). `<install_root>` is the folder the user selected in the Inno Setup installer (dev default `D:\Votion3DGS`). Do **not** write Hub cache to `C:\Users\<user>\.cache\huggingface`.
+19. **Upscaler prompt:** visible box, default `High resolution photography`, editable. **Keep it on the 360 Images rail** (graph ⑤). Also on 2D and text.
+20. **h_fov (2026-09-03):** slider **and** typed number. Default **70**. Range **10–170**, step **0.5** (`MickmumpitzPanoWarp` `INPUT_TYPES`). Live warp on the left 2:1 pane.
+21. **Geometry editor:** SplatKit Plot Camera chrome. Cyan **star 0** (pano origin) is locked. Red cameras **1, 2, 3…** are draggable. Each camera has a **cyan look arrow**. In `look_at_target`, one **orange look-at** aims every arrow (drag the orange). `look_forward` + drag a look arrow → `per_point_look`. FLOOR / SIDE / Preview flight use the three street plates in `docs/media/geo-*.png`.
+22. **Seam INPAINT:** keep two recipes (TEXT node 31 vs IMAGE node 63). Do not copy TEXT onto 2D Images.
+23. **360 Images size:** store as-is; visible **Upscale to 8K** runs the shared tail.
+24. **Owner / license / audience (2026-09-01):** owner **Yik** (personal); license **MIT**; first audience a **small private team**. No telemetry.
+25. **Geometry viewport:** **vispy**. Do not ship QWebEngine.
+26. **Installer:** **Inno Setup**.
+27. **Profiles at 2.0 launch:** Quality **and** Fast **and** Scout all ship. Fast/Scout stay disabled in the P0 dummy until P4 unlocks them.
+28. **moge_level:** Plot Camera **9** and HiRes **6** — copy both forever; do not unify.
+29. **Hub cache (2026-09-02):** On **Download models**, Hugging Face hub + Xet cache is `<install_root>\.hf_cache\` (`HF_HOME`, `HF_HUB_CACHE`, `HF_XET_CACHE`). `<install_root>` is the folder the user selected in the Inno Setup installer (dev default `D:\Votion3DGS`). Do **not** write Hub cache to `C:\Users\<user>\.cache\huggingface`.
 
 ### Measured on this PC (not guessed)
 
@@ -71,17 +72,19 @@ These are the only product facts treated as **locked**. Everything else in the p
 | V1 app | Gradio + WSL2 + WorldFM + custom `train_splat_live.py` (not nerfstudio) | `Yik Votion WorldFM` |
 | Host Python 3.12 | **3.12.10** (`py -3.12`) | Measured 2026-09-01 |
 | GPU | RTX 3090 24GB, driver **595.79**, nvidia-smi CUDA **13.2** (driver max; venv torch stays cu128) | `nvidia-smi` 2026-09-01 |
-| Disk free on `D:` | **142.3 GB** | `shutil.disk_usage('D:\\')` 2026-09-01 |
+| Florence-2 Hub | `florence-community/Florence-2-large` rev `4271c66b88cdbc05735372ec13b2360108de5317` | First successful P1 caption |
+| Warp h_fov range | **10–170**, step **0.5** | `MickmumpitzPanoWarp` `INPUT_TYPES` at vendor pin |
+| Ostris Edit | Native port **READY** | 2026-09-03; pack pin `7756566` |
 
 ### Still UNKNOWN (do not fill in)
 
 - Exact PyTorch 2.x patch number for cu128 + Python 3.12 on Windows.
 - Whether `gsplat` CUDA wheels exist for Python 3.12 + CUDA 12.8 on Windows (Phase 0 spike).
 - Whether `triton-windows` / SageAttention build on this stack (optional accelerators).
-- Exact Florence-2 Hub id / revision.
-- MickmumpitzPanoWarp widget names other than the titled h_fov=70 (read `INPUT_TYPES` at node pin).
+- MickmumpitzPanoWarp widget names **other than** h_fov (min/max/step locked: 10–170 / 0.5).
 - Harmonize / UltimateSDUpscale extra widget names (copy arrays from the Krea JSON; name from node source at pin).
-- Native Ostris Edit port on Windows (blocks **2D Images** until READY).
+- ~~Exact Florence-2 Hub id / revision.~~ **Measured:** `florence-community/Florence-2-large` @ `4271c66`.
+- ~~Native Ostris Edit port on Windows.~~ **READY 2026-09-03.** Do not shell out to ComfyUI.
 - ~~Disk free space on `D:` for ~45–60 GB models.~~ **Measured 2026-09-01:** 142.3 GB free. Downloader still checks before WAN 14B.
 - ~~Unreal Engine version / playback plugin~~ **Locked (interim):** UE 5.5 + MLSLabsRenderer. **Update slot open** for a future better renderer.
 
@@ -184,7 +187,7 @@ GGUF alternative (workflow: “16GB or less”; **not** the 3090 Quality default
 
 MoGe checkpoint: Hugging Face `Ruicheng/moge-vitl` `model.pt` (SplatKit default). SphereSfM: `colmap_sphere.exe` auto-download from SplatKit `bin/` (SHA verified there — copy that checksum into our downloader; do not invent one).
 
-Florence-2 (Phase 1 auto-caption, optional): Microsoft Florence-2, Apache-2.0. **Exact repo id/revision UNKNOWN** until first successful P1 install — write it into `model_manifest.json`. Do not invent a quantized fork.
+Florence-2 (Phase 1 auto-caption, optional): Microsoft Florence-2 family, Apache-2.0. Hub (first successful P1 caption): `florence-community/Florence-2-large` rev `4271c66b88cdbc05735372ec13b2360108de5317`. Always append `no peoples, no cars`. Do not invent a quantized fork.
 
 ---
 
@@ -227,6 +230,6 @@ Shared window (every dummy `.desk`):
 | [Phase 3](Votion_3DGS_2.0_Phase3.html) | Geometry (4 rails), Generate (WAN + HiRes mask split) |
 | [Phase 4](Votion_3DGS_2.0_Phase4.html) | Splat Open-in… + Splat3 / MCMC, Home Help / `config.json` |
 
-Interactive bits in the dummies (not screenshots of a running app): Panorama **h_fov** slider warps the green FOV window; Geometry **drag cameras 1–3** and the **orange look-at**; Splat **Splat3 / MCMC** chips (`docs/rail-dummy.js`).
+Interactive bits in the dummies (not screenshots of a running app): Panorama **h_fov** type-or-drag warps the green FOV window; **Fit / 100%** on the left 2:1 pane; Geometry **drag cameras 1–3** and the **orange look-at**; Splat **Splat3 / MCMC** chips (`docs/rail-dummy.js`).
 
 Unreal import target is **UE 5.5** + **MLSLabsRenderer** (interim). Update slot held for a future better UE splat renderer.

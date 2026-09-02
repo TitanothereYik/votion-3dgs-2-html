@@ -1135,6 +1135,51 @@ footer {
   color: var(--cyan);
   margin: 0 0 0.35rem;
 }
+.pano-split {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) 8px minmax(80px, 1fr);
+  gap: 0.35rem 0;
+  align-items: stretch;
+  min-height: 200px;
+}
+.pano-gutter {
+  width: 8px;
+  background: #1c2b3a;
+  cursor: col-resize;
+  justify-self: center;
+  align-self: stretch;
+}
+.pano-gutter:hover { background: var(--accent); }
+.view-lbl-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  margin: 0 0 0.35rem;
+}
+.view-lbl-row .view-lbl { margin: 0; }
+.view-lbl-row .f-tog { margin: 0; flex: 0 0 auto; }
+.f-tog.tiny button { padding: 0.12rem 0.4rem; font-size: 10px; }
+.hfov-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 0.55rem 0 0.22rem;
+}
+.hfov-row .f-lab { margin: 0; }
+.hfov-num {
+  width: 4.6rem;
+  text-align: right;
+  padding: 0.2rem 0.35rem;
+}
+.erp-pane { overflow: hidden; min-width: 0; }
+.erp-pane.is-100 { overflow: auto; }
+.erp-pane.is-100 .fov-stage,
+.erp-pane.is-100 .erp-preview {
+  width: 720px;
+  max-width: none;
+}
 .stat-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

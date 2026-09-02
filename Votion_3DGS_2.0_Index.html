@@ -94,10 +94,12 @@
           <a href="https://www.fab.com/listings/f91b57cc-958d-40dd-a455-2535bf00e588">Fab</a>.
           Update slot held for a future better UE renderer.</li>
         <li><strong>Pano inputs:</strong> three first-class Phase 1 modes — (1) <strong>2D Images</strong> → ERP (default), (2) <strong>360 Images</strong>, (3) <strong>text</strong> → ERP. Happy path is (1) then Phase 2 splat then Phase 3 WAN.</li>
-        <li><strong>2D Images surroundings:</strong> type a sentence or local Florence-2 caption (editable). Exact Hub id is not pinned — write it to <code>model_manifest.json</code> on first successful P1 install.</li>
-        <li><strong>Ostris:</strong> native port required for 2D Images. Until READY, disable 2D Images Generate. 360 Images and text still work; Phase 2 can splat those.</li>
+        <li><strong>2D Images surroundings:</strong> type a sentence or local Florence-2 caption (editable). Always append <code>no peoples, no cars</code>. Empty still blocks Generate. Hub: <code>florence-community/Florence-2-large</code> @ <code>4271c66</code>.</li>
+        <li><strong>Ostris:</strong> native port <strong>READY</strong> (2026-09-03). 2D Images Generate is enabled. Do not shell out to ComfyUI.</li>
         <li><strong>Chrome:</strong> V1 left rail + right viewport + six P0 stage chips. Log and Help are matching bottom drawers.</li>
-        <li><strong>Panorama viewport:</strong> 2:1 ERP still left, drag-to-look 360 right.</li>
+        <li><strong>Panorama viewport (2026-09-03):</strong> user-draggable split. Left 2:1 ERP: <strong>Fit</strong> (full picture) or <strong>100%</strong> (native pixels + 2D slide). Right = spherical HDRI-style look (yaw + pitch), not a pan-only strip. 2D drop shows a thumbnail.</li>
+        <li><strong>h_fov:</strong> slider <strong>and</strong> typed number. Default 70. Range 10–170, step 0.5.</li>
+        <li><strong>Upscaler prompt:</strong> visible box, default <code>High resolution photography</code>. Keep it on the 360 Images rail.</li>
         <li><strong>Seeds visible:</strong> 2D <code>12345</code> / seam <code>12345</code>; text <code>322344328372862</code> / seam <code>8</code>; WAN <code>0</code>.</li>
         <li><strong>Geometry viewport:</strong> drag knots and look arrows; star locked; Preview flight is a third pane with Play on the pane (no rail Preview button). Viewport library: <strong>vispy</strong> (not QWebEngine).</li>
         <li><strong>Owner / license / audience:</strong> Yik (personal); MIT; small private team. No telemetry.</li>
@@ -122,9 +124,9 @@
       <div class="callout warn">
         <strong>Still unknown — do not invent:</strong> PyTorch cu128 patch number;
         whether gsplat / triton-windows / SageAttention wheels exist for Python 3.12 + CUDA 12.8 on Windows;
-        exact Florence-2 Hub id / revision; Warp widget names other than h_fov=70;
-        Harmonize / UltimateSDUpscale extra names (copy JSON arrays); native Ostris port;
-        free disk on D: for ~45–60 GB models.
+        Warp widget names other than h_fov (range 10–170 step 0.5 is locked);
+        Harmonize / UltimateSDUpscale extra names (copy JSON arrays).
+        Florence Hub, Ostris READY, and h_fov min/max are locked 2026-09-03.
       </div>
     </section>
 
@@ -222,7 +224,7 @@
           </div>
           <div class="desk-view">
             <p class="view-lbl">Happy path</p>
-            <p class="f-hint">2D Images (or 360 / text) → 8K ERP → Compute geometry → rails → Generate → splat.ply (Splat3 or MCMC). 2D Generate waits on Ostris.</p>
+            <p class="f-hint">2D Images (or 360 / text) → 8K ERP → Compute geometry → rails → Generate → splat.ply (Splat3 or MCMC). Ostris is READY.</p>
           </div>
         </div>
         <div class="desk-draws">
@@ -230,7 +232,8 @@
         <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
           <b>FIELD GUIDE</b><br />
           2D Images (default) or 360 / text → 8K ERP → Compute geometry → rails → Generate → splat.ply (Splat3 or MCMC).
-          Ostris blocks 2D Generate until READY. h_fov 70. text keeps the trigger prefix.
+          Ostris Edit is native READY. h_fov 10–170, type or drag, default 70. Surroundings always end with no peoples, no cars.
+          Left 2:1 Fit / 100% + draggable split. Right 360 is spherical (yaw + pitch). text keeps the trigger prefix.
           After 2D Images, prompt.txt = outpaint instruction + surroundings. WAN prompt must match the pano.
           Preview the mesh flight. Four rails usually enough. Do not skip 8K. Extra rails do not fix glass.
         </div></details>

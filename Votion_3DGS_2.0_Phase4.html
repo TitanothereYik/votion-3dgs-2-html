@@ -215,7 +215,8 @@
         <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
           <b>FIELD GUIDE</b><br />
           2D Images (default) or 360 / text → 8K ERP → Compute geometry → rails → Generate → splat.ply.
-          Ostris blocks 2D Generate until READY. h_fov 70. text keeps the trigger prefix.
+          Ostris Edit is native READY. h_fov 10–170, type or drag, default 70. Surroundings always end with no peoples, no cars.
+          Left 2:1 Fit / 100% + draggable split. Right 360 is spherical (yaw + pitch). text keeps the trigger prefix.
           After 2D Images, prompt.txt = outpaint instruction + surroundings. WAN prompt must match the pano.
           Preview the mesh flight. Four rails usually enough. Do not skip 8K. Extra rails do not fix glass.
           In-app train: Splat3 (default) or MCMC. Brush: Directory → outputs/&lt;scene&gt; → Start. Unreal: UE 5.5 + MLSLabsRenderer import splat.ply.
@@ -232,7 +233,7 @@
     <section>
       <h2><span class="num">06</span>Acceptance</h2>
       <ul class="check">
-        <li>Fresh Win11 + 3090: Setup → Download Quality models → Launch → <strong>2D Images (or 360 Images / text)</strong> → 8K ERP → rails → Generate → <code>splat.ply</code> without WSL or ComfyUI running. 2D Images requires Ostris READY; until then 360 Images / text still complete the product loop.</li>
+        <li>Fresh Win11 + 3090: Setup → Download Quality models → Launch → <strong>2D Images (or 360 Images / text)</strong> → 8K ERP → rails → Generate → <code>splat.ply</code> without WSL or ComfyUI running. Ostris is READY for 2D Images.</li>
         <li>Splat page: Splat3 (default) and MCMC both train to <code>splat.ply</code>; switching strategy requires Retrain.</li>
         <li>Fast/Scout selectable; Scout skips HiRes.</li>
         <li>Kill mid-WAN: cancel works; scene reloadable.</li>

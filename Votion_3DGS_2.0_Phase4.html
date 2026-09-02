@@ -37,7 +37,7 @@
     <section>
       <h2><span class="num">01</span>Locked facts</h2>
       <ul>
-        <li>Small installer: app + venv bootstrap; models download after install. No HF token UI for the default manifest.</li>
+        <li>Small installer: app + venv bootstrap; models download after install into the folder the user selected. Hub cache is <code>&lt;install_root&gt;\.hf_cache\</code>; ready weights are <code>&lt;install_root&gt;\models\</code>. No HF token UI for the default manifest.</li>
         <li>Native Windows — reuse SmallInstaller <em>ideas</em> from V1, not WSL scripts.</li>
         <li>In-app gsplat remains the trainer. User picks <strong>Splat3</strong> (default) or <strong>MCMC</strong> on the Splat page. External trainers are one-click folder open.</li>
         <li>Gaussian cap ~3M (1M hides 8K gain).</li>
@@ -64,7 +64,7 @@
         <div class="pipe-arr">→</div>
         <div class="pipe-node"><b>Start Menu</b>Launch · Download models · Setup (venv + driver check)</div>
         <div class="pipe-arr">→</div>
-        <div class="pipe-node out"><b>Install dir</b><code>D:\Votion3DGS</code> · also test a path with spaces. Do not embed WAN 14B.</div>
+        <div class="pipe-node out"><b>Install dir</b>User-selected folder (default <code>D:\Votion3DGS</code>). Hub cache <code>.hf_cache</code> + <code>models</code> live there. Also test a path with spaces. Do not embed WAN 14B.</div>
       </div>
     </section>
 
@@ -199,7 +199,7 @@
             <label class="f-lab">Profile (P4 unlocks Fast/Scout)</label>
             <select class="f-sel" disabled>
               <option selected>Quality · 14B + 8K · 4 rails</option>
-              <option>Fast · GGUF or 5B · 2–4 rails</option>
+              <option>Fast · Matrix-3D 5B · 2–4 rails</option>
               <option>Scout · skip WAN/HiRes · 1 rail</option>
             </select>
             <label class="f-lab">config.json</label>
@@ -226,7 +226,7 @@
         <img src="media/mlslabs-play.jpg" alt="MLSLabsRenderer playing a Gaussian splat in Unreal" />
         <figcaption>Field-guide recipe target: play <code>splat.ply</code> in UE 5.5. Source: <a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE">MLSLabsRenderer</a></figcaption>
       </figure>
-      <p><code>D:\Votion3DGS\config.json</code>: GPU index, ComfyUI root (default <code>D:\ComfyUI_windows_portable_360</code>), trainer exe paths, last scene, profile, last splat strategy (<code>splat3</code> / <code>mcmc</code>). No HF tokens.</p>
+      <p><code>&lt;install_root&gt;\config.json</code> (dev default <code>D:\Votion3DGS\config.json</code>): GPU index, ComfyUI root (default <code>D:\ComfyUI_windows_portable_360</code>), trainer exe paths, last scene, profile, last splat strategy (<code>splat3</code> / <code>mcmc</code>). Hub cache is <code>&lt;install_root&gt;\.hf_cache</code>, not an env var in the user profile. No HF tokens.</p>
     </section>
 
     <section>
@@ -238,6 +238,7 @@
         <li>Kill mid-WAN: cancel works; scene reloadable.</li>
         <li>Open-in-Explorer works even if Brush is not installed.</li>
         <li>Installer is small relative to the model pack.</li>
+        <li>After Download models, Hub cache is under the chosen install dir (<code>.hf_cache</code>), not <code>C:\Users\&lt;user&gt;\.cache\huggingface</code>.</li>
         <li><code>splat.ply</code> imports and plays in UE 5.5 via MLSLabsRenderer (manual check).</li>
       </ul>
     </section>

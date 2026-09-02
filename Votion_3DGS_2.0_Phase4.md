@@ -16,17 +16,18 @@ Reuse ideas from `Yik Votion WorldFM/docs/SmallInstaller_EasyUsers_Plan.md` (ung
 
 ## Locked facts
 
-- Small installer: app + venv bootstrap; models download post-install.
+- Small installer: app + venv bootstrap; models download post-install into the **install folder the user selected**. Hub cache is `<install_root>\.hf_cache\`; ready weights are `<install_root>\models\`. Do not use `C:\Users\<user>\.cache\huggingface`.
 - No Hugging Face token UI for the default manifest (all listed files were public URLs in the Comfy notes).
 - Profiles:
 
 | Profile | WAN | HiRes | Rails | Notes |
 |---------|-----|-------|--------|--------|
 | Quality | 14B fp8 720p + LightX2V | 8K geometry | 4 | Locked default for 3090 |
-| Fast | GGUF Q4 **or** Matrix-3D 5B | 8K optional | 2–4 | 5B weights optional download |
+| Fast | **Matrix-3D 5B** (default). GGUF Q4 is not the Fast default. | 8K optional | 2–4 | Exact 5B filename from Matrix-3D README at implement — do not invent. |
 | Scout | 5B or skip WAN | skip | 1 | Plumbing / path check |
 
 - In-app gsplat remains the trainer; the user chooses **Splat3** (default) or **MCMC** on the Splat page. External trainers are one-click folder open.
+- **Quality + Fast + Scout all ship** on 2.0 day-1 (locked 2026-09-01). Fast/Scout stay disabled on the P0 Home dummy until this phase unlocks them.
 - Gaussian cap ~3M; document why 1M is wrong for 8K datasets (SplatKit HiRes doc).
 - Crash reload: V1 already has “Reload path from disk” / “Reload 3DGS from disk” — port that behavior.
 
@@ -34,7 +35,7 @@ Reuse ideas from `Yik Votion WorldFM/docs/SmallInstaller_EasyUsers_Plan.md` (ung
 
 ## Installer
 
-Inno or NSIS (pick one at implement time; **UNKNOWN which you prefer** — default Inno if unset).
+**Inno Setup** (locked 2026-09-01).
 
 Start Menu:
 
@@ -42,7 +43,7 @@ Start Menu:
 2. Download models  
 3. Setup (create venv, check NVIDIA driver)
 
-Install dir default: `D:\Votion3DGS` (space-free, matches your code home). Also test a path with spaces.
+Install dir default: `D:\Votion3DGS` (space-free, matches your code home). Also test a path with spaces. That chosen folder **is** `<install_root>`: Hub cache `.hf_cache\` and ready `models\` live there.
 
 Do **not** embed WAN 14B in the installer.
 
@@ -137,13 +138,14 @@ Do not store HF tokens.
 - [ ] Kill mid-WAN: cancel works; scene reloadable.
 - [ ] Open-in-Explorer on COLMAP works even if Brush is not installed.
 - [ ] Installer is small relative to model pack.
+- [ ] After Download models, Hub cache is under the chosen install dir (`.hf_cache`), not `C:\Users\<user>\.cache\huggingface`.
 - [ ] `splat.ply` imports and plays in UE 5.5 via MLSLabsRenderer (manual check; record in `unreal_check.txt`).
 
 ---
 
 ## P5 reminder (not this phase)
 
-5B as Fast default, SeedVR2 **experiment only** (video: slow, little gain vs 8K reproject), macOS, Matrix-3D opt reconstruction — see [Index](Votion_3DGS_2.0_Index.md).
+5B as Fast default is a **2.0** lock. SeedVR2 **experiment only**, macOS, Matrix-3D opt reconstruction — see [Index](Votion_3DGS_2.0_Index.md).
 
 ---
 

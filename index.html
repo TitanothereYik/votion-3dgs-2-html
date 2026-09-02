@@ -80,7 +80,7 @@
         <li><strong>Docs:</strong> index + one file per phase (markdown + HTML).</li>
         <li><strong>Code home:</strong> <code>D:\Votion3DGS\</code>. Docs also copied here.</li>
         <li><strong>GPU / WAN:</strong> RTX 3090 24GB. Quality = WAN 2.1 I2V <strong>14B fp8 720p</strong> + LightX2V.</li>
-        <li><strong>Weights:</strong> copy from ComfyUI if present; else Hugging Face into <code>D:\Votion3DGS\models</code>.</li>
+        <li><strong>Weights:</strong> copy from ComfyUI if present; else Hugging Face into <code>&lt;install_root&gt;\models</code> (dev default <code>D:\Votion3DGS</code>).</li>
         <li><strong>ComfyUI root:</strong> <code>D:\ComfyUI_windows_portable_360</code></li>
         <li><strong>Venv:</strong> independent Python 3.12 + CUDA 12.8 + PyTorch cu128. Do not reuse <code>python_embeded</code>.</li>
         <li>Exact PyTorch <em>patch</em> is not pinned — write <code>requirements.lock</code> on first Phase 0 install.</li>
@@ -99,7 +99,12 @@
         <li><strong>Chrome:</strong> V1 left rail + right viewport + six P0 stage chips. Log and Help are matching bottom drawers.</li>
         <li><strong>Panorama viewport:</strong> 2:1 ERP still left, drag-to-look 360 right.</li>
         <li><strong>Seeds visible:</strong> 2D <code>12345</code> / seam <code>12345</code>; text <code>322344328372862</code> / seam <code>8</code>; WAN <code>0</code>.</li>
-        <li><strong>Geometry viewport:</strong> drag knots and look arrows; star locked; Preview flight is a third pane with Play on the pane (no rail Preview button).</li>
+        <li><strong>Geometry viewport:</strong> drag knots and look arrows; star locked; Preview flight is a third pane with Play on the pane (no rail Preview button). Viewport library: <strong>vispy</strong> (not QWebEngine).</li>
+        <li><strong>Owner / license / audience:</strong> Yik (personal); MIT; small private team. No telemetry.</li>
+        <li><strong>Installer:</strong> Inno Setup. Quality + Fast + Scout all ship on 2.0 day-1. Plot Camera moge_level 9 and HiRes 6 stay different.</li>
+        <li><strong>Hub cache (2026-09-02):</strong> On Download models, Hugging Face hub + Xet cache is <code>&lt;install_root&gt;\.hf_cache\</code>
+          (<code>HF_HOME</code>). <code>&lt;install_root&gt;</code> is the folder the user selected in Inno Setup (dev default <code>D:\Votion3DGS</code>).
+          Do <strong>not</strong> write Hub cache to <code>C:\Users\&lt;user&gt;\.cache\huggingface</code>.</li>
       </ol>
 
       <h3>Measured on this PC (not guessed)</h3>
@@ -267,7 +272,8 @@
   vendor\splatkit\     core/ + shim/ (MIT, no ComfyUI imports)
   vendor\moge\
   bin\                 colmap_sphere.exe
-  models\              HF downloads
+  .hf_cache\           Hub + Xet cache (install folder the user chose; not C:\Users\…\.cache)
+  models\              ready weights (HF download / Comfy copy)
   outputs\&lt;scene&gt;\
   docs\                these phase plans
   tools\               download_models.py, model_manifest.json
@@ -281,6 +287,7 @@
         <code>d:\AI_3DGS\260825_MICKMUMPITZ_Krea2-360Pano-Creator_1-0.json</code> and
         <code>d:\AI_3DGS\260825_MICKMUMPITZ_3DGS-Dataset-Creator_1-0_SMPL.json</code>.
         Sizes are omitted unless a source stated them.
+        Download into <code>&lt;install_root&gt;\models\</code>. Hub blobs land in <code>&lt;install_root&gt;\.hf_cache\</code> first, not <code>C:\Users\&lt;user&gt;\.cache\huggingface</code>.
       </p>
       <h3>Panorama (Phase 1; downloader can fetch in Phase 0)</h3>
       <table>
@@ -308,7 +315,7 @@
         </tbody>
       </table>
       <p>
-        GGUF Q4 is the workflow’s 16GB option — not the 3090 Quality default.
+        GGUF Q4 is the workflow’s 16GB option — not the 3090 Quality default, and not the Fast default (Fast = Matrix-3D 5B).
         MoGe: <code>Ruicheng/moge-vitl</code> <code>model.pt</code> (Phase 2 subset).
         SphereSfM: <code>colmap_sphere.exe</code> with SplatKit’s SHA check — do not invent a hash.
         Florence-2 (optional P1 caption): Microsoft Florence-2, Apache-2.0. Exact repo id/revision unknown until first successful P1 install — write it into <code>model_manifest.json</code>. Do not invent a quantized fork.
@@ -321,7 +328,7 @@
         <thead><tr><th>Profile</th><th>Assumption</th><th>WAN</th><th>HiRes</th><th>Rails</th></tr></thead>
         <tbody>
           <tr><td><strong>Quality</strong> (locked)</td><td>RTX 3090 24GB</td><td>14B fp8 720p + LightX2V</td><td>8K geometry</td><td>4</td></tr>
-          <tr><td>Fast</td><td>16GB class</td><td>GGUF Q4 or Matrix-3D 5B</td><td>8K optional</td><td>2–4</td></tr>
+          <tr><td>Fast</td><td>16GB class</td><td>Matrix-3D 5B (default). GGUF Q4 is not the Fast default.</td><td>8K optional</td><td>2–4</td></tr>
           <tr><td>Scout</td><td>12GB class</td><td>5B or skip WAN</td><td>skip</td><td>1–2</td></tr>
         </tbody>
       </table>
@@ -393,7 +400,6 @@
     <section id="p5">
       <h2><span class="num">08</span>P5 stretch (not a 2.0 blocker)</h2>
       <ul>
-        <li>Matrix-3D 5B as default Fast path</li>
         <li>SeedVR2 as an experiment only — video: slow, little gain; not a substitute for 8K reprojection</li>
         <li>Matrix-3D optimization reconstruction as an advanced alternative to SphereSfM</li>
         <li>macOS: SplatKit SphereSfM is Windows/Linux only today</li>

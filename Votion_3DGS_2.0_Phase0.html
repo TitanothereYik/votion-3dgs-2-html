@@ -44,6 +44,8 @@
         Independent venv: Python <strong>3.12</strong> + CUDA <strong>12.8</strong> + PyTorch <strong>cu128</strong>.
         Do not reuse ComfyUI <code>python_embeded</code> (3.13 + torch 2.13.0+cu130).
         Weights lookup: <code>D:\ComfyUI_windows_portable_360\ComfyUI\models</code> first (inventory 2026-08-31: no required <code>.safetensors</code>).
+        Hub cache is <code>&lt;install_root&gt;\.hf_cache\</code> (the folder the user will select in Inno Setup; P0/dev root is <code>D:\Votion3DGS</code>).
+        Ready files go to <code>&lt;install_root&gt;\models\</code>. Do not write Hub cache to <code>C:\Users\&lt;user&gt;\.cache\huggingface</code>.
         GPU default: RTX 3090, index 0. Visual tokens from V1 <code>ui/theme.css</code> — do not invent a palette.
       </p>
     </section>
@@ -90,7 +92,7 @@
               <label><input type="radio" checked disabled /> P1 subset (default)</label>
               <label><input type="radio" disabled /> All (includes WAN 14B)</label>
             </div>
-            <p class="f-hint">Florence-2 only if captioning is enabled. MoGe is a P2 subset — not this default.</p>
+            <p class="f-hint">Florence-2 only if captioning is enabled. MoGe is a P2 subset — not this default. Hub cache sits in the install folder (<code>.hf_cache</code>), not <code>C:\Users\…\.cache</code>.</p>
             <div class="f-row">
               <button class="f-btn pri" type="button">Download models</button>
               <button class="f-btn ghost" type="button">Stop</button>
@@ -120,6 +122,7 @@
           Ostris blocks 2D Generate until READY. h_fov 70. text keeps the trigger prefix.
           After 2D Images, prompt.txt = outpaint instruction + surroundings. WAN prompt must match the pano.
           Preview the mesh flight. Four rails usually enough. Do not skip 8K. Extra rails do not fix glass.
+          Download models: Hub cache is the install folder <code>.hf_cache</code>, ready files in <code>models</code>.
         </div></details>
         </div>
       </div>
@@ -150,13 +153,13 @@ python tools\env_report.py</pre>
       <div class="pipe">
         <div class="pipe-node"><b>1</b>Look in ComfyUI <code>models\&lt;folder&gt;\&lt;file&gt;</code></div>
         <div class="pipe-arr">→</div>
-        <div class="pipe-node"><b>2</b>If found: copy or hardlink into <code>D:\Votion3DGS\models\</code></div>
+        <div class="pipe-node"><b>2</b>If found: copy or hardlink into <code>&lt;install_root&gt;\models\</code></div>
         <div class="pipe-arr">→</div>
-        <div class="pipe-node"><b>3</b>Else Hugging Face download</div>
+        <div class="pipe-node"><b>3</b>Else Hugging Face into <code>&lt;install_root&gt;\.hf_cache</code> then hardlink/copy to <code>models\</code></div>
         <div class="pipe-arr">→</div>
         <div class="pipe-node out"><b>4</b>Else <code>MISSING_&lt;id&gt;</code> + Index URL</div>
       </div>
-      <p>Default download set: <strong>P1 subset</strong> (Krea 2 + LoRAs + VAE + CLIP + RealESRGAN; Florence-2 if captioning is enabled). Optional “All” so WAN 14B is not forced before Phase 3.</p>
+      <p>Default download set: <strong>P1 subset</strong> (Krea 2 + LoRAs + VAE + CLIP + RealESRGAN; Florence-2 if captioning is enabled). Optional “All” so WAN 14B is not forced before Phase 3. Hub cache never uses <code>C:\Users\&lt;user&gt;\.cache\huggingface</code>.</p>
       <div class="fig-grid">
         <figure class="fig">
           <img src="media/krea2-hero.jpg" alt="Krea 2 — Phase 0 default P1 download" />
@@ -196,6 +199,7 @@ python tools\env_report.py</pre>
         <li><code>tools\launch.bat</code> opens a desktop window titled Votion 3DGS (not a browser).</li>
         <li><code>env_report.txt</code> shows Python 3.12, CUDA 12.8 torch, <code>cuda.is_available() True</code>.</li>
         <li>Krea 2 fp8 + CLIP + VAE reach <code>models\</code> or a clear missing-URL error. MoGe may still be missing.</li>
+        <li>A Hub download writes cache under <code>&lt;install_root&gt;\.hf_cache\</code> (P0: <code>D:\Votion3DGS\.hf_cache</code>), not <code>C:\Users\&lt;user&gt;\.cache\huggingface</code>.</li>
         <li>Dummy job streams; Stop kills the subprocess.</li>
         <li>No WSL, no localhost:7860, no ComfyUI process.</li>
       </ul>

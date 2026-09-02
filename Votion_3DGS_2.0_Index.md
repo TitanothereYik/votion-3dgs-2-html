@@ -36,7 +36,7 @@ These are the only product facts treated as **locked**. Everything else in the p
 3. **HTML layout:** index + one file per phase.
 4. **Code home:** `D:\Votion3DGS\`. Also copy these docs there when Agent mode is allowed.
 5. **GPU / WAN default:** RTX 3090 24GB. Quality = WAN 2.1 I2V **14B fp8 720p** + LightX2V.
-6. **Weights policy:** if a file exists in ComfyUI, copy into the project; otherwise download from Hugging Face into `D:\Votion3DGS\models`.
+6. **Weights policy:** if a file exists in ComfyUI, copy into `<install_root>\models`; otherwise download from Hugging Face. Ready files live under `<install_root>\models\` matching Comfy folder names. Dev default install root: `D:\Votion3DGS`. Hub cache is not the Windows user profile (see 28).
 7. **ComfyUI root (you named it):** `D:\ComfyUI_windows_portable_360`
 8. **Do not reuse Comfy `python_embeded`.** Independent Votion venv. Only weights may be copied.
 9. **Venv pin:** Python **3.12** + CUDA **12.8** + current stable PyTorch **cu128** wheel. Exact PyTorch *patch* is **not** pinned here — record it in `requirements.lock` on first successful Phase 0 install.
@@ -53,6 +53,12 @@ These are the only product facts treated as **locked**. Everything else in the p
 20. **Geometry editor:** SplatKit Plot Camera chrome. Cyan **star 0** (pano origin) is locked. Red cameras **1, 2, 3…** are draggable. Each camera has a **cyan look arrow**. In `look_at_target`, one **orange look-at** aims every arrow (drag the orange). `look_forward` + drag a look arrow → `per_point_look`. FLOOR / SIDE / Preview flight use the three street plates in `docs/media/geo-*.png`.
 21. **Seam INPAINT:** keep two recipes (TEXT node 31 vs IMAGE node 63). Do not copy TEXT onto 2D Images.
 22. **360 Images size:** store as-is; visible **Upscale to 8K** runs the shared tail.
+23. **Owner / license / audience (2026-09-01):** owner **Yik** (personal); license **MIT**; first audience a **small private team**. No telemetry.
+24. **Geometry viewport:** **vispy**. Do not ship QWebEngine.
+25. **Installer:** **Inno Setup**.
+26. **Profiles at 2.0 launch:** Quality **and** Fast **and** Scout all ship. Fast/Scout stay disabled in the P0 dummy until P4 unlocks them.
+27. **moge_level:** Plot Camera **9** and HiRes **6** — copy both forever; do not unify.
+28. **Hub cache (2026-09-02):** On **Download models**, Hugging Face hub + Xet cache is `<install_root>\.hf_cache\` (`HF_HOME`, `HF_HUB_CACHE`, `HF_XET_CACHE`). `<install_root>` is the folder the user selected in the Inno Setup installer (dev default `D:\Votion3DGS`). Do **not** write Hub cache to `C:\Users\<user>\.cache\huggingface`.
 
 ### Measured on this PC (not guessed)
 
@@ -63,6 +69,9 @@ These are the only product facts treated as **locked**. Everything else in the p
 | Required Krea/WAN/LoRA files in that ComfyUI `models\` | **Not present** (no `.safetensors` found; `extra_model_paths.yaml` not configured) | Inventory 2026-08-31 |
 | Copy-from-Comfy | **No-op until those files appear** | Same inventory |
 | V1 app | Gradio + WSL2 + WorldFM + custom `train_splat_live.py` (not nerfstudio) | `Yik Votion WorldFM` |
+| Host Python 3.12 | **3.12.10** (`py -3.12`) | Measured 2026-09-01 |
+| GPU | RTX 3090 24GB, driver **595.79**, nvidia-smi CUDA **13.2** (driver max; venv torch stays cu128) | `nvidia-smi` 2026-09-01 |
+| Disk free on `D:` | **142.3 GB** | `shutil.disk_usage('D:\\')` 2026-09-01 |
 
 ### Still UNKNOWN (do not fill in)
 
@@ -73,7 +82,7 @@ These are the only product facts treated as **locked**. Everything else in the p
 - MickmumpitzPanoWarp widget names other than the titled h_fov=70 (read `INPUT_TYPES` at node pin).
 - Harmonize / UltimateSDUpscale extra widget names (copy arrays from the Krea JSON; name from node source at pin).
 - Native Ostris Edit port on Windows (blocks **2D Images** until READY).
-- Disk free space on `D:` for ~45–60 GB models.
+- ~~Disk free space on `D:` for ~45–60 GB models.~~ **Measured 2026-09-01:** 142.3 GB free. Downloader still checks before WAN 14B.
 - ~~Unreal Engine version / playback plugin~~ **Locked (interim):** UE 5.5 + MLSLabsRenderer. **Update slot open** for a future better renderer.
 
 ---
@@ -128,7 +137,8 @@ D:\Votion3DGS\
   vendor\splatkit\     core/ + shim/ from ComfyUI-SplatKit (MIT, no ComfyUI imports)
   vendor\moge\
   bin\                 colmap_sphere.exe (download on first use)
-  models\              HF downloads (and any future Comfy copies)
+  .hf_cache\           Hub + Xet cache (install folder the user chose; not C:\Users\…\.cache)
+  models\              ready weights (HF download / Comfy copy)
   outputs\<scene>\
   docs\                these phase plans
   tools\               download_models.py, model_manifest.json
@@ -144,7 +154,7 @@ Filenames and Hugging Face URLs below are copied from the MarkdownNote nodes in:
 - `d:\AI_3DGS\260825_MICKMUMPITZ_Krea2-360Pano-Creator_1-0.json`
 - `d:\AI_3DGS\260825_MICKMUMPITZ_3DGS-Dataset-Creator_1-0_SMPL.json`
 
-Sizes are **not** listed unless a source stated them. Download into `D:\Votion3DGS\models\…` matching Comfy folder names.
+Sizes are **not** listed unless a source stated them. Download into `<install_root>\models\…` matching Comfy folder names. Hub blobs land in `<install_root>\.hf_cache\` first (same volume as models), not `C:\Users\<user>\.cache\huggingface`. Dev default: `D:\Votion3DGS`.
 
 ### Panorama (Phase 1; downloader can fetch in Phase 0)
 
@@ -183,7 +193,7 @@ Florence-2 (Phase 1 auto-caption, optional): Microsoft Florence-2, Apache-2.0. *
 | Profile | GPU assumption | WAN | HiRes | Rails | Source |
 |---------|----------------|-----|-------|-------|--------|
 | **Quality (default)** | RTX 3090 24GB | 14B fp8 720p + LightX2V | 8K geometry mode | 4 | You locked this |
-| Fast | 16GB class | GGUF Q4 **or** Matrix-3D 5B | 8K optional | 2–4 | Workflow note + Matrix-3D README |
+| Fast | 16GB class | **Matrix-3D 5B** (default). GGUF Q4 is not the Fast default. | 8K optional | 2–4 | Locked 2026-09-01. Exact 5B filename from Matrix-3D README at implement — do not invent. |
 | Scout | 12GB class | 5B + low-VRAM | skip | 1–2 | Matrix-3D README (~12GB 5B low-vram) |
 
 Matrix-3D PanoLRM (~80GB in their README) is **out of 2.0**.
@@ -192,7 +202,6 @@ Matrix-3D PanoLRM (~80GB in their README) is **out of 2.0**.
 
 ## P5 stretch (not a 2.0 blocker)
 
-- Matrix-3D 5B as default Fast path
 - SeedVR2 as an **experiment only**. Video: they upscaled Wan views with it; it was slow and did little. **Do not** substitute it for 8K geometry-mode reprojection.
 - Matrix-3D optimization reconstruction as an advanced alternative to SphereSfM
 - macOS: SplatKit SphereSfM is Windows/Linux only today

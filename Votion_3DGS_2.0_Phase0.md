@@ -10,7 +10,7 @@
 
 ## Goal
 
-A native Windows desktop window named **Votion 3DGS** that can start, show model status, download missing Hugging Face weights into `D:\Votion3DGS\models`, and run a **cancelable job queue** as **subprocesses**. No browser, no WSL, no ComfyUI UI.
+A native Windows desktop window named **Votion 3DGS** that can start, show model status, download missing Hugging Face weights into `<install_root>\models` (Hub cache in `<install_root>\.hf_cache`), and run a **cancelable job queue** as **subprocesses**. No browser, no WSL, no ComfyUI UI.
 
 This phase does **not** generate panoramas or splats.
 
@@ -20,7 +20,7 @@ This phase does **not** generate panoramas or splats.
 
 - Independent venv: **Python 3.12** + **CUDA 12.8** + PyTorch **cu128** wheel. Do **not** reuse `D:\ComfyUI_windows_portable_360\python_embeded` (that is Python 3.13 + torch 2.13.0+cu130).
 - Exact PyTorch patch: **UNKNOWN** until first successful `pip install`. Write it to `requirements.lock`.
-- Weights: look in `D:\ComfyUI_windows_portable_360\ComfyUI\models` first; **inventory on 2026-08-31 found none of the required `.safetensors`**. Then download from the URLs on the [Index](Votion_3DGS_2.0_Index.md).
+- Weights: look in `D:\ComfyUI_windows_portable_360\ComfyUI\models` first; **inventory on 2026-08-31 found none of the required `.safetensors`**. Then download from the URLs on the [Index](Votion_3DGS_2.0_Index.md). Hub cache is `<install_root>\.hf_cache\` (install folder the user will choose in Inno Setup; P0/dev root is `D:\Votion3DGS`). Ready files go to `<install_root>\models\`. Do **not** write Hub cache to `C:\Users\<user>\.cache\huggingface`.
 - GPU default: RTX 3090, index 0 unless the user picks another CUDA device.
 - Visual system: port tokens from `Yik Votion WorldFM/ui/theme.css` (JetBrains Mono, dark cyanotype). Do not invent a new brand palette.
 
@@ -31,7 +31,7 @@ This phase does **not** generate panoramas or splats.
 1. Folder `D:\Votion3DGS\` with the tree on the Index page (empty `engine` packages with `__init__.py` is enough).
 2. PySide6 main window: title **Votion 3DGS**, scene name field, GPU index, Log drawer, Help drawer, **Download models**, **Stop**.
 3. `tools/model_manifest.json` listing every file from the Index tables (id, repo, filename, local relative path, `public: true`). No invented file sizes.
-4. `tools/download_models.py` — copy-if-exists from ComfyUI, else `huggingface_hub` snapshot/file download into `models\`. Progress lines in the log pane.
+4. `tools/download_models.py` — copy-if-exists from ComfyUI, else `huggingface_hub` into `<install_root>\.hf_cache` then hardlink/copy into `models\`. Progress lines in the log pane.
 5. Model status machine: `MISSING_*` | `READY` (subset READY is OK in P0: downloader itself must work even if WAN files are still missing).
 6. Job bus: start worker subprocess, stream stdout, cancel (port logic from `Yik Votion WorldFM/ui/job_control.py` — file exists).
 7. `tools/env_report.py` — writes `docs/env_report.txt` with: `nvidia-smi`, `python --version`, `torch.__version__`, `torch.version.cuda`. This is the anti-hallucination record.
@@ -90,8 +90,8 @@ Home is functional: scene name, profile dropdown (Quality / Fast / Scout — Fas
 Lookup order per manifest entry:
 
 1. `D:\ComfyUI_windows_portable_360\ComfyUI\models\<folder>\<filename>`
-2. If found: copy (or hardlink if same drive) to `D:\Votion3DGS\models\<folder>\<filename>`
-3. Else: HF download to that dest
+2. If found: copy (or hardlink if same drive) to `<install_root>\models\<folder>\<filename>`
+3. Else: HF download into `<install_root>\.hf_cache\` (same volume), then hardlink/copy to that dest. Never `C:\Users\<user>\.cache\huggingface`.
 4. Else: status `MISSING_<id>` with the URL from the Index (do not invent a second URL)
 
 P0 may download **manifest-all** or a “P1 subset” (Krea 2 + LoRAs + VAE + CLIP + RealESRGAN; Florence-2 if captioning is enabled). Prefer a checkbox: `P1 subset` vs `All`. Default **P1 subset** so a Quality WAN 14B pull is not forced before Phase 3.
@@ -126,6 +126,7 @@ D:\Votion3DGS\
 - [ ] Double-click `tools\launch.bat` opens a desktop window titled **Votion 3DGS** (not a browser).
 - [ ] `env_report.txt` exists and shows Python 3.12, CUDA 12.8 torch, `cuda.is_available() True` on the 3090.
 - [ ] Download of **Krea 2 fp8 + CLIP + VAE** reaches `models\` (or a clear missing-URL error — not a hang). MoGe may still be missing.
+- [ ] A Hub download writes cache under `<install_root>\.hf_cache\` (P0: `D:\Votion3DGS\.hf_cache`), not `C:\Users\<user>\.cache\huggingface`.
 - [ ] Dummy job streams logs; Stop ends the subprocess.
 - [ ] No WSL, no `localhost:7860`, no ComfyUI process.
 

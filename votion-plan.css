@@ -812,19 +812,14 @@ footer {
 .sparse-view {
   position: relative;
   border: 1px solid var(--line);
-  min-height: 220px;
+  height: 220px;
   max-width: 100%;
   min-width: 0;
-  background: #071018;
+  background: #071018 url("media/colmap-sparse.webp") center / cover no-repeat;
   overflow: hidden;
 }
 .sparse-view img {
-  display: block;
-  width: 100%;
-  max-width: 100%;
-  height: 220px;
-  object-fit: cover;
-  object-position: center;
+  display: none;
 }
 .sparse-view .lbl {
   position: absolute;

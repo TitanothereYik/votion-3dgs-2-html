@@ -679,6 +679,31 @@ footer {
   color: var(--green);
   border-color: color-mix(in srgb, var(--green) 35%, var(--line));
 }
+.job-strip {
+  display: grid;
+  grid-template-columns: minmax(7rem, auto) 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.28rem 0.55rem 0.34rem;
+  border-bottom: 1px solid var(--line);
+  background: #081018;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.job-strip .job-cap { color: var(--text); text-transform: uppercase; }
+.job-strip .job-pct { color: var(--accent); font-variant-numeric: tabular-nums; }
+.job-strip .job-bar {
+  height: 6px;
+  background: #12202c;
+  border: 1px solid var(--line);
+  min-width: 4rem;
+}
+.job-strip .job-bar > i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
 .desk-body {
   display: grid;
   grid-template-columns: minmax(200px, 38%) 1fr;
@@ -775,6 +800,30 @@ footer {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.45rem;
+}
+.sparse-view {
+  position: relative;
+  border: 1px solid var(--line);
+  min-height: 220px;
+  background: #071018;
+  overflow: hidden;
+}
+.sparse-view img {
+  display: block;
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  object-position: center;
+}
+.sparse-view .lbl {
+  position: absolute;
+  top: 0.4rem;
+  left: 0.5rem;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  z-index: 1;
 }
 .rail-panel {
   position: relative;

@@ -47,6 +47,7 @@
         Hub cache is <code>&lt;install_root&gt;\.hf_cache\</code> (the folder the user will select in Inno Setup; P0/dev root is <code>D:\Votion3DGS</code>).
         Ready files go to <code>&lt;install_root&gt;\models\</code>. Do not write Hub cache to <code>C:\Users\&lt;user&gt;\.cache\huggingface</code>.
         GPU default: RTX 3090, index 0. Visual tokens from V1 <code>ui/theme.css</code> — do not invent a palette.
+        A job strip sits under the stage chips on every page. Home cells also keep per-file download bars.
       </p>
     </section>
 
@@ -74,6 +75,11 @@
           <a href="Votion_3DGS_2.0_Phase3.html#gen-ui">Generate</a>
           <a href="Votion_3DGS_2.0_Phase2.html#recon">Reconstruct</a>
           <a href="Votion_3DGS_2.0_Phase4.html">Splat</a>
+        </div>
+        <div class="job-strip">
+          <span class="job-cap">download · Krea 2 fp8</span>
+          <div class="job-bar"><i style="width:42%"></i></div>
+          <span class="job-pct">42%</span>
         </div>
         <div class="desk-body">
           <div class="desk-rail">
@@ -127,7 +133,7 @@
         </div></details>
         </div>
       </div>
-      <p class="desk-cap">Dummy only — not a screenshot of a running app. Stage chips are the six P0 pages. Left/right split copies V1 <code>yv-rail</code> / <code>yv-viewport</code>. <strong>Log</strong> and <strong>Help</strong> are bottom drawers.</p>
+      <p class="desk-cap">Dummy only — not a screenshot of a running app. Stage chips are the six P0 pages. Job strip under the chips. Left/right split copies V1 <code>yv-rail</code> / <code>yv-viewport</code>. <strong>Log</strong> and <strong>Help</strong> are bottom drawers.</p>
     </section>
 
     <section id="venv">
@@ -202,6 +208,7 @@ python tools\env_report.py</pre>
         <li>Krea 2 fp8 + CLIP + VAE reach <code>models\</code> or a clear missing-URL error. MoGe may still be missing.</li>
         <li>A Hub download writes cache under <code>&lt;install_root&gt;\.hf_cache\</code> (P0: <code>D:\Votion3DGS\.hf_cache</code>), not <code>C:\Users\&lt;user&gt;\.cache\huggingface</code>.</li>
         <li>During Download models, each Home status cell shows its own progress bar.</li>
+        <li>Background jobs update the strip under the chips (not log-only).</li>
         <li>Dummy job streams; Stop kills the subprocess.</li>
         <li>No WSL, no localhost:7860, no ComfyUI process.</li>
       </ul>

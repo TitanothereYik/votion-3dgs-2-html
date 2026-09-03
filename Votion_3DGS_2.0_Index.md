@@ -46,21 +46,24 @@ These are the only product facts treated as **locked**. Everything else in the p
 13. **Pano inputs (2.0):** three first-class modes on Phase 1 — **(1) 2D Images → ERP (default)**, **(2) 360 Images**, **(3) text → ERP**. Happy path is (1) then Phase 2 splat then Phase 3 WAN.
 14. **2D Images surroundings:** user types a sentence **or** local **Florence-2** captions the 2D image (editable). Always append **`no peoples, no cars`** at the end (typed or caption). Empty box still blocks Generate. Florence Hub (measured first successful P1 caption): `florence-community/Florence-2-large` rev `4271c66b88cdbc05735372ec13b2360108de5317`.
 15. **Ostris:** native port **READY** (2026-09-03, pack pin `7756566160c4a1b24bb1bd9f0ff3ced1a83d7547`). 2D Images Generate is enabled. Do **not** shell out to ComfyUI.
-16. **Chrome:** V1 left rail + right viewport + six P0 names as stage chips. Chips **navigate** the six pages. **Log** and **Help** are matching bottom drawers (not a Home accordion, not a seventh page).
+16. **Chrome:** V1 left rail + right viewport + six P0 names as stage chips. Chips **navigate** the six pages. A **job strip** (caption + bar) sits under the chips on every page. **Log** and **Help** are matching bottom drawers (not a Home accordion, not a seventh page).
 17. **Panorama viewport (2026-09-03):** user-draggable split. **Left** = unwrapped 2:1 ERP (live h_fov warp before 2D Generate, then the 8K file). **Fit** = full picture in the pane. **100%** = native pixels + 2D slide. **Right** = spherical HDRI-style look (yaw + pitch), not a pan-only 2:1 strip. 2D drop shows a thumbnail; live warp shows the photo.
 18. **Seeds visible and editable:** 2D IMAGE→PANO `12345`, 2D seam `12345`, text TEXT→PANO `322344328372862`, text seam `8`, WAN `0`.
 19. **Upscaler prompt:** visible box, default `High resolution photography`, editable. **Keep it on the 360 Images rail** (graph ⑤). Also on 2D and text.
 20. **h_fov (2026-09-03):** slider **and** typed number. Default **70**. Range **10–170**, step **0.5** (`MickmumpitzPanoWarp` `INPUT_TYPES`). Live warp on the left 2:1 pane.
-21. **Geometry editor:** SplatKit Plot Camera chrome. Cyan **star 0** (pano origin) is locked. Red cameras **1, 2, 3…** are draggable. Each camera has a **cyan look arrow**. In `look_at_target`, one **orange look-at** aims every arrow (drag the orange). `look_forward` + drag a look arrow → `per_point_look`. FLOOR / SIDE / Preview flight use the three street plates in `docs/media/geo-*.png`.
+21. **Geometry editor:** SplatKit Plot Camera chrome. Cyan **star 0** (pano origin) is locked. Red cameras **1, 2, 3…** are draggable. Each camera has a **cyan look arrow**. In `look_at_target`, one **orange look-at** aims every arrow (drag the orange). `look_forward` + drag a look arrow → `per_point_look`. FLOOR and SIDE sit **side by side**; Preview flight sits **under both**. Dummy plates: `docs/media/geo-*.png`. Rail gizmos must be visible on the plates.
 22. **Seam INPAINT:** keep two recipes (TEXT node 31 vs IMAGE node 63). Do not copy TEXT onto 2D Images.
 23. **360 Images size:** store as-is; visible **Upscale to 8K** runs the shared tail.
 24. **Owner / license / audience (2026-09-01):** owner **Yik** (personal); license **MIT**; first audience a **small private team**. No telemetry.
-25. **Geometry viewport:** **vispy**. Do not ship QWebEngine.
+25. **Geometry viewport (2026-09-03):** FLOOR / SIDE plates + gizmos are **QPainter** on one widget. Do **not** ship QWebEngine. vispy `Image` + Line/Markers dropped the rail on this Windows QOpenGLWidget stack — vispy is **not** the Geometry editor.
 26. **Installer:** **Inno Setup**.
 27. **Profiles at 2.0 launch:** Quality **and** Fast **and** Scout all ship. Fast/Scout stay disabled in the P0 dummy until P4 unlocks them.
 28. **moge_level:** Plot Camera **9** and HiRes **6** — copy both forever; do not unify.
 29. **Hub cache (2026-09-02):** On **Download models**, Hugging Face hub + Xet cache is `<install_root>\.hf_cache\` (`HF_HOME`, `HF_HUB_CACHE`, `HF_XET_CACHE`). `<install_root>` is the folder the user selected in the Inno Setup installer (dev default `D:\Votion3DGS`). Do **not** write Hub cache to `C:\Users\<user>\.cache\huggingface`.
 30. **Download progress (2026-09-03):** During **Download models**, each Home model-status cell shows its own progress bar (queued empty; the active file shows % from measured bytes). Not log-only.
+31. **Reconstruct viewport (2026-09-03):** After Reconstruct, show the COLMAP **sparse cloud** (`points3D.bin` + camera centers). Drag orbit, wheel zoom. Not cube-face stills.
+32. **Tab persistence (2026-09-03):** Switching stage chips must not wipe generated views. Panorama keeps the 8K ERP (not the green warp). Geometry keeps the last Preview-flight frame and Confirm. Same rule for every tab.
+33. **Job progress (2026-09-03):** Every background job (pano, MoGe, Play/Confirm, SphereSfM, Train, downloads) drives the strip under the chips. Not log-only. #30 Home per-cell bars stay.
 
 ### Measured on this PC (not guessed)
 
@@ -219,8 +222,10 @@ Open in a browser. The HTML is the **visual spec** for PySide6: window chrome, w
 Shared window (every dummy `.desk`):
 
 - Title bar **Votion 3DGS**, brand row, six **stage chips** that navigate Home / Panorama / Geometry / Generate / Reconstruct / Splat.
+- **Job strip** under the chips on every page (caption + bar for the running background job).
 - **Left rail** = page controls. **Right viewport** = preview / editor.
 - Bottom: **Log** drawer (subprocess) and **Help** drawer (page-specific copy). Not a Home accordion, not a seventh page.
+- Switching chips **restores** generated views (do not reset to empty / green warp).
 
 | HTML | Dummy pages |
 |------|-------------|
@@ -231,6 +236,6 @@ Shared window (every dummy `.desk`):
 | [Phase 3](Votion_3DGS_2.0_Phase3.html) | Geometry (4 rails), Generate (WAN + HiRes mask split) |
 | [Phase 4](Votion_3DGS_2.0_Phase4.html) | Splat Open-in… + Splat3 / MCMC, Home Help / `config.json` |
 
-Interactive bits in the dummies (not screenshots of a running app): Panorama **h_fov** type-or-drag warps the green FOV window; **Fit / 100%** on the left 2:1 pane; Geometry **drag cameras 1–3** and the **orange look-at**; Splat **Splat3 / MCMC** chips (`docs/rail-dummy.js`).
+Interactive bits in the dummies (not screenshots of a running app): Panorama **h_fov** type-or-drag warps the green FOV window; **Fit / 100%** on the left 2:1 pane; Geometry **drag cameras 1–3** and the **orange look-at**; Reconstruct **sparse orbit**; Splat **Splat3 / MCMC** chips (`docs/rail-dummy.js`). Job strip under the chips on every desk.
 
 Unreal import target is **UE 5.5** + **MLSLabsRenderer** (interim). Update slot held for a future better UE splat renderer.

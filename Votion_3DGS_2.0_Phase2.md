@@ -34,9 +34,11 @@ If Phase 1 **2D Images** is unavailable, Phase 2 still runs on **360 Images** or
   Legacy `fixed_forward` still renders if an old graph has it. Do not put it in the Votion dropdown.
 - **P2 ships one rail only.** Default that rail from SMPL node **27** (CAMERA PLOT 1): `look_at_target`, 81 frames, `moge_level` **9**. Do not default four rails here.
 - **Origin star is locked at `(0,0,0)`.** SplatKit editor: the start anchor cannot be dragged or deleted. Frame: **+Z** into the pano, **+X** right, **+Y** up. Video: every drone clip starts here so Phase 3 can reproject the 8K pano.
-- **Viewport is interactive (locked 2026-08-31):** FLOOR and SIDE are the editor. Drag red cameras **1+**; star **0** cannot move. Cyan look arrows; in `look_at_target` drag the **orange look-at**. Dragging a look arrow on `look_forward` **switches that rail to `per_point_look`**. Dummy backdrops: `geo-floor-top.png` / `geo-side-elev.png` / `geo-preview-overall.png`. Chrome: V1 left-rail + right viewport, P0 names as stage chips.
-- **Mesh flight preview:** a **third pane under FLOOR / SIDE**. **Play lives on that pane** — no Preview button on the left rail (locked 2026-08-31). Play the control video there (black holes OK) before Confirm.
-- Reconstruction: SphereSfM → COLMAP `images/` + `sparse/0` (ordinary `SIMPLE_PINHOLE` cube faces). Not WorldFM `transforms.json`.
+- **Viewport is interactive (locked 2026-08-31 / layout 2026-09-03):** FLOOR and SIDE are the editor and sit **side by side**. Preview flight sits **under both**, spanning the full width. Drag red cameras **1+**; star **0** cannot move. Cyan look arrows; in `look_at_target` drag the **orange look-at**. Dragging a look arrow on `look_forward` **switches that rail to `per_point_look`**. Dummy backdrops: `geo-floor-top.png` / `geo-side-elev.png` / `geo-preview-overall.png`. Chrome: V1 left-rail + right viewport, P0 names as stage chips. Rail gizmos **must be visible** on the plates.
+- **Mesh flight preview:** the pane **under** the FLOOR | SIDE pair. **Play lives on that pane** — no Preview button on the left rail (locked 2026-08-31). Play the control video there (black holes OK) before Confirm.
+- **FLOOR / SIDE implementation (locked 2026-09-03):** plates + gizmos are **QPainter** on one widget. Do not ship QWebEngine. vispy is not the Geometry editor.
+- Reconstruction: SphereSfM → COLMAP `images/` + `sparse/0` (ordinary `SIMPLE_PINHOLE` cube faces). Viewport after Reconstruct is an **orbit of the sparse cloud** (`points3D.bin` + camera centers), not cube-face stills. Not WorldFM `transforms.json`.
+- **Tab persistence (locked 2026-09-03):** switching stage chips restores generated views (Panorama ERP, Geometry Preview-flight still + Confirm, Reconstruct sparse, Splat stats). Do not reset to empty / green warp.
 - Trainer happy path: evolve `Yik Votion WorldFM/tools/train_splat_live.py`. If gsplat failed in P0, P2 still **writes COLMAP** and shows “Open folder”.
 - **Train strategy (locked 2026-09-01):** user picks **Splat3** or **MCMC** on the Splat page. Default **Splat3**. Both write `splat.ply` at the ~3M cap. Splat3 → gsplat `DefaultStrategy`. MCMC → gsplat `MCMCStrategy`. Continue keeps the checkpoint’s strategy; switching needs Retrain. ADC is not a third choice.
 - Vendor SplatKit `core/` + `shim/` (MIT). Rasterizer is the torch/triton shim — **not** nvdiffrast. Do not use Matrix-3D PanoLRM.
@@ -76,7 +78,7 @@ P1 pano.png
 
 PySide6 page already stubbed in P0 as **Geometry**. Dummy: [Phase 2 HTML](Votion_3DGS_2.0_Phase2.html#geo). Two states. Do not let the user edit rails until geometry exists.
 
-Chrome: same P0 window. Stage chip **Geometry**. Left rail = compute + rail fields. Right viewport = FLOOR | SIDE stacked over **Preview flight**. Log + Geometry Help drawers.
+Chrome: same P0 window. Stage chip **Geometry**. Left rail = compute + rail fields. Right viewport = **FLOOR | SIDE side by side**, **Preview flight** under both (full width). Job strip under the chips. Log + Geometry Help drawers.
 
 SplatKit Plot Camera (`camera_plot_geo.js`) is the chrome to port. The HTML dummy (`docs/rail-dummy.js`) is the interaction spec:
 
@@ -149,7 +151,7 @@ The HTML also shows the SplatKit Plot Camera screenshot (`docs/media/ref-splatki
 
 ### Reconstruct page
 
-Dummy: [Phase 2 HTML §04](Votion_3DGS_2.0_Phase2.html#recon). Left: **Reconstruct**, `num_images` / `num_points`. Viewport: COLMAP sparse stand-in. Help = SphereSfM / COLMAP pinholes (not WorldFM `transforms.json`).
+Dummy: [Phase 2 HTML §04](Votion_3DGS_2.0_Phase2.html#recon). Left: **Reconstruct**, `num_images` / `num_points`. Viewport: interactive COLMAP **sparse cloud** (points + cyan cameras; drag orbit, wheel zoom). Not a cube-face still. Help = SphereSfM / COLMAP pinholes (not WorldFM `transforms.json`).
 
 ### Splat page
 
@@ -163,7 +165,7 @@ Dummy: same HTML, second window. **Splat3 | MCMC** chips (default Splat3), max s
 |---------|--------|
 | `ui/job_control.py` | Cancel flag (already sketched in P0) |
 | `ui/camera_presets.py` | Rail **templates** only. Map lookaround / orbit / dolly onto SplatKit archetypes later in P3; P2 only needs the node-27 default + free edit. |
-| `ui/camera_path_viz.py` | FLOOR + SIDE + star + LOOK rays. Port matplotlib/plotly to **vispy** (locked 2026-09-01). Do not ship QWebEngine. Do not embed Comfy `camera_plot_geo.js`. |
+| `ui/camera_path_viz.py` | FLOOR + SIDE + star + LOOK rays. Product editor is **QPainter** on one widget (locked 2026-09-03). Do not ship QWebEngine. Do not stack vispy Line/Markers over Image. Do not embed Comfy `camera_plot_geo.js`. |
 | `tools/train_splat_live.py` | COLMAP cameras.bin/images.bin (or text). Keep live loss, checkpoint, `splat.ply`. Pass Splat3 (`DefaultStrategy`) or MCMC (`MCMCStrategy`). |
 | `ui/theme.css` | Qt stylesheet tokens |
 
@@ -215,9 +217,10 @@ splat.ply
 
 - [ ] Missing `pano.png` → clear error (run Phase 1 first). Do not open a second file picker that bypasses P1 modes.
 - [ ] **Compute geometry** disabled until pano exists; rail editor disabled until geometry exists.
-- [ ] After compute: FLOOR and SIDE visible; origin star at `(0,0,0)` and not draggable; 2+ knots do not crash.
-- [ ] Mesh-only flight preview plays **before** Confirm (black holes expected).
-- [ ] `colmap/sparse/0` exists after Reconstruct.
+- [ ] After compute: FLOOR and SIDE **side by side** with gizmos visible (path, star 0, red 1–3, look arrows); origin star at `(0,0,0)` and not draggable; 2+ knots do not crash.
+- [ ] Preview flight sits **under both** plates. Mesh-only flight preview plays **before** Confirm (black holes expected).
+- [ ] Switching away from Geometry and back keeps the last Preview-flight frame and Confirm.
+- [ ] `colmap/sparse/0` exists after Reconstruct. Viewport shows the sparse cloud (not cube-face stills).
 - [ ] If gsplat spike passed: `splat.ply` written with the selected strategy (Splat3 default); V1-style Continue works on the same scene name **and the same strategy**.
 - [ ] Switching Splat3 ↔ MCMC disables Continue until Retrain (or Continue stays on the checkpoint strategy).
 - [ ] If gsplat failed: UI says so; COLMAP folder still valid for Brush.

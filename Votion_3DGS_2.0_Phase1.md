@@ -128,7 +128,7 @@ Do **not** copy the TEXT seam recipe onto the **2D Images** path. IMAGE seam als
 
 ## UI (Panorama page)
 
-Dummy: [Phase 1 HTML](Votion_3DGS_2.0_Phase1.html). Same window chrome as P0 (chips, left rail, viewport, Log + Help drawers).
+Dummy: [Phase 1 HTML](Votion_3DGS_2.0_Phase1.html). Same window chrome as P0 (chips, job strip, left rail, viewport, Log + Help drawers). Switching chips restores the generated 8K ERP (not the green warp).
 
 ### Left rail
 
@@ -171,6 +171,7 @@ Florence-2 is a **separate** short job (`engine.workers.caption`) that only fill
 - [ ] Florence-2 fills the surroundings box **and** appends `no peoples, no cars`; user can edit; empty manual box blocks Generate.
 - [ ] Typed surroundings also end with `no peoples, no cars` in `prompt.txt`.
 - [ ] Left 2:1 **Fit / 100%** and a draggable split; right 360 tilts and looks spherical.
+- [ ] After Generate, switching chips away and back still shows the 8K ERP (not the green warp).
 - [ ] **h_fov** accepts a typed value as well as the slider (10–170, step 0.5).
 - [ ] **2D Images** and **text:** final size **measured** (expect 8192×4096) and recorded in `env_report` / scene log.
 - [ ] Same 8K file is what Phase 3 HiRes uses as geometry pano **and** texture.

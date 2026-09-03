@@ -71,7 +71,7 @@
         </figure>
         <figure class="fig">
           <img src="media/colmap-sparse.webp" alt="COLMAP sparse reconstruction example" />
-          <figcaption>SphereSfM writes COLMAP. <a href="https://colmap.github.io/">colmap.github.io</a></figcaption>
+          <figcaption>SphereSfM sparse cloud (orbit this in-app). <a href="https://colmap.github.io/">colmap.github.io</a></figcaption>
         </figure>
       </div>
     </section>
@@ -97,6 +97,11 @@
           <a href="Votion_3DGS_2.0_Phase3.html#gen-ui">Generate</a>
           <a href="Votion_3DGS_2.0_Phase2.html#recon">Reconstruct</a>
           <a href="Votion_3DGS_2.0_Phase4.html">Splat</a>
+        </div>
+        <div class="job-strip">
+          <span class="job-cap">idle</span>
+          <div class="job-bar"><i style="width:0%"></i></div>
+          <span class="job-pct">—</span>
         </div>
         <div class="desk-body">
           <div class="desk-rail">
@@ -130,7 +135,7 @@
                 <button class="play" type="button" disabled>Play</button>
               </div>
             </div>
-            <p class="f-hint">Empty until Compute geometry. Play lives on the Preview flight pane, not the rail.</p>
+            <p class="f-hint">Empty until Compute geometry. FLOOR | SIDE sit side by side. Play lives on the Preview flight pane under both, not the rail.</p>
           </div>
         </div>
         <div class="desk-draws">
@@ -140,7 +145,7 @@
           Compute geometry first. FLOOR / SIDE / Preview stay empty until then.
           Then drag knots and look arrows. Star is origin, not draggable.
           look_forward + drag arrow switches that rail to per_point_look.
-          Preview flight is the third pane under FLOOR/SIDE. Confirm gates Reconstruct.
+          Preview flight sits under the FLOOR | SIDE pair (side by side). Confirm gates Reconstruct.
         </div></details>
         </div>
       </div>
@@ -167,6 +172,11 @@
           <a href="Votion_3DGS_2.0_Phase3.html#gen-ui">Generate</a>
           <a href="Votion_3DGS_2.0_Phase2.html#recon">Reconstruct</a>
           <a href="Votion_3DGS_2.0_Phase4.html">Splat</a>
+        </div>
+        <div class="job-strip">
+          <span class="job-cap">idle</span>
+          <div class="job-bar"><i style="width:0%"></i></div>
+          <span class="job-pct">—</span>
         </div>
         <div class="desk-body">
           <div class="desk-rail">
@@ -219,7 +229,7 @@
                 <img src="media/geo-preview-overall.png" alt="Preview flight — overall street view" />
               </div>
             </div>
-            <p class="f-hint">Chrome copied from SplatKit Plot Camera. Star 0 cannot move. Drag numbered cameras and the orange look-at (arrows follow). Play lives on the Preview flight pane.</p>
+            <p class="f-hint">Chrome copied from SplatKit Plot Camera. Star 0 cannot move. Drag numbered cameras and the orange look-at (arrows follow). FLOOR | SIDE are side by side; Play lives on the Preview flight pane under both.</p>
           </div>
         </div>
         <div class="desk-draws">
@@ -255,6 +265,11 @@
           <a class="on" href="Votion_3DGS_2.0_Phase2.html#recon">Reconstruct</a>
           <a href="Votion_3DGS_2.0_Phase4.html">Splat</a>
         </div>
+        <div class="job-strip">
+          <span class="job-cap">sfm · SphereSfM</span>
+          <div class="job-bar"><i style="width:58%"></i></div>
+          <span class="job-pct">58%</span>
+        </div>
         <div class="desk-body">
           <div class="desk-rail">
             <label class="f-lab">SphereSfM</label>
@@ -266,7 +281,11 @@
             <p class="f-hint">Single trajectory. Dual-res HiRes is Phase 3. Follow SplatKit COLMAP convention.</p>
           </div>
           <div class="desk-view">
-            <img src="media/colmap-sparse.webp" alt="COLMAP sparse example" style="width:100%;max-height:200px;object-fit:cover;border:1px solid var(--line)" />
+            <div class="sparse-view">
+              <span class="lbl">COLMAP sparse · drag orbit · wheel zoom</span>
+              <img src="media/colmap-sparse.webp" alt="COLMAP sparse cloud and cameras" />
+              <span class="rail-hint">points3D.bin + cyan cameras. Not cube-face stills.</span>
+            </div>
           </div>
         </div>
         <div class="desk-draws">
@@ -274,6 +293,7 @@
         <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
           <b>RECONSTRUCT</b><br />
           SphereSfM writes COLMAP pinholes (<code>images/</code> + <code>sparse/0</code>), not WorldFM <code>transforms.json</code>.
+          Viewport is the sparse cloud (points + cameras), not cube-face stills.
           P2 is a single trajectory. Dual-res HiRes waits for Phase 3.
         </div></details>
         </div>
@@ -291,6 +311,11 @@
           <a href="Votion_3DGS_2.0_Phase3.html#gen-ui">Generate</a>
           <a class="done" href="Votion_3DGS_2.0_Phase2.html#recon">Reconstruct</a>
           <a class="on" href="Votion_3DGS_2.0_Phase4.html">Splat</a>
+        </div>
+        <div class="job-strip">
+          <span class="job-cap">splat · Splat3</span>
+          <div class="job-bar"><i style="width:12%"></i></div>
+          <span class="job-pct">1200 / 10000</span>
         </div>
         <div class="desk-body">
           <div class="desk-rail">
@@ -340,9 +365,11 @@
       <ul class="check">
         <li>Missing <code>pano.png</code> → clear error (run Phase 1 first).</li>
         <li>Compute geometry disabled until pano exists; rail editor disabled until geometry exists.</li>
-        <li>FLOOR and SIDE visible; origin star at <code>(0,0,0)</code> and not draggable.</li>
-        <li>Mesh-only flight preview plays before Confirm (black holes expected).</li>
-        <li><code>colmap/sparse/0</code> exists after Reconstruct.</li>
+        <li>FLOOR and SIDE sit <strong>side by side</strong> with gizmos visible; origin star at <code>(0,0,0)</code> and not draggable.</li>
+        <li>Preview flight sits under both plates. Mesh-only flight preview plays before Confirm (black holes expected).</li>
+        <li>Switching chips restores generated views (Panorama ERP, Geometry preview + Confirm).</li>
+        <li><code>colmap/sparse/0</code> exists after Reconstruct. Viewport shows the sparse cloud, not cube-face stills.</li>
+        <li>Background jobs update the strip under the chips (not log-only).</li>
         <li>If gsplat passed: <code>splat.ply</code> with the selected strategy (Splat3 default). Continue stays on that strategy; Splat3 ↔ MCMC needs Retrain. If failed: UI says so; COLMAP still valid for Brush.</li>
       </ul>
       <p>No Krea, no 4-rail default, no 8K HiRes, no WorldFM frames. Do not name a look mode <code>forward_look</code> or Height. Do not treat widget 9 as fps.</p>

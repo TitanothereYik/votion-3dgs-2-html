@@ -64,6 +64,13 @@ These are the only product facts treated as **locked**. Everything else in the p
 31. **Reconstruct viewport (2026-09-03):** After Reconstruct, show the COLMAP **sparse cloud** (`points3D.bin` + camera centers). Drag orbit, wheel zoom. Not cube-face stills.
 32. **Tab persistence (2026-09-03):** Switching stage chips must not wipe generated views. Panorama keeps the 8K ERP (not the green warp). Geometry keeps the last Preview-flight frame and Confirm. Same rule for every tab.
 33. **Job progress (2026-09-03):** Every background job (pano, MoGe, Play/Confirm, SphereSfM, Train, downloads) drives the strip under the chips. Not log-only. #30 Home per-cell bars stay.
+34. **Generate dummy PNG (2026-09-04):** `docs/media/ref-hires-mask-split.png` stays in the **HTML dummy only**. Product Generate / Reconstruct never load that file.
+35. **Generate live split (2026-09-04):** While WAN runs, left = black/white **validity mask** (white = known, black = hole). Right = last WAN frame with holes filled. Updates in real time, including low-res / latent previews — not only after the finished mp4.
+36. **Click rail number (2026-09-04):** On Generate, clicking a rail number shows that rail in the viewport.
+37. **WAN then HiRes (2026-09-04):** Two stages. Generate WAN → review 720p → optionally re-gen a rail (new prompt and/or new path) → **Confirm WAN → HiRes**. HiRes must not auto-start after WAN.
+38. **Reconstruct ditch (2026-09-04):** Keep or Ditch each rail. A ditched rail is left out of SphereSfM (WAN sometimes hallucinates).
+39. **Re-gen one rail (2026-09-04):** From Reconstruct, Re-gen WAN on a single rail (jumps to Generate for that rail).
+40. **Newest sparse (2026-09-04):** After Reconstruct finishes loading, always show the newest kept-rail COLMAP sparse. Do not keep an older 1-rail / previous solve on screen.
 
 ### Measured on this PC (not guessed)
 
@@ -233,9 +240,9 @@ Shared window (every dummy `.desk`):
 | [Phase 0](Votion_3DGS_2.0_Phase0.html) | Home: scene, profile, download, model status |
 | [Phase 1](Votion_3DGS_2.0_Phase1.html) | Panorama: 2D / 360 / text, green FOV crop, seeds, Caption |
 | [Phase 2](Votion_3DGS_2.0_Phase2.html) | Geometry (empty + Plot Camera rail), Reconstruct, Splat (Splat3 / MCMC) |
-| [Phase 3](Votion_3DGS_2.0_Phase3.html) | Geometry (4 rails), Generate (WAN + HiRes mask split) |
+| [Phase 3](Votion_3DGS_2.0_Phase3.html) | Geometry (4 rails), Generate (WAN then Confirm HiRes, live mask\|WAN split), Reconstruct (keep/ditch) |
 | [Phase 4](Votion_3DGS_2.0_Phase4.html) | Splat Open-in… + Splat3 / MCMC, Home Help / `config.json` |
 
-Interactive bits in the dummies (not screenshots of a running app): Panorama **h_fov** type-or-drag warps the green FOV window; **Fit / 100%** on the left 2:1 pane; Geometry **drag cameras 1–3** and the **orange look-at**; Reconstruct **sparse orbit**; Splat **Splat3 / MCMC** chips (`docs/rail-dummy.js`). Job strip under the chips on every desk.
+Interactive bits in the dummies (not screenshots of a running app): Panorama **h_fov** type-or-drag warps the green FOV window; **Fit / 100%** on the left 2:1 pane; Geometry **drag cameras 1–3** and the **orange look-at**; Generate **click a rail number**; Reconstruct **sparse orbit**; Splat **Splat3 / MCMC** chips (`docs/rail-dummy.js`). Job strip under the chips on every desk. `ref-hires-mask-split.png` is **HTML showcase only**.
 
 Unreal import target is **UE 5.5** + **MLSLabsRenderer** (interim). Update slot held for a future better UE splat renderer.

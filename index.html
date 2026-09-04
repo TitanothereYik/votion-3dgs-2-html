@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="votion-plan.css?v=20260903c" />
+  <link rel="stylesheet" href="votion-plan.css?v=20260904a" />
 </head>
 <body>
   <div class="wrap">
@@ -65,7 +65,7 @@
           <tr><td><a href="Votion_3DGS_2.0_Phase0.html">Phase 0</a></td><td>Skeleton</td><td>PySide6 window, job bus, venv, model downloader</td></tr>
           <tr><td><a href="Votion_3DGS_2.0_Phase1.html">Phase 1</a></td><td>Pano</td><td><strong>2D Images</strong> (default) / <strong>360 Images</strong> / <strong>text</strong> → 8K ERP (<code>pano.png</code>)</td></tr>
           <tr><td><a href="Votion_3DGS_2.0_Phase2.html">Phase 2</a></td><td>First splat</td><td>Compute geometry → Plot Camera (1 rail) → SphereSfM → <code>splat.ply</code> (Splat3 or MCMC)</td></tr>
-          <tr><td><a href="Votion_3DGS_2.0_Phase3.html">Phase 3</a></td><td>Dataset</td><td>4 rails (+ optional 5th), WAN 720p hole-fill, 8K HiRes, dual-res SfM</td></tr>
+          <tr><td><a href="Votion_3DGS_2.0_Phase3.html">Phase 3</a></td><td>Dataset</td><td>4 rails, WAN then Confirm HiRes, keep/ditch Reconstruct, dual-res SfM</td></tr>
           <tr><td><a href="Votion_3DGS_2.0_Phase4.html">Phase 4</a></td><td>Product</td><td>Profiles, installer, Splat3 / MCMC, Open-in-Brush/LichtFeld, UE 5.5</td></tr>
         </tbody>
       </table>
@@ -112,6 +112,11 @@
         <li><strong>Reconstruct viewport (2026-09-03):</strong> COLMAP sparse cloud (<code>points3D.bin</code> + cameras). Drag orbit, wheel zoom. Not cube-face stills.</li>
         <li><strong>Tab persistence (2026-09-03):</strong> Switching chips must not wipe generated views. Panorama keeps the 8K ERP (not the green warp). Geometry keeps the last Preview-flight frame and Confirm.</li>
         <li><strong>Job progress (2026-09-03):</strong> Every background job drives the strip under the chips. Not log-only. Home per-cell download bars stay.</li>
+        <li><strong>Generate dummy PNG (2026-09-04):</strong> <code>ref-hires-mask-split.png</code> is HTML-only. Product never loads it.</li>
+        <li><strong>Generate live split (2026-09-04):</strong> Left = validity mask. Right = last WAN frame, including low-res. Click a rail number to preview.</li>
+        <li><strong>WAN then HiRes (2026-09-04):</strong> Generate WAN, review 720p, optionally re-gen a rail, then Confirm WAN → HiRes. HiRes does not auto-start.</li>
+        <li><strong>Reconstruct keep/ditch (2026-09-04):</strong> Ditch a hallucinated rail (left out of SfM) or Re-gen WAN on that rail.</li>
+        <li><strong>Newest sparse (2026-09-04):</strong> After Reconstruct finishes loading, always show the newest kept-rail sparse.</li>
       </ol>
 
       <h3>Measured on this PC (not guessed)</h3>

@@ -32,6 +32,9 @@ This is the quality leap. WAN stays **1440×720**. Sharpness is the 8K reproject
 - SageAttention / Triton-Windows: try; if import fails, continue. Video: SageAttention **patch avoids black frames** — if Sage is on, apply that patch (copy from SplatKit / Kijai at vendor pin).
 - Do **not** upscale Wan views with SeedVR as the sharpness path. Sharpness is HiRes geometry-mode reprojection.
 - Native WAN i2v. Do **not** shell out to hidden ComfyUI.
+- Product Generate never loads `docs/media/ref-hires-mask-split.png` (HTML dummy only). Live split: left validity mask, right WAN fill (including low-res). Click a rail number to preview that rail.
+- WAN and HiRes are **two stages**. Generate WAN, review 720p, re-gen a rail if needed, then **Confirm WAN → HiRes**. HiRes must not auto-start after WAN.
+- Reconstruct: **Keep / Ditch** per rail (ditched rails are left out of SphereSfM). **Re-gen WAN** on one rail. After Reconstruct finishes, always load the **newest** kept-rail sparse.
 
 ---
 
@@ -167,16 +170,33 @@ Dummy: [Phase 3 HTML](Votion_3DGS_2.0_Phase3.html#gen-ui). Left rail:
 - HiRes frames: graph default `0-80/2`; optional `0-15,16-/8`; `all` = 81.
 - Debug save: product default **off**.
 - Generate / Stop / **Open frames folder**.
+- **Generate WAN**, **Re-gen selected rail**, **Confirm WAN → HiRes** (HiRes does not start with Generate WAN).
 
-Viewport: sequential rail progress (WAN then HiRes, coverage). **`gate_masks` after HiRes** is a **split still**, not two feathered circles:
+Viewport **while WAN runs** (product, not the dummy PNG): sequential rail chips (**click a rail number** to preview that rail). Split still, **live**:
 
-- File: `docs/media/ref-hires-mask-split.png`
-- Left = binary mask (**white = 8K photograph**, **black = WAN fill**)
-- Right = the source 8K equirectangular pano those whites were reprojected from
+- Left = **validity mask** (white = known mesh, black = hole)
+- Right = last WAN frame with holes filled (updates as soon as anything exists, including low-res / latent)
 
-The same split is in HTML §04 (“What the mask means after HiRes”).
+`docs/media/ref-hires-mask-split.png` stays in the **HTML dummy** to showcase that split. Product never loads it.
+
+After HiRes, `gate_masks` from the job (white = 8K photograph, black = WAN fill) is the coverage meaning — still not two feathered circles. The same dummy PNG in HTML §04 explains that HiRes legend.
 
 Log + Generate Help drawers. Rails run **sequentially** on one 3090. Coverage ≈ 0 → `output_width` too small vs 8K.
+
+---
+
+## UI — Reconstruct page (P3)
+
+Dummy: [Phase 3 HTML](Votion_3DGS_2.0_Phase3.html#recon-ui). P2 Reconstruct stays a single-trajectory sparse orbit ([Phase 2 HTML](Votion_3DGS_2.0_Phase2.html#recon)).
+
+Left rail:
+
+- One row per dataset rail: **Keep** / **Ditched**, **Re-gen WAN**.
+- Ditch a rail when WAN hallucinated something the user does not want. Ditched rails are **left out of SphereSfM**.
+- Re-gen WAN jumps to Generate for **that rail only** (edit prompt on Generate, or change the path on Geometry, Play, then Re-gen).
+- **Reconstruct** uses kept WAN clips (else control video). After the job finishes loading, the sparse viewport **always** shows this run’s kept-rail solve — not a previous 1-rail COLMAP.
+
+Viewport: COLMAP sparse cloud (same orbit as P2). Counts `num_images` / `num_points` from the current `sfm.json`.
 
 ---
 
@@ -187,8 +207,9 @@ One panorama cannot constrain a 3D scene. SplatKit invents the missing viewpoint
 ```
 pano ─▶ MoGe mesh ─▶ Plot Camera control video + validity mask
      ─▶ Wan I2V masked conditioning ─▶ 1440×720 ERP clip
+     ─▶ user reviews / re-gens rails ─▶ Confirm WAN → HiRes
      ─▶ HiRes Composite (geometry) ─▶ 8K frames (WAN only in holes)
-     ─▶ SphereSfM dual-res ─▶ COLMAP
+     ─▶ SphereSfM (kept rails) ─▶ COLMAP
 ```
 
 ### 1. Control video is the hole map
@@ -285,9 +306,9 @@ Do not load the Skywork `.ckpt` without `convert_pano_lora.py`.
 
 ## Workers
 
-1. `engine.workers.wan` — one rail per process. Load 14B fp8 + LoRAs, generate, unload, exit.  
-2. `engine.workers.hires` — geometry-mode composite, write 8K PNGs to disk (**never** as one giant GPU tensor).  
-3. `engine.workers.sfm` — dual-res: low-res proxies for matching, 8K cube faces for training images.
+1. `engine.workers.wan` — one rail per process. Load 14B fp8 + LoRAs, generate, unload, exit. User may re-gen a single rail. Does **not** start HiRes.  
+2. `engine.workers.hires` — only after **Confirm WAN → HiRes**. Geometry-mode composite, write 8K PNGs to disk (**never** as one giant GPU tensor).  
+3. `engine.workers.sfm` — kept rails only. Wipe the previous colmap sparse before this run. Dual-res: low-res proxies for matching, 8K cube faces for training images. Viewport loads this run after the process exits.
 
 Quality: sequential rails on one 3090. HiRes ~11 GB peak (SplatKit, 5090) **after** WAN has exited.
 
@@ -300,11 +321,15 @@ Quality: sequential rails on one 3090. HiRes ~11 GB peak (SplatKit, 5090) **afte
 - [ ] WAN outputs 1440×720 ERP clips (measure, record in `env_report`).
 - [ ] Empty `prompt.txt` blocks Generate.
 - [ ] HiRes frames on disk at 8192×4096; mean coverage logged; not 0.0.
-- [ ] UI shows `gate_masks` (white = 8K, black = WAN).
+- [ ] UI shows live validity mask | WAN fill during Generate (not `ref-hires-mask-split.png`). After HiRes, `gate_masks` meaning is white = 8K, black = WAN.
 - [ ] Dual-res COLMAP `images/` are pinhole cube faces, not equirect.
 - [ ] In-app train with 3M cap completes without OOM on 3090 after WAN has exited.
 - [ ] SageAttention missing → warning in log, job still completes. If Sage is on: no all-black Wan frames.
 - [ ] Suggest paths fills four distinct archetypes, all starting at the star.
+- [ ] Product Generate never loads `ref-hires-mask-split.png`; live split is mask | WAN; click rail switches preview.
+- [ ] Generate WAN does not start HiRes; Confirm WAN → HiRes is a second click.
+- [ ] Reconstruct Ditch excludes that rail from SfM; Re-gen WAN targets one rail.
+- [ ] After Reconstruct finishes, the sparse viewport is the newest kept-rail solve.
 
 ---
 

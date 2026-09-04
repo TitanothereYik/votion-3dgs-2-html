@@ -184,3 +184,15 @@
 
   document.querySelectorAll(".splat-strat").forEach(mount);
 })();
+
+(function () {
+  document.querySelectorAll(".desk-view .rail-row.pick").forEach(function (row) {
+    row.addEventListener("click", function () {
+      var host = row.parentElement;
+      if (!host) return;
+      host.querySelectorAll(".rail-row.pick").forEach(function (r) {
+        r.classList.toggle("active", r === row);
+      });
+    });
+  });
+})();

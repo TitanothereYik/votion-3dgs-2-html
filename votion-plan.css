@@ -467,6 +467,15 @@ footer {
 }
 .ui-mock .rail-row.active,
 .desk-view .rail-row.active { border-color: var(--accent); }
+.desk-view .rail-row.pick { cursor: pointer; }
+.desk-rail .rail-keep {
+  border: 1px solid var(--line);
+  padding: 0.4rem 0.5rem;
+  margin-top: 0.45rem;
+  font-size: 12px;
+  background: var(--bg-2);
+}
+.desk-rail .rail-keep.ditched { opacity: 0.65; }
 .ui-mock .progress,
 .desk-view .progress {
   height: 6px;

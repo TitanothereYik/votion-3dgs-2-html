@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="votion-plan.css?v=20260903c" />
+  <link rel="stylesheet" href="votion-plan.css?v=20260904a" />
 </head>
 <body>
   <div class="wrap">
@@ -30,8 +30,9 @@
       <a href="#geo-ui">03 Geometry UI</a>
       <a href="#wan">04 WAN hole-fill</a>
       <a href="#gen-ui">05 Generate UI</a>
-      <a href="#hires">06 HiRes</a>
-      <a href="#accept">07 Acceptance</a>
+      <a href="#recon-ui">06 Reconstruct UI</a>
+      <a href="#hires">07 HiRes</a>
+      <a href="#accept">08 Acceptance</a>
     </nav>
 
     <figure class="fig contain">
@@ -58,6 +59,8 @@
         <li>Empty <code>prompt.txt</code> → block WAN. Graph generic positive is not a silent replacement for the scene.</li>
         <li>SageAttention / Triton-Windows: try; continue if missing. If Sage is on, apply the black-frame patch (vendor pin).</li>
         <li>Do not use SeedVR as the sharpness path. Sharpness is 8K geometry composite. Do not shell out to ComfyUI.</li>
+        <li>Product never loads <code>ref-hires-mask-split.png</code> (HTML dummy only). Live Generate split: left validity mask, right WAN fill (including low-res). Click a rail number to preview.</li>
+        <li>WAN then <strong>Confirm WAN → HiRes</strong>. HiRes does not auto-start. Reconstruct: Keep / Ditch / Re-gen WAN. After Reconstruct finishes, always the newest kept-rail sparse.</li>
       </ul>
       <div class="callout warn">
         Native WAN i2v is the largest P3 unknown. Port Diffusers WanPipeline or Matrix-3D video code on Windows (their README is Linux-tested).
@@ -159,7 +162,7 @@
           <a class="done" href="Votion_3DGS_2.0_Phase1.html">Panorama</a>
           <a class="on" href="Votion_3DGS_2.0_Phase3.html#geo-ui">Geometry</a>
           <a href="Votion_3DGS_2.0_Phase3.html#gen-ui">Generate</a>
-          <a href="Votion_3DGS_2.0_Phase2.html#recon">Reconstruct</a>
+          <a href="Votion_3DGS_2.0_Phase3.html#recon-ui">Reconstruct</a>
           <a href="Votion_3DGS_2.0_Phase4.html">Splat</a>
         </div>
         <div class="job-strip">
@@ -311,7 +314,7 @@
       </div>
       <figure class="mask-split">
         <img src="media/ref-hires-mask-split.png" alt="Split view: HiRes binary gate mask on the left, source 8K equirectangular panorama on the right" />
-        <figcaption>Left = <code>gate_masks</code> after HiRes geometry composite. Right = the 8K pano those whites were reprojected from. White follows building/ground volumes; black is WAN (sky, pond interior, unseen sides).</figcaption>
+        <figcaption>HTML dummy only — product Generate never loads this file. Left = <code>gate_masks</code> after HiRes (white = 8K photograph, black = WAN fill). Right = the 8K pano those whites were reprojected from.</figcaption>
       </figure>
       <p>
         Coverage is the white fraction. Typical geometry-mode at 8192 (SplatKit bathroom):
@@ -323,7 +326,7 @@
 
     <section id="gen-ui">
       <h2><span class="num">05</span>Generate page (dummy)</h2>
-      <p>One 3090 cannot hold 14B + 8K composite + SfM. Rails <strong>sequential</strong>. Empty <code>prompt.txt</code> blocks Generate.</p>
+      <p>One 3090 cannot hold 14B + 8K composite + SfM. Rails <strong>sequential</strong>. Empty <code>prompt.txt</code> blocks Generate. WAN and HiRes are <strong>two clicks</strong>.</p>
       <div class="desk">
         <div class="desk-win"><span><strong>Votion 3DGS</strong></span><span class="wbtn">— □ ×</span></div>
         <div class="desk-brand">
@@ -336,13 +339,13 @@
           <a class="done" href="Votion_3DGS_2.0_Phase1.html">Panorama</a>
           <a class="done" href="Votion_3DGS_2.0_Phase2.html#geo">Geometry</a>
           <a class="on" href="Votion_3DGS_2.0_Phase3.html#gen-ui">Generate</a>
-          <a href="Votion_3DGS_2.0_Phase2.html#recon">Reconstruct</a>
+          <a href="Votion_3DGS_2.0_Phase3.html#recon-ui">Reconstruct</a>
           <a href="Votion_3DGS_2.0_Phase4.html">Splat</a>
         </div>
         <div class="job-strip">
-          <span class="job-cap">idle</span>
-          <div class="job-bar"><i style="width:0%"></i></div>
-          <span class="job-pct">—</span>
+          <span class="job-cap">wan · rail 1</span>
+          <div class="job-bar"><i style="width:38%"></i></div>
+          <span class="job-pct">38%</span>
         </div>
         <div class="desk-body">
           <div class="desk-rail">
@@ -366,47 +369,136 @@
               <label><input type="radio" disabled /> all (graph widget; disk-heavy)</label>
             </div>
             <div class="f-row">
-              <button class="f-btn pri" type="button">Generate</button>
+              <button class="f-btn pri" type="button">Generate WAN</button>
               <button class="f-btn ghost" type="button">Stop</button>
+            </div>
+            <div class="f-row">
+              <button class="f-btn" type="button">Re-gen selected rail</button>
+            </div>
+            <div class="f-row">
+              <button class="f-btn" type="button">Confirm WAN → HiRes</button>
             </div>
             <div class="f-row">
               <button class="f-btn" type="button">Open frames folder</button>
             </div>
+            <p class="f-hint">Review 1440×720 first. HiRes does not start with Generate WAN.</p>
           </div>
           <div class="desk-view">
-            <p class="view-lbl">Rail progress · sequential on 3090</p>
-            <div class="rail-row active" style="margin-top:0">
+            <p class="view-lbl">Click a rail number · live mask | WAN</p>
+            <div class="rail-row pick active" role="button" tabindex="0">
               <span>Rail 1</span>
-              <span>WAN 8/8 · HiRes 12/41 · cov 0.85</span>
+              <span>WAN frame 12</span>
             </div>
-            <div class="progress"><i style="width:62%"></i></div>
-            <div class="rail-row"><span>Rail 2</span><span>queued</span></div>
-            <div class="rail-row"><span>Rail 3</span><span>queued</span></div>
-            <div class="rail-row"><span>Rail 4</span><span>queued</span></div>
-            <p class="view-lbl" style="margin-top:0.7rem">gate_masks after HiRes</p>
+            <div class="progress"><i style="width:38%"></i></div>
+            <div class="rail-row pick" role="button" tabindex="0"><span>Rail 2</span><span>done</span></div>
+            <div class="rail-row pick" role="button" tabindex="0"><span>Rail 3</span><span>queued</span></div>
+            <div class="rail-row pick" role="button" tabindex="0"><span>Rail 4</span><span>queued</span></div>
+            <p class="view-lbl" style="margin-top:0.7rem">left = validity mask · right = WAN fill (live, including low-res)</p>
             <div class="gate-legend" style="margin:0.2rem 0 0.4rem">
-              <span><i class="sw w"></i>8K photograph</span>
-              <span><i class="sw k"></i>WAN fill</span>
+              <span><i class="sw w"></i>known</span>
+              <span><i class="sw k"></i>hole / WAN</span>
             </div>
             <figure class="mask-split compact" style="margin:0">
-              <img src="media/ref-hires-mask-split.png" alt="HiRes gate mask split with source panorama" />
+              <img src="media/ref-hires-mask-split.png" alt="Dummy split: black-and-white mask on the left, filled frame on the right" />
             </figure>
+            <p class="f-hint">This PNG is HTML showcase only. Product never loads it.</p>
           </div>
         </div>
         <div class="desk-draws">
-        <details class="desk-log-draw"><summary>Log</summary><div class="desk-log"><b>STATUS // generate</b><br />engine.workers.wan exits before hires. Then dual-res sfm.</div></details>
+        <details class="desk-log-draw"><summary>Log</summary><div class="desk-log"><b>STATUS // generate WAN</b><br />engine.workers.wan exits. HiRes waits for Confirm WAN → HiRes.</div></details>
         <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
           <b>GENERATE</b><br />
           prompt.txt must describe this pano. Empty blocks WAN. Style suffix is optional. Negative is editable (graph default shown).
-          WAN stays 1440×720. Sharpness is 8K reprojection, not SeedVR. Rails run one at a time on the 3090. Open frames folder for HiRes PNGs.
+          WAN stays 1440×720. Click a rail to preview. Re-gen a rail if it hallucinated. Confirm WAN before 8K HiRes.
         </div></details>
         </div>
       </div>
-      <p class="desk-cap">Workers: <code>wan</code> → <code>hires</code> → <code>sfm</code>. 8K PNGs to disk, never one giant GPU tensor. Style suffix and Negative are visible, graph defaults, user may edit.</p>
+      <p class="desk-cap">Workers: <code>wan</code> (review) then user Confirm then <code>hires</code> then <code>sfm</code>. Dummy split PNG stays here; product uses live frames.</p>
+    </section>
+
+    <section id="recon-ui">
+      <h2><span class="num">06</span>Reconstruct page (dummy)</h2>
+      <p>Ditch a rail if WAN invented something you do not want. Reconstruct uses kept WAN clips. When loading finishes, the sparse pane is always this run.</p>
+      <div class="desk">
+        <div class="desk-win"><span><strong>Votion 3DGS</strong></span><span class="wbtn">— □ ×</span></div>
+        <div class="desk-brand">
+          <h3>Votion 3DGS</h3>
+          <span class="live">sfm done</span>
+        </div>
+        <div class="desk-stages">
+          <a class="done" href="Votion_3DGS_2.0_Phase0.html">Home</a>
+          <a class="done" href="Votion_3DGS_2.0_Phase1.html">Panorama</a>
+          <a class="done" href="Votion_3DGS_2.0_Phase2.html#geo">Geometry</a>
+          <a class="done" href="Votion_3DGS_2.0_Phase3.html#gen-ui">Generate</a>
+          <a class="on" href="Votion_3DGS_2.0_Phase3.html#recon-ui">Reconstruct</a>
+          <a href="Votion_3DGS_2.0_Phase4.html">Splat</a>
+        </div>
+        <div class="job-strip">
+          <span class="job-cap">idle</span>
+          <div class="job-bar"><i style="width:0%"></i></div>
+          <span class="job-pct">—</span>
+        </div>
+        <div class="desk-body">
+          <div class="desk-rail">
+            <label class="f-lab">Rails in dataset</label>
+            <p class="f-hint">Ditch a hallucinated rail, or Re-gen WAN after editing the prompt.</p>
+            <div class="rail-keep">
+              <span>Rail 1 · WAN</span>
+              <div class="f-row">
+                <button class="f-btn" type="button">Keep</button>
+                <button class="f-btn ghost" type="button">Re-gen WAN</button>
+              </div>
+            </div>
+            <div class="rail-keep">
+              <span>Rail 2 · WAN</span>
+              <div class="f-row">
+                <button class="f-btn" type="button">Keep</button>
+                <button class="f-btn ghost" type="button">Re-gen WAN</button>
+              </div>
+            </div>
+            <div class="rail-keep ditched">
+              <span>Rail 3 · ditched</span>
+              <div class="f-row">
+                <button class="f-btn ghost" type="button">Ditched</button>
+                <button class="f-btn ghost" type="button">Re-gen WAN</button>
+              </div>
+            </div>
+            <div class="rail-keep">
+              <span>Rail 4 · WAN</span>
+              <div class="f-row">
+                <button class="f-btn" type="button">Keep</button>
+                <button class="f-btn ghost" type="button">Re-gen WAN</button>
+              </div>
+            </div>
+            <label class="f-lab">SphereSfM</label>
+            <button class="f-btn pri" type="button">Reconstruct</button>
+            <div class="stat-grid">
+              <div><b>num_images</b>246</div>
+              <div><b>num_points</b>18420</div>
+            </div>
+            <p class="f-hint">3 kept rail(s). Showing current sparse — not a previous 1-rail solve.</p>
+          </div>
+          <div class="desk-view">
+            <div class="sparse-view">
+              <span class="lbl">COLMAP sparse · newest kept rails · drag orbit</span>
+              <img src="media/colmap-sparse.webp" alt="COLMAP sparse cloud and cameras" />
+              <span class="rail-hint">After Reconstruct finishes loading, always this run’s sparse/0.</span>
+            </div>
+          </div>
+        </div>
+        <div class="desk-draws">
+        <details class="desk-log-draw"><summary>Log</summary><div class="desk-log"><b>STATUS // reconstruct</b><br />wiped previous colmap · kept clips 3 · sparse/0 this run.</div></details>
+        <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
+          <b>RECONSTRUCT</b><br />
+          Keep or ditch rails after WAN. Ditched rails are left out of SphereSfM.
+          Re-gen WAN on a hallucinated rail. When loading is done, the viewport always pulls the newest dataset.
+        </div></details>
+        </div>
+      </div>
     </section>
 
     <section id="hires">
-      <h2><span class="num">06</span>HiRes (copy, do not “improve”)</h2>
+      <h2><span class="num">07</span>HiRes (copy, do not “improve”)</h2>
       <p>
         WAN repaints the whole frame. Fine for video; expensive for a splat (views disagree → blur).
         <code>geometry</code> mode: the reprojected 8K <em>is</em> the image wherever the mesh can answer.
@@ -452,13 +544,15 @@
     </section>
 
     <section id="accept">
-      <h2><span class="num">07</span>Acceptance · risks · do not</h2>
+      <h2><span class="num">08</span>Acceptance · risks · do not</h2>
       <ul class="check">
         <li>Four rails, sequential WAN, four <code>rail_json</code> files that do not overwrite.</li>
         <li>Optional 5th Add-rail via <code>SphereSfMAddToDatasetDualRes</code> without colliding.</li>
         <li>WAN resolution measured and recorded in <code>env_report</code> (expect 1440×720 ERP).</li>
         <li>Empty <code>prompt.txt</code> blocks Generate.</li>
-        <li>HiRes frames 8192×4096; mean coverage logged; not 0.0; <code>gate_masks</code> visible in UI.</li>
+        <li>HiRes frames 8192×4096; mean coverage logged; not 0.0. Product Generate never loads <code>ref-hires-mask-split.png</code>.</li>
+        <li>Live split is mask | WAN; click a rail to preview. Generate WAN does not start HiRes.</li>
+        <li>Reconstruct Ditch excludes a rail; Re-gen WAN targets one rail; after Reconstruct finishes, newest kept-rail sparse.</li>
         <li>COLMAP <code>images/</code> are pinhole cube faces, not equirect.</li>
         <li>In-app train with 3M cap after WAN process has exited, no OOM on 3090.</li>
         <li>SageAttention missing → log warning, job completes. If Sage is on: no all-black Wan frames.</li>
@@ -470,6 +564,7 @@
         <li>Do not stretch WAN to 8K and skip composite. Do not use SeedVR instead of HiRes.</li>
         <li>Do not enable <code>base_mode=wan</code> as splat default. Do not run PanoLRM.</li>
         <li>Do not claim extra rails fix glass. Do not default frames to <code>0-15,16-/8</code> while the graph is <code>0-80/2</code>.</li>
+        <li>Do not auto-start HiRes after WAN. Do not load the dummy split PNG in product UI.</li>
       </ul>
     </section>
     <footer>Votion 3DGS 2.0 · Phase 3 · <a href="Votion_3DGS_2.0_Phase3.md">markdown</a></footer>

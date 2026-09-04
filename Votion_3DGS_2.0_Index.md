@@ -41,7 +41,7 @@ These are the only product facts treated as **locked**. Everything else in the p
 8. **Do not reuse Comfy `python_embeded`.** Independent Votion venv. Only weights may be copied.
 9. **Venv pin:** Python **3.12** + CUDA **12.8** + current stable PyTorch **cu128** wheel. Exact PyTorch *patch* is **not** pinned here — record it in `requirements.lock` on first successful Phase 0 install.
 10. **Product name:** Votion 3DGS
-11. **Trainer:** in-app gsplat → `splat.ply`. User picks **Splat3** (default) or **MCMC** on the Splat page before Train / Retrain. Splat3 = gsplat `DefaultStrategy` (original 3DGS densify / split / prune). MCMC = gsplat `MCMCStrategy` ([3DGS as MCMC](https://arxiv.org/abs/2404.09591)). ADC / Splat Density is not offered. Continue uses the checkpoint’s strategy; switching Splat3 ↔ MCMC requires Retrain. In-app Splat3 is **not** Jawset Postshot’s binary. Brush / LichtFeld / Postshot stay “Open in…”.
+11. **Trainer:** in-app gsplat → `splat.ply`. User picks **Splat3** (default) or **MCMC** on the Splat page before Train / Retrain. Splat3 = gsplat `DefaultStrategy` (original 3DGS densify / split / prune). MCMC = gsplat `MCMCStrategy` ([3DGS as MCMC](https://arxiv.org/abs/2404.09591)). Both share the same Gaussian raster (opacity, anisotropic scale, rotation, SH). ADC / Splat Density is not offered. Continue uses the checkpoint’s strategy; switching Splat3 ↔ MCMC requires Retrain. In-app Splat3 is **not** Jawset Postshot’s binary. Brush / LichtFeld / Postshot stay “Open in…”. Live train viewport, Stop, uncapped max steps, and Star camera: see 41–47 (locked 2026-09-05).
 12. **Unreal:** Engine **5.5** + **MLSLabsRenderer** (interim) for `splat.ply` playback — [GitHub](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE) · [Fab](https://www.fab.com/listings/f91b57cc-958d-40dd-a455-2535bf00e588). Hold an **update slot** for a better UE renderer later.
 13. **Pano inputs (2.0):** three first-class modes on Phase 1 — **(1) 2D Images → ERP (default)**, **(2) 360 Images**, **(3) text → ERP**. Happy path is (1) then Phase 2 splat then Phase 3 WAN.
 14. **2D Images surroundings:** user types a sentence **or** local **Florence-2** captions the 2D image (editable). Always append **`no peoples, no cars`** at the end (typed or caption). Empty box still blocks Generate. Florence Hub (measured first successful P1 caption): `florence-community/Florence-2-large` rev `4271c66b88cdbc05735372ec13b2360108de5317`.
@@ -71,6 +71,13 @@ These are the only product facts treated as **locked**. Everything else in the p
 38. **Reconstruct ditch (2026-09-04):** Keep or Ditch each rail. A ditched rail is left out of SphereSfM (WAN sometimes hallucinates).
 39. **Re-gen one rail (2026-09-04):** From Reconstruct, Re-gen WAN on a single rail (jumps to Generate for that rail).
 40. **Newest sparse (2026-09-04):** After Reconstruct finishes loading, always show the newest kept-rail COLMAP sparse. Do not keep an older 1-rail / previous solve on screen.
+41. **Live train viewport (2026-09-05):** While Train / Continue / view-loop runs, the Splat pane is a Postshot-style **raster of the Gaussians** (ellipses as a surface). Not a point cloud and not stats-only.
+42. **Max steps (2026-09-05):** any integer **≥ 1**. Default in the box may be 10000. **No product cap.**
+43. **Unlocked camera (2026-09-05):** LMB look/orbit, RMB pan, wheel dolly. Zoom is **not** product-capped.
+44. **Star reset (2026-09-05):** Reset / default pose is the rails **Star** (origin of every rail). Do **not** tighten the orbit around the cloud.
+45. **Per-Gaussian raster (2026-09-05):** each splat uses its own opacity, anisotropic scale, rotation, and color/SH. Opacity is not a shared slider. **MCMC uses this same representation** as Splat3.
+46. **Stop (2026-09-05):** a Stop button on the Splat rail **and** on the job bar kills training. Continue resumes the last 100-step checkpoint.
+47. **Anisotropy vs needle takeover (2026-09-05):** elongated / mixed-angle ellipses (including thin needles as a *look*) are expected. Hairline needles **taking over the scene over time**, glowing whites, and crushed blacks as training proceeds are **bugs** (not a Qt overlay).
 
 ### Measured on this PC (not guessed)
 
@@ -239,10 +246,10 @@ Shared window (every dummy `.desk`):
 | [Index](Votion_3DGS_2.0_Index.html) | Home overview |
 | [Phase 0](Votion_3DGS_2.0_Phase0.html) | Home: scene, profile, download, model status |
 | [Phase 1](Votion_3DGS_2.0_Phase1.html) | Panorama: 2D / 360 / text, green FOV crop, seeds, Caption |
-| [Phase 2](Votion_3DGS_2.0_Phase2.html) | Geometry (empty + Plot Camera rail), Reconstruct, Splat (Splat3 / MCMC) |
+| [Phase 2](Votion_3DGS_2.0_Phase2.html) | Geometry (empty + Plot Camera rail), Reconstruct, Splat (live raster, Splat3 / MCMC, Stop) |
 | [Phase 3](Votion_3DGS_2.0_Phase3.html) | Geometry (4 rails), Generate (WAN then Confirm HiRes, live mask\|WAN split), Reconstruct (keep/ditch) |
 | [Phase 4](Votion_3DGS_2.0_Phase4.html) | Splat Open-in… + Splat3 / MCMC, Home Help / `config.json` |
 
-Interactive bits in the dummies (not screenshots of a running app): Panorama **h_fov** type-or-drag warps the green FOV window; **Fit / 100%** on the left 2:1 pane; Geometry **drag cameras 1–3** and the **orange look-at**; Generate **click a rail number**; Reconstruct **sparse orbit**; Splat **Splat3 / MCMC** chips (`docs/rail-dummy.js`). Job strip under the chips on every desk. `ref-hires-mask-split.png` is **HTML showcase only**.
+Interactive bits in the dummies (not screenshots of a running app): Panorama **h_fov** type-or-drag warps the green FOV window; **Fit / 100%** on the left 2:1 pane; Geometry **drag cameras 1–3** and the **orange look-at**; Generate **click a rail number**; Reconstruct **sparse orbit**; Splat **Splat3 / MCMC** chips plus a live-raster plate (`docs/rail-dummy.js`). Job strip under the chips on every desk. `ref-hires-mask-split.png` is **HTML showcase only**.
 
 Unreal import target is **UE 5.5** + **MLSLabsRenderer** (interim). Update slot held for a future better UE splat renderer.

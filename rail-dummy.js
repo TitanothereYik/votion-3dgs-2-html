@@ -158,8 +158,8 @@
 /* Dummy Splat3 / MCMC chips on the Splat page. */
 (function () {
   var hints = {
-    splat3: "Splat3 (default): gsplat DefaultStrategy. Continue keeps this checkpoint; switch to MCMC needs Retrain. ADC is not offered.",
-    mcmc: "MCMC: gsplat MCMCStrategy. Continue keeps this checkpoint; switch to Splat3 needs Retrain. ADC is not offered."
+    splat3: "Splat3 (default): gsplat DefaultStrategy. Same live raster as MCMC (opacity, anisotropic scale, rotation, SH). Continue keeps this checkpoint; switch to MCMC needs Retrain. ADC is not offered.",
+    mcmc: "MCMC: gsplat MCMCStrategy. Same Gaussians as Splat3 — densify differs. Continue keeps this checkpoint; switch to Splat3 needs Retrain. ADC is not offered."
   };
   var labels = { splat3: "Splat3", mcmc: "MCMC" };
 

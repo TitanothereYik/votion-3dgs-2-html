@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="votion-plan.css?v=20260903c" />
+  <link rel="stylesheet" href="votion-plan.css?v=20260905a" />
 </head>
 <body>
   <div class="wrap">
@@ -315,7 +315,8 @@
         <div class="job-strip">
           <span class="job-cap">splat · Splat3</span>
           <div class="job-bar"><i style="width:12%"></i></div>
-          <span class="job-pct">1200 / 10000</span>
+          <span class="job-pct">1200 / 30000</span>
+          <button class="f-btn ghost job-stop" type="button">Stop</button>
         </div>
         <div class="desk-body">
           <div class="desk-rail">
@@ -324,35 +325,57 @@
               <button type="button" class="on" data-splat-strat="splat3">Splat3</button>
               <button type="button" data-splat-strat="mcmc">MCMC</button>
             </div>
-            <p class="f-hint splat-strat-hint">Splat3 (default): gsplat DefaultStrategy. Continue keeps this checkpoint; switch to MCMC needs Retrain. ADC is not offered.</p>
+            <p class="f-hint splat-strat-hint">Splat3 (default): gsplat DefaultStrategy. Same live raster as MCMC (opacity, anisotropic scale, rotation, SH). Continue keeps this checkpoint; switch to MCMC needs Retrain. ADC is not offered.</p>
             <label class="f-lab">Max steps</label>
-            <input class="f-in" value="10000" readonly />
+            <input class="f-in" value="30000" />
+            <p class="f-hint">Any integer ≥ 1. Box default 10000. No product cap.</p>
             <label class="f-lab">Gaussian cap</label>
             <input class="f-in" value="3000000" readonly />
             <div class="f-row">
               <button class="f-btn pri" type="button">Train</button>
-              <button class="f-btn ghost" type="button">Continue</button>
+              <button class="f-btn ghost" type="button">Stop</button>
             </div>
             <div class="f-row">
+              <button class="f-btn ghost" type="button">Continue</button>
               <button class="f-btn ghost" type="button">Retrain</button>
+            </div>
+            <div class="f-row">
               <button class="f-btn ghost" type="button">Export splat.ply</button>
             </div>
             <p class="f-hint">If P0 gsplat spike failed: Train disabled; Open COLMAP folder still works (Brush).</p>
           </div>
           <div class="desk-view">
-            <p class="view-lbl">Live train (V1 Continue)</p>
-            <div class="stat-grid">
-              <div><b>loss</b>—</div>
-              <div><b>step</b>0 / 10000</div>
+            <p class="view-lbl">Live train · rasterized 3DGS</p>
+            <div class="splat-live" aria-label="Live Gaussian splat viewport">
+              <span class="lbl">Star reset · LMB look · RMB pan · wheel dolly</span>
+              <svg class="splat-ellipses" viewBox="0 0 640 200" role="img" aria-hidden="true">
+                <ellipse cx="92" cy="118" rx="54" ry="18" fill="rgba(120,170,210,0.45)" transform="rotate(-18 92 118)"/>
+                <ellipse cx="168" cy="86" rx="38" ry="22" fill="rgba(90,150,120,0.5)" transform="rotate(32 168 86)"/>
+                <ellipse cx="248" cy="124" rx="72" ry="14" fill="rgba(180,150,90,0.4)" transform="rotate(-8 248 124)"/>
+                <ellipse cx="318" cy="72" rx="22" ry="28" fill="rgba(140,120,190,0.45)" transform="rotate(12 318 72)"/>
+                <ellipse cx="390" cy="108" rx="48" ry="11" fill="rgba(70,160,190,0.55)" transform="rotate(48 390 108)"/>
+                <ellipse cx="468" cy="80" rx="16" ry="36" fill="rgba(200,140,110,0.4)" transform="rotate(-24 468 80)"/>
+                <ellipse cx="540" cy="128" rx="44" ry="20" fill="rgba(110,140,200,0.5)" transform="rotate(6 540 128)"/>
+                <ellipse cx="210" cy="150" rx="90" ry="8" fill="rgba(160,180,140,0.28)" transform="rotate(-4 210 150)"/>
+              </svg>
             </div>
+            <div class="stat-grid">
+              <div><b>loss</b>0.042</div>
+              <div><b>step</b>1200 / 30000</div>
+              <div><b>gaussians</b>234k</div>
+            </div>
+            <p class="f-hint">Splat3 and MCMC share this viewport. Per-Gaussian opacity, scale, rotation, SH. Reset is the rails Star. Zoom is not product-capped. Mixed-angle ellipses are the look; hairline needles taking over, glowing whites, and crushed blacks are bugs.</p>
           </div>
         </div>
         <div class="desk-draws">
-        <details class="desk-log-draw"><summary>Log</summary><div class="desk-log splat-strat-log"><b>STATUS // splat</b><br />strategy Splat3 · outputs/alpine_01/splat.ply — Unreal check is manual (MLSLabsRenderer).</div></details>
+        <details class="desk-log-draw"><summary>Log</summary><div class="desk-log splat-strat-log"><b>STATUS // splat</b><br />strategy Splat3 · live raster · outputs/alpine_01/splat.ply — Unreal check is manual (MLSLabsRenderer).</div></details>
         <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
           <b>SPLAT</b><br />
           Pick <strong>Splat3</strong> (default, gsplat DefaultStrategy) or <strong>MCMC</strong> (gsplat MCMCStrategy), then Train.
           Continue keeps the checkpoint’s strategy; switching needs Retrain. ADC is not offered.
+          Max steps is any integer ≥ 1 (no product cap). Stop (Splat rail or the job bar) kills training.
+          Viewport: live raster of every Gaussian. Reset is the rails Star. LMB look, RMB pan, wheel dolly.
+          MCMC uses the same Gaussians as Splat3. Elongated ellipses are the look; needle takeover is a bug.
           Cap ~3M (1M hides 8K). If gsplat failed in P0: Train disabled; Open COLMAP folder still works (Brush).
           Unreal: UE 5.5 + MLSLabsRenderer. MoGe <code>pointcloud.ply</code> is not the Unreal asset.
         </div></details>
@@ -371,6 +394,8 @@
         <li><code>colmap/sparse/0</code> exists after Reconstruct. Viewport shows the sparse cloud, not cube-face stills.</li>
         <li>Background jobs update the strip under the chips (not log-only).</li>
         <li>If gsplat passed: <code>splat.ply</code> with the selected strategy (Splat3 default). Continue stays on that strategy; Splat3 ↔ MCMC needs Retrain. If failed: UI says so; COLMAP still valid for Brush.</li>
+        <li>Splat viewport is a live raster (not a point cloud). Reset is the rails Star. Max steps is any integer ≥ 1. Stop kills training.</li>
+        <li>MCMC uses the same per-Gaussian raster as Splat3. Needle takeover / glowing whites / crushed blacks are bugs.</li>
       </ul>
       <p>No Krea, no 4-rail default, no 8K HiRes, no WorldFM frames. Do not name a look mode <code>forward_look</code> or Height. Do not treat widget 9 as fps.</p>
     </section>

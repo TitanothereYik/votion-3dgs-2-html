@@ -38,9 +38,10 @@ If Phase 1 **2D Images** is unavailable, Phase 2 still runs on **360 Images** or
 - **Mesh flight preview:** the pane **under** the FLOOR | SIDE pair. **Play lives on that pane** — no Preview button on the left rail (locked 2026-08-31). Play the control video there (black holes OK) before Confirm.
 - **FLOOR / SIDE implementation (locked 2026-09-03):** plates + gizmos are **QPainter** on one widget. Do not ship QWebEngine. vispy is not the Geometry editor.
 - Reconstruction: SphereSfM → COLMAP `images/` + `sparse/0` (ordinary `SIMPLE_PINHOLE` cube faces). Viewport after Reconstruct is an **orbit of the sparse cloud** (`points3D.bin` + camera centers), not cube-face stills. Not WorldFM `transforms.json`.
-- **Tab persistence (locked 2026-09-03):** switching stage chips restores generated views (Panorama ERP, Geometry Preview-flight still + Confirm, Reconstruct sparse, Splat stats). Do not reset to empty / green warp.
+- **Tab persistence (locked 2026-09-03):** switching stage chips restores generated views (Panorama ERP, Geometry Preview-flight still + Confirm, Reconstruct sparse, Splat live raster). Do not reset to empty / green warp.
 - Trainer happy path: evolve `Yik Votion WorldFM/tools/train_splat_live.py`. If gsplat failed in P0, P2 still **writes COLMAP** and shows “Open folder”.
 - **Train strategy (locked 2026-09-01):** user picks **Splat3** or **MCMC** on the Splat page. Default **Splat3**. Both write `splat.ply` at the ~3M cap. Splat3 → gsplat `DefaultStrategy`. MCMC → gsplat `MCMCStrategy`. Continue keeps the checkpoint’s strategy; switching needs Retrain. ADC is not a third choice.
+- **Splat viewport (locked 2026-09-05):** live **rasterized 3DGS** (ellipses as a surface), not a point cloud and not stats-only. LMB look, RMB pan, wheel dolly; zoom is not product-capped. Reset / default = rails **Star**. Max steps = any integer ≥ 1 (no product cap). **Stop** on the Splat rail and job bar. Per-Gaussian opacity, scale, rotation, SH — MCMC shares this. Elongated mixed-angle ellipses are the look; needle takeover / glowing whites / crushed blacks are bugs.
 - Vendor SplatKit `core/` + `shim/` (MIT). Rasterizer is the torch/triton shim — **not** nvdiffrast. Do not use Matrix-3D PanoLRM.
 
 ---
@@ -155,7 +156,7 @@ Dummy: [Phase 2 HTML §04](Votion_3DGS_2.0_Phase2.html#recon). Left: **Reconstru
 
 ### Splat page
 
-Dummy: same HTML, second window. **Splat3 | MCMC** chips (default Splat3), max steps **10000**, Gaussian cap **3M**, Train / Continue / Retrain / Export `splat.ply`. Viewport: live train stats (loss / step). Help = strategy choice + splat.ply, Brush fallback if gsplat failed.
+Dummy: same HTML, second window. **Splat3 | MCMC** chips (default Splat3), max steps **any integer ≥ 1** (box default 10000, no product cap), Gaussian cap **3M**, Train / **Stop** / Continue / Retrain / Export `splat.ply`. Viewport: **live rasterized 3DGS** (Postshot-style), not a point cloud. Camera: LMB look, RMB pan, wheel dolly; reset = rails **Star**. Help = strategy + Stop + Star + splat.ply, Brush fallback if gsplat failed.
 
 ---
 
@@ -166,7 +167,7 @@ Dummy: same HTML, second window. **Splat3 | MCMC** chips (default Splat3), max s
 | `ui/job_control.py` | Cancel flag (already sketched in P0) |
 | `ui/camera_presets.py` | Rail **templates** only. Map lookaround / orbit / dolly onto SplatKit archetypes later in P3; P2 only needs the node-27 default + free edit. |
 | `ui/camera_path_viz.py` | FLOOR + SIDE + star + LOOK rays. Product editor is **QPainter** on one widget (locked 2026-09-03). Do not ship QWebEngine. Do not stack vispy Line/Markers over Image. Do not embed Comfy `camera_plot_geo.js`. |
-| `tools/train_splat_live.py` | COLMAP cameras.bin/images.bin (or text). Keep live loss, checkpoint, `splat.ply`. Pass Splat3 (`DefaultStrategy`) or MCMC (`MCMCStrategy`). |
+| `tools/train_splat_live.py` | COLMAP cameras.bin/images.bin (or text). Keep live **raster** viewport, checkpoint, `splat.ply`. Pass Splat3 (`DefaultStrategy`) or MCMC (`MCMCStrategy`). Same Gaussian params for both. |
 | `ui/theme.css` | Qt stylesheet tokens |
 
 Do **not** copy `worldfm/`, WorldFM `pipeline_runner.py`, or WSL scripts.
@@ -223,6 +224,8 @@ splat.ply
 - [ ] `colmap/sparse/0` exists after Reconstruct. Viewport shows the sparse cloud (not cube-face stills).
 - [ ] If gsplat spike passed: `splat.ply` written with the selected strategy (Splat3 default); V1-style Continue works on the same scene name **and the same strategy**.
 - [ ] Switching Splat3 ↔ MCMC disables Continue until Retrain (or Continue stays on the checkpoint strategy).
+- [ ] Splat viewport is a live raster (not a point cloud). Reset is the rails Star. Max steps accepts any integer ≥ 1. Stop kills the train job.
+- [ ] MCMC uses the same per-Gaussian raster as Splat3 (opacity, anisotropic scale, rotation, SH).
 - [ ] If gsplat failed: UI says so; COLMAP folder still valid for Brush.
 - [ ] Unreal import of `splat.ply` is a **manual** check via **MLSLabsRenderer**. Document pass/fail in `outputs/<scene>/unreal_check.txt` — do not claim Unreal success in code.
 

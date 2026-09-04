@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="votion-plan.css?v=20260904a" />
+  <link rel="stylesheet" href="votion-plan.css?v=20260905a" />
 </head>
 <body>
   <div class="wrap">
@@ -87,8 +87,8 @@
         <li><strong>Product name:</strong> Votion 3DGS</li>
         <li><strong>Trainer:</strong> in-app gsplat → <code>splat.ply</code>. User picks <strong>Splat3</strong> (default) or <strong>MCMC</strong> before Train / Retrain.
           Splat3 = gsplat <code>DefaultStrategy</code>. MCMC = gsplat <code>MCMCStrategy</code>.
-          Continue keeps the checkpoint’s strategy. ADC is not offered.
-          Brush / LichtFeld / Postshot are “Open in…”.</li>
+          Both share the same Gaussian raster. Continue keeps the checkpoint’s strategy. ADC is not offered.
+          Brush / LichtFeld / Postshot are “Open in…”. Live viewport / Stop / Star camera: items 41–47 (2026-09-05).</li>
         <li><strong>Unreal:</strong> Engine 5.5 + <strong>MLSLabsRenderer</strong> (interim) for <code>splat.ply</code> —
           <a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE">GitHub</a> ·
           <a href="https://www.fab.com/listings/f91b57cc-958d-40dd-a455-2535bf00e588">Fab</a>.
@@ -117,6 +117,13 @@
         <li><strong>WAN then HiRes (2026-09-04):</strong> Generate WAN, review 720p, optionally re-gen a rail, then Confirm WAN → HiRes. HiRes does not auto-start.</li>
         <li><strong>Reconstruct keep/ditch (2026-09-04):</strong> Ditch a hallucinated rail (left out of SfM) or Re-gen WAN on that rail.</li>
         <li><strong>Newest sparse (2026-09-04):</strong> After Reconstruct finishes loading, always show the newest kept-rail sparse.</li>
+        <li><strong>Live train viewport (2026-09-05):</strong> Postshot-style raster of the Gaussians while Train / Continue / view-loop runs. Not a point cloud and not stats-only.</li>
+        <li><strong>Max steps (2026-09-05):</strong> any integer ≥ 1. Default in the box may be 10000. <strong>No product cap.</strong></li>
+        <li><strong>Unlocked camera (2026-09-05):</strong> LMB look/orbit, RMB pan, wheel dolly. Zoom is not product-capped.</li>
+        <li><strong>Star reset (2026-09-05):</strong> Reset / default pose is the rails <strong>Star</strong> (origin of every rail). Do not tighten the orbit.</li>
+        <li><strong>Per-Gaussian raster (2026-09-05):</strong> opacity, anisotropic scale, rotation, and color/SH per splat. MCMC uses the same representation as Splat3.</li>
+        <li><strong>Stop (2026-09-05):</strong> Splat rail and job bar. Continue resumes the last 100-step checkpoint.</li>
+        <li><strong>Anisotropy vs needle takeover (2026-09-05):</strong> elongated / mixed-angle ellipses are the look. Hairline needles taking over, glowing whites, and crushed blacks are bugs (not a Qt overlay).</li>
       </ol>
 
       <h3>Measured on this PC (not guessed)</h3>

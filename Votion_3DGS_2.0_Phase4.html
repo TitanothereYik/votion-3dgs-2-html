@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="votion-plan.css?v=20260903c" />
+  <link rel="stylesheet" href="votion-plan.css?v=20260905a" />
 </head>
 <body>
   <div class="wrap">
@@ -99,8 +99,9 @@
               <button type="button" class="on" data-splat-strat="splat3">Splat3</button>
               <button type="button" data-splat-strat="mcmc">MCMC</button>
             </div>
-            <p class="f-hint splat-strat-hint">Splat3 (default): gsplat DefaultStrategy. Continue keeps this checkpoint; switch to MCMC needs Retrain. ADC is not offered.</p>
-            <div class="f-row"><button class="f-btn pri" type="button">Continue train</button></div>
+            <p class="f-hint splat-strat-hint">Splat3 (default): gsplat DefaultStrategy. Same live raster as MCMC (opacity, anisotropic scale, rotation, SH). Continue keeps this checkpoint; switch to MCMC needs Retrain. ADC is not offered.</p>
+            <div class="f-row"><button class="f-btn pri" type="button">Continue train</button>
+            <button class="f-btn ghost" type="button">Stop</button></div>
             <div class="f-row"><button class="f-btn ghost" type="button">Reload 3DGS from disk</button></div>
             <label class="f-lab">Open in</label>
             <div class="f-row"><button class="f-btn" type="button">Explorer (colmap)</button></div>
@@ -111,7 +112,7 @@
           </div>
           <div class="desk-view">
             <img src="media/mlslabs-play.jpg" alt="Splat playback stand-in" style="width:100%;max-height:180px;object-fit:cover;border:1px solid var(--line)" />
-            <p class="f-hint">Unreal is outside this window: UE 5.5 + MLSLabsRenderer import splat.ply. MoGe pointcloud.ply is not the Unreal asset.</p>
+            <p class="f-hint">Train viewport is the live raster (Star reset · LMB look · RMB pan · wheel dolly). This still is Unreal playback. MCMC uses the same Gaussians as Splat3. MoGe pointcloud.ply is not the Unreal asset.</p>
           </div>
         </div>
         <div class="desk-draws">
@@ -119,6 +120,7 @@
         <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
           <b>SPLAT</b><br />
           Pick <strong>Splat3</strong> (default) or <strong>MCMC</strong>, then Train / Retrain. Continue keeps the checkpoint’s strategy.
+          Stop kills training. Viewport: live raster; reset is the rails Star.
           Open in Brush: Directory → outputs/&lt;scene&gt; → Start.
           LichtFeld primitive cap ~3M. If the exe is missing, open the docs URL — do not invent install flags.
           Unreal: import splat.ply in UE 5.5 + MLSLabsRenderer.

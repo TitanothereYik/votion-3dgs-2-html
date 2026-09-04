@@ -93,7 +93,7 @@ Port structure of `Yik Votion WorldFM/ui/field_guide.md`, rewritten for V2.
 
 **HTML dummy:** [Phase 4 HTML](Votion_3DGS_2.0_Phase4.html). Two windows:
 
-1. **Splat** — **Splat3 | MCMC** chips, Continue train, Reload 3DGS from disk, Open in Explorer / Brush / LichtFeld / Postshot. Viewport = splat playback stand-in. Help = strategy + Brush click path + UE 5.5 MLSLabsRenderer.
+1. **Splat** — **Splat3 | MCMC** chips, Continue train / **Stop**, Reload 3DGS from disk, Open in Explorer / Brush / LichtFeld / Postshot. Train viewport is the **live raster** (Phase 2 lock 2026-09-05): Star reset, LMB/RMB/wheel, MCMC = Splat3 Gaussians. This dummy’s image is the Unreal playback stand-in. Help = strategy + Stop + Star + Brush click path + UE 5.5 MLSLabsRenderer.
 2. **Home / settings** — Quality / Fast / Scout dropdown (P4 unlocks Fast/Scout). `config.json` hint. Help drawer holds the field guide (not an accordion in the viewport).
 
 Installer is a `.pipe` diagram (Inno/NSIS → Start Menu → install dir), not an in-app page.

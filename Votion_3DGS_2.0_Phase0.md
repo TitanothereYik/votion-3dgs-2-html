@@ -70,6 +70,8 @@ Then attempt `gsplat` install. **UNKNOWN** whether a Windows wheel exists for 3.
 
 Do not claim gsplat works in the UI until this spike passes.
 
+**Superseded 2026-09-07:** the trainer moved to the vendored **LiteGS** backend. The Train gate is now `litegs raster 1-step: OK` in `env_report.txt` (`## litegs spike`, written by `tools/build_litegs.py` from Setup: builds `simple-knn`, `fused_ssim`, `litegs_fused` through `engine/cuda_jit.prepare`, pip route then CMake fallback). The gsplat lines stay in the report as P0 history only. LiteGS is under the Inria licence: build locally, never ship the binaries.
+
 ### 0.4 PySide6 shell
 
 Pages (stubs with labels only except Home):
@@ -138,7 +140,7 @@ D:\Votion3DGS\
 
 | Risk | What we know | Mitigation |
 |------|----------------|------------|
-| gsplat vs 3.12/cu128 | Unknown on this PC | Spike in 0.3; fallback Brush in P2 |
+| gsplat vs 3.12/cu128 | Moot since 2026-09-07 (LiteGS) | Spike in 0.3 now builds LiteGS locally (passed on this PC); fallback Brush in P2 |
 | 3.12 not installed | Not checked | Install before venv |
 | Driver too old for CUDA 12.8 | Not checked | `nvidia-smi` in env_report; stop if driver < 12.8 requirement |
 | Disk | Not measured | Downloader checks free space before WAN 14B |

@@ -1291,6 +1291,91 @@ footer {
   height: 200px;
 }
 
+/* Splat desk 2026-09-07: HUD over the live plate, GT compare split, sparkline, camera list. */
+.splat-hud {
+  position: absolute;
+  top: 1.6rem;
+  left: 0.5rem;
+  z-index: 1;
+  padding: 0.35rem 0.5rem;
+  background: rgba(6, 12, 20, 0.7);
+  border: 1px solid var(--line);
+  font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+  font-size: 10px;
+  line-height: 1.5;
+  color: var(--text);
+}
+.splat-hud .badge {
+  display: inline-block;
+  padding: 0 0.4rem;
+  margin-bottom: 0.2rem;
+  border-radius: 3px;
+  background: #2ea05c;
+  color: #fff;
+  letter-spacing: 0.08em;
+}
+.splat-hud .badge.paused { background: #d69e2e; color: #0b1623; }
+.splat-hud .badge.idle { background: #5a6478; }
+.splat-hud span.dim { color: var(--muted); }
+.splat-live.gt::after {
+  content: "render  |  ground truth";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 0.4rem;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  background: linear-gradient(90deg, transparent 49.7%, var(--cyan) 49.7%, var(--cyan) 50.3%, transparent 50.3%);
+  pointer-events: none;
+}
+.splat-spark {
+  display: block;
+  width: 100%;
+  height: 56px;
+  margin-top: 0.35rem;
+  border: 1px solid var(--line);
+  background: #0a1420;
+}
+.splat-spark .loss { fill: none; stroke: var(--accent); stroke-width: 1.5; }
+.splat-spark .psnr { fill: none; stroke: #2ec878; stroke-width: 1.5; }
+.splat-spark text { font-size: 9px; font-family: "JetBrains Mono", Consolas, monospace; }
+.splat-cams {
+  list-style: none;
+  margin: 0.3rem 0 0;
+  padding: 0;
+  max-height: 210px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  font-size: 11px;
+}
+.splat-cams li {
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  cursor: pointer;
+}
+.splat-cams li.head {
+  color: var(--accent);
+  cursor: default;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+.splat-cams li.holdout { color: #2ec878; }
+.splat-cams li:hover:not(.head) { color: var(--text); }
+.splat-cams li.active { background: var(--accent); color: #0b1623; }
+.desk-body.three { grid-template-columns: 250px 1fr 210px; }
+.desk-cams { padding: 0.6rem; border-left: 1px solid var(--line); }
+.desk-cams .f-lab { margin-top: 0; }
+@media (max-width: 720px) {
+  .desk-body.three { grid-template-columns: 1fr; }
+  .desk-cams { border-left: 0; border-top: 1px solid var(--line); }
+}
+
 .pane { display: none; }
 .pane.on { display: block; }
 

@@ -39,9 +39,9 @@ If Phase 1 **2D Images** is unavailable, Phase 2 still runs on **360 Images** or
 - **FLOOR / SIDE implementation (locked 2026-09-03):** plates + gizmos are **QPainter** on one widget. Do not ship QWebEngine. vispy is not the Geometry editor.
 - Reconstruction: SphereSfM → COLMAP `images/` + `sparse/0` (ordinary `SIMPLE_PINHOLE` cube faces). Viewport after Reconstruct is an **orbit of the sparse cloud** (`points3D.bin` + camera centers), not cube-face stills. Not WorldFM `transforms.json`.
 - **Tab persistence (locked 2026-09-03):** switching stage chips restores generated views (Panorama ERP, Geometry Preview-flight still + Confirm, Reconstruct sparse, Splat live raster). Do not reset to empty / green warp.
-- Trainer happy path: evolve `Yik Votion WorldFM/tools/train_splat_live.py`. If gsplat failed in P0, P2 still **writes COLMAP** and shows “Open folder”.
-- **Train strategy (locked 2026-09-01):** user picks **Splat3** or **MCMC** on the Splat page. Default **Splat3**. Both write `splat.ply` at the ~3M cap. Splat3 → gsplat `DefaultStrategy`. MCMC → gsplat `MCMCStrategy`. Continue keeps the checkpoint’s strategy; switching needs Retrain. ADC is not a third choice.
-- **Splat viewport (locked 2026-09-05):** live **rasterized 3DGS** (ellipses as a surface), not a point cloud and not stats-only. LMB look, RMB pan, wheel dolly; zoom is not product-capped. Reset / default = rails **Star**. Max steps = any integer ≥ 1 (no product cap). **Stop** on the Splat rail and job bar. Per-Gaussian opacity, scale, rotation, SH — MCMC shares this. Elongated mixed-angle ellipses are the look; needle takeover / glowing whites / crushed blacks are bugs.
+- Trainer: `engine/splat/` over the vendored **LiteGS** backend (`vendor/litegs`, Inria licence, CUDA built at Setup — Index #48). If the LiteGS spike failed, P2 still **writes COLMAP** and shows “Open folder”. The V1 `train_splat_live.py` / gsplat path is retired (2026-09-07).
+- **Density controller (locked 2026-09-01, amended 2026-09-07):** user picks **LiteGS** or **MCMC Compact** on the Splat page. Default **LiteGS**. Both write full-SH `splat.ply` at the editable **Gaussian budget** (default 3M). LiteGS → `DensityControllerTamingGS` with the budget as `target_primitives`. MCMC Compact → Jung & Hong 2025 section 3.1 (Metropolis-Hastings adaptive split threshold + stochastic importance prune to the budget; relighting parts out of scope). Continue keeps the checkpoint’s controller (with optimizer and scheduler state); switching needs Retrain. ADC is not a third choice. Old gsplat params-only checkpoints show “Retrain required”.
+- **Splat viewport (locked 2026-09-05, transport 2026-09-07):** live **rasterized 3DGS** (ellipses as a surface), not a point cloud and not stats-only. Frames arrive over **shared memory** (`votion_splat_<pid>`, 2-slot RGB8 ring, Qt polls at 60 Hz, PNG fallback); the camera goes to the worker over stdin (`VIEW`). LMB look, RMB pan, wheel dolly; zoom is not product-capped. Reset / default = rails **Star**. Max steps = any integer ≥ 1 (no product cap). **Pause / Resume** in-process; **Stop** on the Splat rail and job bar kills. Per-Gaussian opacity, scale, rotation, SH — MCMC Compact shares this. HUD: state, step / epoch, loss EMA, PSNR (hold-out), Gaussians / budget, it/s, viewport fps, VRAM; loss / PSNR sparkline; **training cameras** list (jump + **GT compare** render | ground truth). Elongated mixed-angle ellipses are the look; needle takeover / glowing whites / crushed blacks are bugs.
 - Vendor SplatKit `core/` + `shim/` (MIT). Rasterizer is the torch/triton shim — **not** nvdiffrast. Do not use Matrix-3D PanoLRM.
 
 ---
@@ -69,8 +69,8 @@ P1 pano.png
   → Render control_video + control_mask + rail_json
   → (Optional) WAN hole-fill if 14B READY; else keep control video
   → SphereSfM (single trajectory; dual-res HiRes is Phase 3)
-  → train_splat_live on COLMAP pinholes (Splat3 or MCMC)
-  → outputs/<scene>/splat.ply
+  → engine.workers.splat (LiteGS raster; LiteGS or MCMC Compact controller) on COLMAP pinholes
+  → outputs/<scene>/splat.ply (full SH) · splat_compact.ply (optional)
 ```
 
 ---
@@ -156,7 +156,7 @@ Dummy: [Phase 2 HTML §04](Votion_3DGS_2.0_Phase2.html#recon). Left: **Reconstru
 
 ### Splat page
 
-Dummy: same HTML, second window. **Splat3 | MCMC** chips (default Splat3), max steps **any integer ≥ 1** (box default 10000, no product cap), Gaussian cap **3M**, Train / **Stop** / Continue / Retrain / Export `splat.ply`. Viewport: **live rasterized 3DGS** (Postshot-style), not a point cloud. Camera: LMB look, RMB pan, wheel dolly; reset = rails **Star**. Help = strategy + Stop + Star + splat.ply, Brush fallback if gsplat failed.
+Dummy: same HTML, second window (Postshot-style desk, 2026-09-07). Left rail: **LiteGS | MCMC Compact** chips (default LiteGS), max steps **any integer ≥ 1** (box default 10000, no product cap), **Gaussian budget** editable (default 3,000,000), **Resolution scale** 1 / 0.5 / 0.25, SH degree 3, **Hold-out eval** toggle, Train / **Pause** / **Stop** / Continue / Retrain, Export `splat.ply` / **Export compact** (optional drop `f_rest`), Open COLMAP folder, licence line. Viewport: **live rasterized 3DGS** over shared memory, HUD (state badge TRAINING / PAUSED / IDLE, step and epoch, loss EMA, PSNR, Gaussians / budget, it/s, viewport fps, VRAM), loss / PSNR sparkline under the plate. Right: **Training cameras** list grouped by rail (hold-out marked); click jumps the viewport there; **GT compare** splits render | ground truth; reset returns to the Star. Camera: LMB look, RMB pan, wheel dolly (uncapped). Log drawer shows controller events (densify / prune counts, `eps_curr`, MH acceptance). Help = controller + Pause / Stop + Star + full-SH `splat.ply` + LiteGS licence, Brush fallback if the LiteGS spike failed.
 
 ---
 
@@ -167,7 +167,7 @@ Dummy: same HTML, second window. **Splat3 | MCMC** chips (default Splat3), max s
 | `ui/job_control.py` | Cancel flag (already sketched in P0) |
 | `ui/camera_presets.py` | Rail **templates** only. Map lookaround / orbit / dolly onto SplatKit archetypes later in P3; P2 only needs the node-27 default + free edit. |
 | `ui/camera_path_viz.py` | FLOOR + SIDE + star + LOOK rays. Product editor is **QPainter** on one widget (locked 2026-09-03). Do not ship QWebEngine. Do not stack vispy Line/Markers over Image. Do not embed Comfy `camera_plot_geo.js`. |
-| `tools/train_splat_live.py` | COLMAP cameras.bin/images.bin (or text). Keep live **raster** viewport, checkpoint, `splat.ply`. Pass Splat3 (`DefaultStrategy`) or MCMC (`MCMCStrategy`). Same Gaussian params for both. |
+| `tools/train_splat_live.py` | **Retired 2026-09-07.** Only the ideas survive (COLMAP `cameras.bin` / `images.bin` loader, live raster viewport, 100-step checkpoint, `splat.ply`). Product trainer is `engine/splat/` over LiteGS: `backend/litegs_backend.py`, `trainer.py`, `controllers/litegs_default.py`, `controllers/mcmc_compact.py`, `viewport.py`, `ply_export.py`. |
 | `ui/theme.css` | Qt stylesheet tokens |
 
 Do **not** copy `worldfm/`, WorldFM `pipeline_runner.py`, or WSL scripts.
@@ -184,6 +184,8 @@ From [ComfyUI-SplatKit](https://github.com/mickmumpitz/ComfyUI-SplatKit) (clone 
 
 MoGe weights: `Ruicheng/moge-vitl` `model.pt` via the P0 downloader (P2 subset).
 
+From [MooreThreads/LiteGS](https://github.com/MooreThreads/LiteGS) (2026-09-07; `vendor/litegs` at the SHA in `vendor/litegs.sha`, `LICENSE.md` copied next to it): `litegs/` Python package (`io_manager`, `scene`, `render`, `training`, `utils`) and the three CUDA sources `submodules/simple-knn`, `submodules/fused-ssim`, `submodules/gaussian_raster` (`litegs_fused`). Inria Gaussian-Splatting licence → build locally at Setup (`tools/build_litegs.py` through `engine/cuda_jit.prepare`, pip route then CMake fallback), never ship binaries, licence line in Help. Spike result `litegs raster 1-step: OK` in `docs/env_report.txt` gates Train.
+
 ---
 
 ## Workers (subprocess)
@@ -191,7 +193,7 @@ MoGe weights: `Ruicheng/moge-vitl` `model.pt` via the P0 downloader (P2 subset).
 1. `engine.workers.moge` — Compute geometry. Read P1 `pano.png`, write scene-ref cloud + FLOOR/SIDE caches (`pointcloud.ply` / ortho PNGs).  
 2. `engine.workers.camplot` — Preview / Confirm. `rail_json`, `control_video`, `control_mask`.  
 3. `engine.workers.sfm` — `colmap_sphere`  
-4. `engine.workers.splat` — `train_splat_live`  
+4. `engine.workers.splat` — `engine.splat.trainer.SplatTrainer` (modes `train` / `continue` / `retrain` / `view` / `export` / `export_compact` / `export_compact_dc`; args `--strategy litegs|mcmc_compact --max-steps --budget --res-scale --holdout`). Stdout `SPLAT\t…` telemetry (step, loss, psnr, gaussians, its, vram, fps, state, ctl, ckpt, shm, cameras); stdin `VIEW` / `PAUSE` / `RESUME` / `STOP`.  
 
 Unload GPU between workers (process exit). Qt never holds WAN/MoGe.
 
@@ -208,8 +210,12 @@ control/control_video.mp4
 control/control_mask.mp4     (or PNG sequence — match SplatKit)
 colmap/images/
 colmap/sparse/0/
-checkpoints/splat_latest.pt
-splat.ply
+checkpoints/splat_latest.pt  LiteGS format votion-litegs-1: params + Adam + scheduler + controller state
+checkpoints/splat_meta.json  controller, step, epoch, gaussians, budget, psnr, psnr_eval, done
+_work/splat_view.json        persisted viewport camera (written at worker exit)
+_work/splat_preview.png      PNG fallback frame (shared memory is the live path)
+splat.ply                    full SH (degree 3)
+splat_compact.ply            optional: opacity < 0.005 pruned, f_rest optional
 ```
 
 ---
@@ -222,11 +228,18 @@ splat.ply
 - [ ] Preview flight sits **under both** plates. Mesh-only flight preview plays **before** Confirm (black holes expected).
 - [ ] Switching away from Geometry and back keeps the last Preview-flight frame and Confirm.
 - [ ] `colmap/sparse/0` exists after Reconstruct. Viewport shows the sparse cloud (not cube-face stills).
-- [ ] If gsplat spike passed: `splat.ply` written with the selected strategy (Splat3 default); V1-style Continue works on the same scene name **and the same strategy**.
-- [ ] Switching Splat3 ↔ MCMC disables Continue until Retrain (or Continue stays on the checkpoint strategy).
-- [ ] Splat viewport is a live raster (not a point cloud). Reset is the rails Star. Max steps accepts any integer ≥ 1. Stop kills the train job.
-- [ ] MCMC uses the same per-Gaussian raster as Splat3 (opacity, anisotropic scale, rotation, SH).
-- [ ] If gsplat failed: UI says so; COLMAP folder still valid for Brush.
+- [x] LiteGS spike line `litegs raster 1-step: OK` in `docs/env_report.txt`; Train gated on it (`litegs_spike_ok`). *(2026-09-07)*
+- [x] If the LiteGS spike passed: `splat.ply` written with the selected controller (LiteGS default); Continue works on the same scene name **and the same controller**, resuming the 100-step checkpoint **with optimizer state**. *(alpine_01 MCMC Compact 3000 → 3300 continue, 2026-09-07)*
+- [x] Switching LiteGS ↔ MCMC Compact disables Continue until Retrain (“Retrain required: checkpoint is MCMC Compact”). Old gsplat params-only checkpoints show “Retrain required”.
+- [x] Splat viewport is a live raster over shared memory (not a point cloud). Reset is the rails Star. Max steps accepts any integer ≥ 1. Stop kills the train job; Pause / Resume are in-process.
+- [x] Viewport: camera change → new frame under 50 ms when idle (median 33 ms measured); ≥ 20 fps orbit during training (32 fps, capped at 30); training it/s stays within ~20 % while orbiting (182 vs ~200–240 it/s).
+- [x] MCMC Compact uses the same per-Gaussian raster as LiteGS (opacity, anisotropic scale, rotation, SH).
+- [x] `alpine_01` Retrain with LiteGS to 10k steps: hold-out PSNR reported (15.6 dB), Gaussians ≤ budget (2.26M / 3M), time recorded (~3.6 min). Viewport frames: no hairline needles taking over; tone histogram vs GT shows 0 % crushed (< 8) and 0 % blown (> 247) pixels, mean within 5 levels (blur lowers contrast, it does not clip). Low absolute PSNR traced to WAN + SphereSfM view inconsistency, not the trainer (single view 33.8 dB; Index Measured table).
+- [x] Same run with MCMC Compact to 10k: 510,720 Gaussians, 77 % below LiteGS at the same 3M budget; hold-out PSNR 15.7 dB; 94 s. Split ratio held at 3.4–6.8 % per 100-step cycle by the MH threshold (acceptance 0.43–0.44). *(2026-09-07; the first 24-cycle schedule stalled at 40k because sub-chunk appends were dropped — fixed, appends / prunes are chunk-exact)*
+- [x] `splat.ply` carries full SH (45 `f_rest`); compact export writes `splat_compact.ply` (DC-only when asked). Header check 2026-09-07.
+- [ ] `splat.ply` and `splat_compact.ply` load in Brush (manual).
+- [x] If the LiteGS spike failed: UI says so; COLMAP folder still valid for Brush.
+- [x] `app.main` never imports torch (offscreen check 2026-09-07).
 - [ ] Unreal import of `splat.ply` is a **manual** check via **MLSLabsRenderer**. Document pass/fail in `outputs/<scene>/unreal_check.txt` — do not claim Unreal success in code.
 
 ---

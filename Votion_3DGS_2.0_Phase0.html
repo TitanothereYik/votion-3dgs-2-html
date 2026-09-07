@@ -124,7 +124,7 @@
         </div></details>
         <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
           <b>FIELD GUIDE</b><br />
-          2D Images (default) or 360 / text → 8K ERP → Compute geometry → rails → Generate → splat.ply (Splat3 or MCMC).
+          2D Images (default) or 360 / text → 8K ERP → Compute geometry → rails → Generate → splat.ply (LiteGS or MCMC Compact).
           Ostris Edit is native READY. h_fov 10–170, type or drag, default 70. Surroundings always end with no peoples, no cars.
           Left 2:1 Fit / 100% + draggable split. Right 360 is spherical (yaw + pitch). text keeps the trigger prefix.
           After 2D Images, prompt.txt = outpaint instruction + surroundings. WAN prompt must match the pano.
@@ -137,13 +137,13 @@
     </section>
 
     <section id="venv">
-      <h2><span class="num">03</span>Venv and gsplat spike</h2>
+      <h2><span class="num">03</span>Venv and CUDA raster spike</h2>
       <div class="pipe col">
         <div class="pipe-node"><b>0.1 Repo</b>Create <code>D:\Votion3DGS\</code>. Do not put V2 inside Yik Votion WorldFM.</div>
         <div class="pipe-arr">→</div>
         <div class="pipe-node"><b>0.2 Venv</b><code>py -3.12 -m venv .venv</code> then official cu128 torch from pytorch.org. If 3.12 is missing, stop.</div>
         <div class="pipe-arr">→</div>
-        <div class="pipe-node"><b>0.3 Spike</b><code>torch.cuda.is_available()</code> on the 3090, then try <code>gsplat</code> including <code>DefaultStrategy</code> (Splat3) and <code>MCMCStrategy</code> (MCMC). Record pass/fail in <code>env_report.txt</code>. Do not claim gsplat in the UI until it passes.</div>
+        <div class="pipe-node"><b>0.3 Spike</b><code>torch.cuda.is_available()</code> on the 3090, then build the vendored <code>LiteGS</code> CUDA extensions (<code>simple-knn</code>, <code>fused_ssim</code>, <code>litegs_fused</code>) with MSVC + CUDA 12.8 and raster one step. Record pass/fail in <code>env_report.txt</code> (<code>litegs raster 1-step: OK</code>). Train stays off until it passes. <span class="dim">(2026-09-07: replaces the P0 gsplat spike, kept as history.)</span></div>
         <div class="pipe-arr">→</div>
         <div class="pipe-node out"><b>0.4 Window</b>This Home dummy. Other pages are labeled stubs.</div>
       </div>
@@ -215,7 +215,7 @@ python tools\env_report.py</pre>
       <table>
         <thead><tr><th>Risk</th><th>Mitigation</th></tr></thead>
         <tbody>
-          <tr><td>gsplat vs 3.12/cu128 unknown</td><td>Spike 0.3; Brush fallback in P2</td></tr>
+          <tr><td>LiteGS CUDA build on Windows (MSVC + CUDA 12.8 + torch cu128 headers)</td><td>Spike 0.3 builds locally at Setup (pip route, CMake fallback); passed 2026-09-07 after the <code>compiled_autograd.h</code> nvcc guard and CUDA 12.6 math headers; Brush fallback in P2 if it fails</td></tr>
           <tr><td>Python 3.12 not installed</td><td>Stop before venv</td></tr>
           <tr><td>Driver too old for CUDA 12.8</td><td>nvidia-smi in env_report</td></tr>
           <tr><td>Disk</td><td>Check free space before WAN 14B</td></tr>

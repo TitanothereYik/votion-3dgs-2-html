@@ -26,9 +26,9 @@ Reuse ideas from `Yik Votion WorldFM/docs/SmallInstaller_EasyUsers_Plan.md` (ung
 | Fast | **Matrix-3D 5B** (default). GGUF Q4 is not the Fast default. | 8K optional | 2–4 | Exact 5B filename from Matrix-3D README at implement — do not invent. |
 | Scout | 5B or skip WAN | skip | 1 | Plumbing / path check |
 
-- In-app gsplat remains the trainer; the user chooses **Splat3** (default) or **MCMC** on the Splat page. External trainers are one-click folder open.
+- In-app **LiteGS** remains the trainer (2026-09-07); the user chooses the density controller **LiteGS** (default) or **MCMC Compact** on the Splat page. External trainers are one-click folder open. Setup builds the LiteGS CUDA extensions locally (Inria licence: never ship the binaries; licence line in Help).
 - **Quality + Fast + Scout all ship** on 2.0 day-1 (locked 2026-09-01). Fast/Scout stay disabled on the P0 Home dummy until this phase unlocks them.
-- Gaussian cap ~3M; document why 1M is wrong for 8K datasets (SplatKit HiRes doc).
+- Gaussian budget default 3M (editable, real controller target since 2026-09-07); document why 1M is wrong for 8K datasets (SplatKit HiRes doc).
 - Crash reload: V1 already has “Reload path from disk” / “Reload 3DGS from disk” — port that behavior.
 
 ---
@@ -93,7 +93,7 @@ Port structure of `Yik Votion WorldFM/ui/field_guide.md`, rewritten for V2.
 
 **HTML dummy:** [Phase 4 HTML](Votion_3DGS_2.0_Phase4.html). Two windows:
 
-1. **Splat** — **Splat3 | MCMC** chips, Continue train / **Stop**, Reload 3DGS from disk, Open in Explorer / Brush / LichtFeld / Postshot. Train viewport is the **live raster** (Phase 2 lock 2026-09-05): Star reset, LMB/RMB/wheel, MCMC = Splat3 Gaussians. This dummy’s image is the Unreal playback stand-in. Help = strategy + Stop + Star + Brush click path + UE 5.5 MLSLabsRenderer.
+1. **Splat** — **LiteGS | MCMC Compact** chips, Gaussian budget, Continue train / **Pause** / **Stop**, Reload 3DGS from disk, Open in Explorer / Brush / LichtFeld / Postshot, Export splat.ply / compact. Train viewport is the **live raster** over shared memory (Phase 2 locks 2026-09-05 / 2026-09-07): Star reset, LMB/RMB/wheel, HUD, training cameras + GT compare, MCMC Compact = LiteGS Gaussians. This dummy’s image is the Unreal playback stand-in. Help = controller + Pause / Stop + Star + Brush click path + UE 5.5 MLSLabsRenderer + LiteGS licence line.
 2. **Home / settings** — Quality / Fast / Scout dropdown (P4 unlocks Fast/Scout). `config.json` hint. Help drawer holds the field guide (not an accordion in the viewport).
 
 Installer is a `.pipe` diagram (Inno/NSIS → Start Menu → install dir), not an in-app page.
@@ -112,7 +112,7 @@ Content to port:
 - Glass/mirrors: extra rails will not fix MoGe (SplatKit HiRes “known limits”). Water/spec should stay **view-dependent** after splat train (video pond).
 - Why 3DGS: polygons fail on foliage / hair / glass; Gaussians are ellipsoids + spherical harmonics, real-time, no ray tracing.
 - Open in Brush (video click path): Brush → Directory → `outputs/<scene>` (COLMAP folder) → Start. Live cloud on top, training frame below.
-- In-app train: pick **Splat3** (default) or **MCMC** before Train. Continue keeps the checkpoint’s strategy.
+- In-app train: pick **LiteGS** (default) or **MCMC Compact** before Train. Continue keeps the checkpoint’s controller (with optimizer state); old gsplat checkpoints need Retrain.
 - Recipes: first Unreal splat (MLSLabsRenderer); fast path check; corridor; orbit / pond circle / high-then-descend
 
 ---
@@ -133,7 +133,7 @@ Do not store HF tokens.
 ## Acceptance tests
 
 - [ ] Fresh Windows 11 + 3090: Setup → Download Quality models → Launch → **2D Images (or 360 Images / text)** → 8K ERP → Confirm rails → Generate → `splat.ply` without WSL or ComfyUI running. Ostris is READY for 2D Images.
-- [ ] Splat page: **Splat3** (default) and **MCMC** both train to `splat.ply`; switching requires Retrain.
+- [ ] Splat page: **LiteGS** (default) and **MCMC Compact** both train to full-SH `splat.ply`; switching requires Retrain. Setup’s LiteGS build passes on the fresh machine (no shipped CUDA binaries).
 - [ ] Fast/Scout selectable; Scout skips HiRes.
 - [ ] Kill mid-WAN: cancel works; scene reloadable.
 - [ ] Open-in-Explorer on COLMAP works even if Brush is not installed.

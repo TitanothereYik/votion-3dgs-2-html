@@ -64,9 +64,9 @@
         <tbody>
           <tr><td><a href="Votion_3DGS_2.0_Phase0.html">Phase 0</a></td><td>Skeleton</td><td>PySide6 window, job bus, venv, model downloader</td></tr>
           <tr><td><a href="Votion_3DGS_2.0_Phase1.html">Phase 1</a></td><td>Pano</td><td><strong>2D Images</strong> (default) / <strong>360 Images</strong> / <strong>text</strong> → 8K ERP (<code>pano.png</code>)</td></tr>
-          <tr><td><a href="Votion_3DGS_2.0_Phase2.html">Phase 2</a></td><td>First splat</td><td>Compute geometry → Plot Camera (1 rail) → SphereSfM → <code>splat.ply</code> (Splat3 or MCMC)</td></tr>
+          <tr><td><a href="Votion_3DGS_2.0_Phase2.html">Phase 2</a></td><td>First splat</td><td>Compute geometry → Plot Camera (1 rail) → SphereSfM → <code>splat.ply</code> (LiteGS or MCMC Compact)</td></tr>
           <tr><td><a href="Votion_3DGS_2.0_Phase3.html">Phase 3</a></td><td>Dataset</td><td>4 rails, WAN then Confirm HiRes, keep/ditch Reconstruct, dual-res SfM</td></tr>
-          <tr><td><a href="Votion_3DGS_2.0_Phase4.html">Phase 4</a></td><td>Product</td><td>Profiles, installer, Splat3 / MCMC, Open-in-Brush/LichtFeld, UE 5.5</td></tr>
+          <tr><td><a href="Votion_3DGS_2.0_Phase4.html">Phase 4</a></td><td>Product</td><td>Profiles, installer, LiteGS / MCMC Compact, Open-in-Brush/LichtFeld, UE 5.5</td></tr>
         </tbody>
       </table>
     </section>
@@ -85,9 +85,9 @@
         <li><strong>Venv:</strong> independent Python 3.12 + CUDA 12.8 + PyTorch cu128. Do not reuse <code>python_embeded</code>.</li>
         <li>Exact PyTorch <em>patch</em> is not pinned — write <code>requirements.lock</code> on first Phase 0 install.</li>
         <li><strong>Product name:</strong> Votion 3DGS</li>
-        <li><strong>Trainer:</strong> in-app gsplat → <code>splat.ply</code>. User picks <strong>Splat3</strong> (default) or <strong>MCMC</strong> before Train / Retrain.
-          Splat3 = gsplat <code>DefaultStrategy</code>. MCMC = gsplat <code>MCMCStrategy</code>.
-          Both share the same Gaussian raster. Continue keeps the checkpoint’s strategy. ADC is not offered.
+        <li><strong>Trainer (amended 2026-09-07):</strong> in-app <strong>LiteGS</strong> backend → <code>splat.ply</code>. User picks the density controller <strong>LiteGS</strong> (default) or <strong>MCMC Compact</strong> before Train / Retrain.
+          LiteGS = vendored <a href="https://github.com/MooreThreads/LiteGS">MooreThreads/LiteGS</a> raster + <code>DensityControllerTamingGS</code> with the UI budget as target. MCMC Compact = Jung &amp; Hong, <em>MCMC-Guided Compact 3DGS</em> (SIGGRAPH Asia 2025 TC, section 3.1 only).
+          Both share the same Gaussian raster. Continue keeps the checkpoint’s controller. ADC is not offered. The gsplat Splat3 / MCMC trainer is retired (items 48–56).
           Brush / LichtFeld / Postshot are “Open in…”. Live viewport / Stop / Star camera: items 41–47 (2026-09-05).</li>
         <li><strong>Unreal:</strong> Engine 5.5 + <strong>MLSLabsRenderer</strong> (interim) for <code>splat.ply</code> —
           <a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE">GitHub</a> ·
@@ -121,9 +121,18 @@
         <li><strong>Max steps (2026-09-05):</strong> any integer ≥ 1. Default in the box may be 10000. <strong>No product cap.</strong></li>
         <li><strong>Unlocked camera (2026-09-05):</strong> LMB look/orbit, RMB pan, wheel dolly. Zoom is not product-capped.</li>
         <li><strong>Star reset (2026-09-05):</strong> Reset / default pose is the rails <strong>Star</strong> (origin of every rail). Do not tighten the orbit.</li>
-        <li><strong>Per-Gaussian raster (2026-09-05):</strong> opacity, anisotropic scale, rotation, and color/SH per splat. MCMC uses the same representation as Splat3.</li>
+        <li><strong>Per-Gaussian raster (2026-09-05):</strong> opacity, anisotropic scale, rotation, and color/SH per splat. MCMC Compact uses the same representation as LiteGS.</li>
         <li><strong>Stop (2026-09-05):</strong> Splat rail and job bar. Continue resumes the last 100-step checkpoint.</li>
         <li><strong>Anisotropy vs needle takeover (2026-09-05):</strong> elongated / mixed-angle ellipses are the look. Hairline needles taking over, glowing whites, and crushed blacks are bugs (not a Qt overlay).</li>
+        <li><strong>LiteGS backend and licence (2026-09-07):</strong> <code>vendor/litegs/</code> at the SHA in <code>vendor/litegs.sha</code>. Inria Gaussian-Splatting licence (research / evaluation only): vendor as-is, build the three CUDA extensions locally at Setup, never redistribute binaries, licence line in Help. Train is gated on <code>litegs raster 1-step: OK</code> in <code>env_report.txt</code>.</li>
+        <li><strong>MCMC Compact scope (2026-09-07):</strong> Jung &amp; Hong section 3.1 only (clean room): Metropolis-Hastings split threshold toward a target split ratio + stochastic importance prune to the budget. Relighting parts (BRDF, normals, MALA, deferred shading) are out of scope.</li>
+        <li><strong>Shared-memory viewport (2026-09-07):</strong> frames over <code>multiprocessing.shared_memory</code> (2-slot RGB8 ring), Qt polls at 60 Hz, camera over stdin (<code>VIEW</code>). ≤ 1 step latency on camera change (30 fps cap while training), idle view renders only on change. PNG is the fallback.</li>
+        <li><strong>Pause / Resume (2026-09-07):</strong> in-process over stdin; viewport stays live while paused. Stop still kills. Continue resumes <strong>with optimizer and scheduler state</strong>.</li>
+        <li><strong>Real Gaussian budget (2026-09-07):</strong> the budget box (default 3,000,000) is the controller target, no longer decorative.</li>
+        <li><strong>Full-SH export (2026-09-07):</strong> <code>splat.ply</code> carries SH degree 3 (45 <code>f_rest</code>). Export compact prunes opacity &lt; 0.005 and can drop <code>f_rest</code>.</li>
+        <li><strong>Hold-out PSNR (2026-09-07):</strong> optional every-8th-view hold-out reports PSNR each epoch; resolution scale 1 / 0.5 / 0.25.</li>
+        <li><strong>Retrain required (2026-09-07):</strong> params-only checkpoints from the retired gsplat trainer are not loadable.</li>
+        <li><strong>Step-based schedule (2026-09-07):</strong> SH warm-up one band per clamp(steps / 10, 200, 1000); densify between 5 % and 80 % of the steps (LiteGS ~24 cycles, MCMC Compact one cycle per 100 steps like 3DGS); opacity decay at most every 2000 steps; appends / prunes chunk-exact. Training cameras list + GT compare on the Splat page.</li>
       </ol>
 
       <h3>Measured on this PC (not guessed)</h3>
@@ -135,12 +144,17 @@
           <tr><td>Required Krea/WAN/LoRA in that <code>models\</code></td><td><strong>Not present</strong> (no <code>.safetensors</code>; no extra_model_paths)</td><td>Inventory 2026-08-31</td></tr>
           <tr><td>Copy-from-Comfy</td><td>No-op until those files appear</td><td>Same</td></tr>
           <tr><td>V1 app</td><td>Gradio + WSL2 + WorldFM + <code>train_splat_live.py</code></td><td>Yik Votion WorldFM</td></tr>
+          <tr><td>LiteGS vendor SHA</td><td><code>004b95215c90c36cdaf4b354301132b700ac287b</code> (MooreThreads/LiteGS <code>master</code>)</td><td><code>vendor/litegs.sha</code>, 2026-09-07</td></tr>
+          <tr><td>LiteGS build route</td><td><code>simple-knn</code>, <code>fused_ssim</code>, <code>litegs_fused</code> via MSVC 14.43 + CUDA 12.8 + ninja (pip route; CMake fallback kept). Needed the <code>__CUDACC__</code> guard in <code>compiled_autograd.h</code> and CUDA 12.6 math headers.</td><td><code>env_report.txt</code> <code>## litegs spike</code></td></tr>
+          <tr><td>alpine_01 LiteGS 10k</td><td>972 views, 2.26M Gaussians, ~3.6 min, hold-out PSNR 15.6 dB. Single-view overfit 33.8 dB → raster and optimizer sound; the multi-view gap is WAN + SphereSfM view inconsistency.</td><td>Measured 2026-09-07</td></tr>
+          <tr><td>alpine_01 MCMC Compact 10k</td><td>3DGS cadence (75 cycles of 100 steps), MH acceptance 0.43–0.44 (target 0.44), split ratio 3.4–6.8 % per cycle (target 5 %), 19k → 511k Gaussians (77 % below LiteGS at the same 3M budget), hold-out PSNR 15.7 dB, 94 s; appends / prunes chunk-exact</td><td>Measured 2026-09-07</td></tr>
+          <tr><td>Viewport transport</td><td>camera change → frame median 33 ms idle; 93 fps idle orbit, 32 fps while training at 182 it/s</td><td>Shared-memory bench 2026-09-07</td></tr>
         </tbody>
       </table>
 
       <div class="callout warn">
         <strong>Still unknown — do not invent:</strong> PyTorch cu128 patch number;
-        whether gsplat / triton-windows / SageAttention wheels exist for Python 3.12 + CUDA 12.8 on Windows;
+        whether triton-windows / SageAttention wheels exist for Python 3.12 + CUDA 12.8 on Windows (gsplat is moot since the LiteGS move);
         Warp widget names other than h_fov (range 10–170 step 0.5 is locked);
         Harmonize / UltimateSDUpscale extra names (copy JSON arrays).
         Florence Hub, Ostris READY, and h_fov min/max are locked 2026-09-03.
@@ -195,7 +209,7 @@
         </a>
         <a class="pvis" href="Votion_3DGS_2.0_Phase4.html">
           <img src="media/mlslabs-render.jpg" alt="MLSLabsRenderer Unreal Engine splat playback" />
-          <span><b>F · Splat</b> Splat3 / MCMC → Unreal 5.5</span>
+          <span><b>F · Splat</b> LiteGS / MCMC Compact → Unreal 5.5</span>
         </a>
       </div>
       <div class="pipe">
@@ -209,7 +223,7 @@
         <div class="pipe-arr">→</div>
         <div class="pipe-node"><b>E</b>SphereSfM pinholes</div>
         <div class="pipe-arr">→</div>
-        <div class="pipe-node out"><b>F</b>Splat3 / MCMC → splat.ply → UE 5.5</div>
+        <div class="pipe-node out"><b>F</b>LiteGS / MCMC Compact → splat.ply → UE 5.5</div>
       </div>
       <p>
         Dummy of the P0 window (V1 left-rail chrome + six P0 page names). Click through
@@ -246,14 +260,14 @@
           </div>
           <div class="desk-view">
             <p class="view-lbl">Happy path</p>
-            <p class="f-hint">2D Images (or 360 / text) → 8K ERP → Compute geometry → rails → Generate → splat.ply (Splat3 or MCMC). Ostris is READY.</p>
+            <p class="f-hint">2D Images (or 360 / text) → 8K ERP → Compute geometry → rails → Generate → splat.ply (LiteGS or MCMC Compact). Ostris is READY.</p>
           </div>
         </div>
         <div class="desk-draws">
         <details class="desk-log-draw"><summary>Log</summary><div class="desk-log"><b>STATUS // idle</b><br />No ComfyUI. No WSL. Qt never imports torch for inference.</div></details>
         <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
           <b>FIELD GUIDE</b><br />
-          2D Images (default) or 360 / text → 8K ERP → Compute geometry → rails → Generate → splat.ply (Splat3 or MCMC).
+          2D Images (default) or 360 / text → 8K ERP → Compute geometry → rails → Generate → splat.ply (LiteGS or MCMC Compact).
           Ostris Edit is native READY. h_fov 10–170, type or drag, default 70. Surroundings always end with no peoples, no cars.
           Left 2:1 Fit / 100% + draggable split. Right 360 is spherical (yaw + pitch). text keeps the trigger prefix.
           After 2D Images, prompt.txt = outpaint instruction + surroundings. WAN prompt must match the pano.

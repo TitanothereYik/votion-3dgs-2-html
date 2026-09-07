@@ -58,7 +58,7 @@
         <div class="pipe-arr">→</div>
         <div class="pipe-node"><b>SfM</b>COLMAP pinholes</div>
         <div class="pipe-arr">→</div>
-        <div class="pipe-node out"><b>Train</b>Splat3 / MCMC → <code>splat.ply</code></div>
+        <div class="pipe-node out"><b>Train</b>LiteGS / MCMC Compact → <code>splat.ply</code></div>
       </div>
       <div class="fig-grid">
         <figure class="fig">
@@ -313,26 +313,35 @@
           <a class="on" href="Votion_3DGS_2.0_Phase4.html">Splat</a>
         </div>
         <div class="job-strip">
-          <span class="job-cap">splat · Splat3</span>
+          <span class="job-cap">splat · <span class="splat-ctl-name">LiteGS</span></span>
           <div class="job-bar"><i style="width:12%"></i></div>
-          <span class="job-pct">1200 / 30000</span>
+          <span class="job-pct">1200 / 10000</span>
           <button class="f-btn ghost job-stop" type="button">Stop</button>
         </div>
-        <div class="desk-body">
+        <div class="desk-body three">
           <div class="desk-rail">
-            <label class="f-lab">Train strategy</label>
+            <label class="f-lab">Density controller</label>
             <div class="f-tog splat-strat" role="tablist">
-              <button type="button" class="on" data-splat-strat="splat3">Splat3</button>
-              <button type="button" data-splat-strat="mcmc">MCMC</button>
+              <button type="button" class="on" data-splat-strat="litegs">LiteGS</button>
+              <button type="button" data-splat-strat="mcmc_compact">MCMC Compact</button>
             </div>
-            <p class="f-hint splat-strat-hint">Splat3 (default): gsplat DefaultStrategy. Same live raster as MCMC (opacity, anisotropic scale, rotation, SH). Continue keeps this checkpoint; switch to MCMC needs Retrain. ADC is not offered.</p>
+            <p class="f-hint splat-strat-hint">LiteGS (default): TamingGS densify scores, Gaussian budget = target primitives, opacity decay, weight prune. Same live raster as MCMC Compact (opacity, anisotropic scale, rotation, SH). Continue keeps this checkpoint; switching controller needs Retrain.</p>
             <label class="f-lab">Max steps</label>
-            <input class="f-in" value="30000" />
-            <p class="f-hint">Any integer ≥ 1. Box default 10000. No product cap.</p>
-            <label class="f-lab">Gaussian cap</label>
-            <input class="f-in" value="3000000" readonly />
+            <input class="f-in" value="10000" />
+            <p class="f-hint">Any integer ≥ 1. No product cap. Epoch = steps / training views.</p>
+            <label class="f-lab">Gaussian budget</label>
+            <input class="f-in" value="3000000" />
+            <p class="f-hint">Editable and real: LiteGS target primitives / MCMC Compact prune target.</p>
+            <label class="f-lab">Resolution scale</label>
+            <div class="f-tog" role="tablist">
+              <button type="button" class="on">1</button>
+              <button type="button">0.5</button>
+              <button type="button">0.25</button>
+            </div>
+            <div class="f-row"><span class="f-lab">SH degree 3</span><label class="f-hint"><input type="checkbox" checked /> Hold-out eval (every 8th view)</label></div>
             <div class="f-row">
               <button class="f-btn pri" type="button">Train</button>
+              <button class="f-btn ghost" type="button" data-splat-pause>Pause</button>
               <button class="f-btn ghost" type="button">Stop</button>
             </div>
             <div class="f-row">
@@ -341,13 +350,27 @@
             </div>
             <div class="f-row">
               <button class="f-btn ghost" type="button">Export splat.ply</button>
+              <button class="f-btn ghost" type="button">Export compact</button>
             </div>
-            <p class="f-hint">If P0 gsplat spike failed: Train disabled; Open COLMAP folder still works (Brush).</p>
+            <label class="f-hint"><input type="checkbox" /> Compact export drops f_rest bands (DC only)</label>
+            <div class="f-row"><button class="f-btn ghost" type="button">Open COLMAP folder</button></div>
+            <p class="f-hint">If the LiteGS spike failed: Train disabled; Open COLMAP folder still works (Brush).</p>
+            <p class="f-hint">LiteGS (Moore Threads) is under the Inria Gaussian-Splatting License: research and evaluation use only. Built locally at Setup; never redistributed.</p>
           </div>
           <div class="desk-view">
-            <p class="view-lbl">Live train · rasterized 3DGS</p>
-            <div class="splat-live" aria-label="Live Gaussian splat viewport">
-              <span class="lbl">Star reset · LMB look · RMB pan · wheel dolly</span>
+            <p class="view-lbl">Live splat · <span class="splat-cam-name">Star</span>
+              <button class="f-btn ghost" type="button" data-splat-gt style="float:right;margin-left:.4rem">GT compare</button>
+              <button class="f-btn ghost" type="button" data-splat-reset style="float:right">reset view</button>
+            </p>
+            <div class="splat-live" aria-label="Live Gaussian splat viewport (shared memory)">
+              <span class="lbl">Star reset · LMB look · RMB pan · wheel dolly · shared memory 60 Hz</span>
+              <div class="splat-hud">
+                <span class="badge">TRAINING</span><br />
+                step 1200 / 10000 <span class="dim">epoch 1/11</span><br />
+                loss 0.2123 &nbsp; PSNR 14.2 <span class="dim">(eval 13.9)</span><br />
+                gaussians 133,632 / 3,000,000<br />
+                <span class="dim">202 it/s &nbsp; 32 fps &nbsp; 547 MB &nbsp; <span class="splat-ctl-name">LiteGS</span></span>
+              </div>
               <svg class="splat-ellipses" viewBox="0 0 640 200" role="img" aria-hidden="true">
                 <ellipse cx="92" cy="118" rx="54" ry="18" fill="rgba(120,170,210,0.45)" transform="rotate(-18 92 118)"/>
                 <ellipse cx="168" cy="86" rx="38" ry="22" fill="rgba(90,150,120,0.5)" transform="rotate(32 168 86)"/>
@@ -359,24 +382,49 @@
                 <ellipse cx="210" cy="150" rx="90" ry="8" fill="rgba(160,180,140,0.28)" transform="rotate(-4 210 150)"/>
               </svg>
             </div>
-            <div class="stat-grid">
-              <div><b>loss</b>0.042</div>
-              <div><b>step</b>1200 / 30000</div>
-              <div><b>gaussians</b>234k</div>
-            </div>
-            <p class="f-hint">Splat3 and MCMC share this viewport. Per-Gaussian opacity, scale, rotation, SH. Reset is the rails Star. Zoom is not product-capped. Mixed-angle ellipses are the look; hairline needles taking over, glowing whites, and crushed blacks are bugs.</p>
+            <svg class="splat-spark" viewBox="0 0 640 56" preserveAspectRatio="none" role="img" aria-label="loss and PSNR sparkline">
+              <polyline class="loss" points="6,10 60,18 120,24 180,26 240,31 300,30 360,36 420,38 480,41 540,42 600,44 634,45" />
+              <polyline class="psnr" points="6,50 60,44 120,40 180,37 240,33 300,32 360,28 420,26 480,23 540,22 600,20 634,19" />
+              <text x="8" y="12" fill="#ff9f30">loss 0.2123</text>
+              <text x="560" y="12" fill="#2ec878">PSNR 14.2 dB</text>
+            </svg>
+            <p class="f-hint">LiteGS and MCMC Compact share this viewport. Per-Gaussian opacity, scale, rotation, SH. Reset is the rails Star. Zoom is not product-capped. Camera change renders after the next step (≤ 1 step latency, 30 fps cap while training). Mixed-angle ellipses are the look; hairline needles taking over, glowing whites, and crushed blacks are bugs.</p>
+          </div>
+          <div class="desk-cams">
+            <label class="f-lab">Training cameras</label>
+            <ul class="splat-cams">
+              <li class="head">rail 0 · 972 views</li>
+              <li data-cam="0">frame 0 · face 0</li>
+              <li data-cam="1">frame 0 · face 1</li>
+              <li data-cam="2">frame 0 · face 2</li>
+              <li data-cam="3">frame 0 · face 3</li>
+              <li data-cam="4">frame 0 · face 4</li>
+              <li data-cam="5">frame 0 · face 5</li>
+              <li data-cam="6">frame 1 · face 0</li>
+              <li data-cam="7" class="holdout">frame 1 · face 1 [hold-out]</li>
+              <li data-cam="8">frame 1 · face 2</li>
+              <li data-cam="9">frame 1 · face 3</li>
+              <li data-cam="10">frame 1 · face 4</li>
+              <li data-cam="11">frame 1 · face 5</li>
+              <li data-cam="12">frame 2 · face 0</li>
+              <li data-cam="13">frame 2 · face 1</li>
+            </ul>
+            <p class="f-hint">972 views, 121 hold-out. Click to jump; GT compare shows render | ground truth.</p>
           </div>
         </div>
         <div class="desk-draws">
-        <details class="desk-log-draw"><summary>Log</summary><div class="desk-log splat-strat-log"><b>STATUS // splat</b><br />strategy Splat3 · live raster · outputs/alpine_01/splat.ply — Unreal check is manual (MLSLabsRenderer).</div></details>
+        <details class="desk-log-draw"><summary>Log</summary><div class="desk-log splat-strat-log"><b>STATUS // splat</b><br />controller LiteGS · 24 densify cycles of 312 steps (steps 624..7800), opacity decay every 7 cycles<br />SPLAT ctl cycle 3: split 826 clone 0 prune 388; 19456 → 19840 (budget 3000000)<br />SPLAT ckpt 1200 · outputs/alpine_01/splat.ply — Unreal check is manual (MLSLabsRenderer).</div></details>
         <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
           <b>SPLAT</b><br />
-          Pick <strong>Splat3</strong> (default, gsplat DefaultStrategy) or <strong>MCMC</strong> (gsplat MCMCStrategy), then Train.
-          Continue keeps the checkpoint’s strategy; switching needs Retrain. ADC is not offered.
-          Max steps is any integer ≥ 1 (no product cap). Stop (Splat rail or the job bar) kills training.
-          Viewport: live raster of every Gaussian. Reset is the rails Star. LMB look, RMB pan, wheel dolly.
-          MCMC uses the same Gaussians as Splat3. Elongated ellipses are the look; needle takeover is a bug.
-          Cap ~3M (1M hides 8K). If gsplat failed in P0: Train disabled; Open COLMAP folder still works (Brush).
+          Backend is LiteGS (vendored, built at Setup). Pick <strong>LiteGS</strong> (default densify: TamingGS scores, Gaussian budget is the target) or <strong>MCMC Compact</strong> (Jung &amp; Hong 2025 section 3.1: Metropolis-Hastings adaptive split threshold + stochastic importance prune to the same budget), then Train.
+          Continue resumes the 100-step checkpoint with optimizer and scheduler state; switching controller needs Retrain. Checkpoints from the old gsplat trainer are params-only and show “Retrain required”.
+          Max steps is any integer ≥ 1 (no product cap); epoch = steps / training views. Gaussian budget is editable (default 3M). Resolution scale 1 / 0.5 / 0.25. Hold-out eval keeps every 8th view out and reports PSNR.
+          Pause / Resume stay in-process; Stop kills the worker (job bar Stop is the same).
+          Viewport is the live LiteGS raster over shared memory: LMB look, RMB pan, wheel dolly, zoom uncapped, Reset is the rails Star. Click a training camera to jump there; GT compare shows render | ground truth.
+          HUD: state, step / epoch, loss EMA, PSNR, Gaussians / budget, it/s, viewport fps, VRAM. Log drawer shows controller events.
+          Export splat.ply carries full SH (degree 3) for Unreal MLSLabsRenderer, Postshot, Brush. Export compact prunes opacity &lt; 0.005 and can drop the f_rest bands.
+          If the LiteGS spike failed: Train disabled; Open COLMAP folder still works (Brush).
+          LiteGS (Moore Threads) is under the Inria Gaussian-Splatting License: research and evaluation use only, no commercial use without Inria consent. Built locally at Setup; never redistributed.
           Unreal: UE 5.5 + MLSLabsRenderer. MoGe <code>pointcloud.ply</code> is not the Unreal asset.
         </div></details>
         </div>
@@ -393,9 +441,10 @@
         <li>Switching chips restores generated views (Panorama ERP, Geometry preview + Confirm).</li>
         <li><code>colmap/sparse/0</code> exists after Reconstruct. Viewport shows the sparse cloud, not cube-face stills.</li>
         <li>Background jobs update the strip under the chips (not log-only).</li>
-        <li>If gsplat passed: <code>splat.ply</code> with the selected strategy (Splat3 default). Continue stays on that strategy; Splat3 ↔ MCMC needs Retrain. If failed: UI says so; COLMAP still valid for Brush.</li>
-        <li>Splat viewport is a live raster (not a point cloud). Reset is the rails Star. Max steps is any integer ≥ 1. Stop kills training.</li>
-        <li>MCMC uses the same per-Gaussian raster as Splat3. Needle takeover / glowing whites / crushed blacks are bugs.</li>
+        <li>LiteGS spike line in <code>env_report.txt</code>; Train gated on it. If the spike passed: <code>splat.ply</code> (full SH) with the selected controller (LiteGS default). Continue stays on that controller <strong>with optimizer state</strong>; LiteGS ↔ MCMC Compact needs Retrain; old gsplat checkpoints show “Retrain required”. If failed: UI says so; COLMAP still valid for Brush.</li>
+        <li>Splat viewport is a live raster over shared memory (not a point cloud). Camera change → frame under 50 ms idle; ≥ 20 fps orbit while training with the step loop within ~20 %. Reset is the rails Star. Max steps is any integer ≥ 1. Pause / Resume in-process; Stop kills training.</li>
+        <li><code>alpine_01</code> LiteGS 10k: hold-out PSNR reported, Gaussians ≤ budget, time recorded. Same run with MCMC Compact ends below the LiteGS count at equal budget.</li>
+        <li>MCMC Compact uses the same per-Gaussian raster as LiteGS. Needle takeover / glowing whites / crushed blacks are bugs. <code>app.main</code> never imports torch.</li>
       </ul>
       <p>No Krea, no 4-rail default, no 8K HiRes, no WorldFM frames. Do not name a look mode <code>forward_look</code> or Height. Do not treat widget 9 as fps.</p>
     </section>

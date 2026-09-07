@@ -155,34 +155,89 @@
   document.querySelectorAll(".rail-pair").forEach(mount);
 })();
 
-/* Dummy Splat3 / MCMC chips on the Splat page. */
+/* Dummy LiteGS / MCMC Compact controller chips on the Splat page (2026-09-07). */
 (function () {
   var hints = {
-    splat3: "Splat3 (default): gsplat DefaultStrategy. Same live raster as MCMC (opacity, anisotropic scale, rotation, SH). Continue keeps this checkpoint; switch to MCMC needs Retrain. ADC is not offered.",
-    mcmc: "MCMC: gsplat MCMCStrategy. Same Gaussians as Splat3 — densify differs. Continue keeps this checkpoint; switch to Splat3 needs Retrain. ADC is not offered."
+    litegs: "LiteGS (default): TamingGS densify scores, Gaussian budget = target primitives, opacity decay, weight prune. Same live raster as MCMC Compact (opacity, anisotropic scale, rotation, SH). Continue keeps this checkpoint; switching controller needs Retrain.",
+    mcmc_compact: "MCMC Compact (Jung & Hong 2025, 3.1): Metropolis-Hastings adaptive split threshold keeps the split ratio on target; stochastic importance prune to the same budget. Same Gaussians as LiteGS. Switching controller needs Retrain. Relighting parts are out of scope.",
+    /* legacy keys from the 2026-09-01 dummy resolve to the new controllers */
+    splat3: "LiteGS (default): TamingGS densify scores, Gaussian budget = target primitives. Same live raster as MCMC Compact.",
+    mcmc: "MCMC Compact (Jung & Hong 2025, 3.1): MH adaptive split threshold + stochastic importance prune to the budget."
   };
-  var labels = { splat3: "Splat3", mcmc: "MCMC" };
+  var labels = { litegs: "LiteGS", mcmc_compact: "MCMC Compact", splat3: "LiteGS", mcmc: "MCMC Compact" };
 
   function mount(tog) {
     var buttons = tog.querySelectorAll("[data-splat-strat]");
     var desk = tog.closest(".desk");
     var hint = desk ? desk.querySelector(".splat-strat-hint") : null;
     var log = desk ? desk.querySelector(".splat-strat-log") : null;
+    var caps = desk ? desk.querySelectorAll(".splat-ctl-name") : [];
     buttons.forEach(function (btn) {
       btn.addEventListener("click", function () {
         buttons.forEach(function (b) {
           b.classList.toggle("on", b === btn);
         });
-        var k = btn.getAttribute("data-splat-strat") || "splat3";
-        if (hint) hint.textContent = hints[k] || hints.splat3;
+        var k = btn.getAttribute("data-splat-strat") || "litegs";
+        var label = labels[k] || "LiteGS";
+        if (hint) hint.textContent = hints[k] || hints.litegs;
         if (log) {
-          log.innerHTML = log.innerHTML.replace(/strategy (Splat3|MCMC)/, "strategy " + (labels[k] || "Splat3"));
+          log.innerHTML = log.innerHTML.replace(/controller (LiteGS|MCMC Compact)/, "controller " + label);
         }
+        caps.forEach(function (c) {
+          c.textContent = label;
+        });
       });
     });
   }
 
   document.querySelectorAll(".splat-strat").forEach(mount);
+
+  /* Pause / Resume toggle on the HUD badge. */
+  document.querySelectorAll("[data-splat-pause]").forEach(function (btn) {
+    var desk = btn.closest(".desk");
+    var badge = desk ? desk.querySelector(".splat-hud .badge") : null;
+    btn.addEventListener("click", function () {
+      var paused = btn.textContent.trim() === "Pause";
+      btn.textContent = paused ? "Resume" : "Pause";
+      if (badge) {
+        badge.textContent = paused ? "PAUSED" : "TRAINING";
+        badge.classList.toggle("paused", paused);
+      }
+    });
+  });
+
+  /* Training-camera list: click jumps the (dummy) viewport; GT compare splits the plate. */
+  document.querySelectorAll(".splat-cams").forEach(function (list) {
+    var desk = list.closest(".desk");
+    var camLbl = desk ? desk.querySelector(".splat-cam-name") : null;
+    var plate = desk ? desk.querySelector(".splat-live") : null;
+    list.querySelectorAll("li[data-cam]").forEach(function (li) {
+      li.addEventListener("click", function () {
+        list.querySelectorAll("li").forEach(function (o) {
+          o.classList.toggle("active", o === li);
+        });
+        if (camLbl) camLbl.textContent = "cam " + li.getAttribute("data-cam") + " " + li.textContent.trim();
+      });
+    });
+    var gt = desk ? desk.querySelector("[data-splat-gt]") : null;
+    if (gt && plate) {
+      gt.addEventListener("click", function () {
+        plate.classList.toggle("gt");
+        gt.classList.toggle("on");
+      });
+    }
+    var reset = desk ? desk.querySelector("[data-splat-reset]") : null;
+    if (reset) {
+      reset.addEventListener("click", function () {
+        list.querySelectorAll("li").forEach(function (o) {
+          o.classList.remove("active");
+        });
+        if (camLbl) camLbl.textContent = "Star";
+        if (plate) plate.classList.remove("gt");
+        if (gt) gt.classList.remove("on");
+      });
+    }
+  });
 })();
 
 (function () {

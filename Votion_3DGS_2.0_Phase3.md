@@ -34,7 +34,7 @@ This is the quality leap. WAN stays **1440×720**. Sharpness is the 8K reproject
 - Native WAN i2v. Do **not** shell out to hidden ComfyUI.
 - Product Generate never loads `docs/media/ref-hires-mask-split.png` (HTML dummy only). Live split: left validity mask, right WAN fill (including low-res). Click a rail number to preview that rail.
 - WAN and HiRes are **two stages**. Generate WAN, review 720p, re-gen a rail if needed, then **Confirm WAN → HiRes**. HiRes must not auto-start after WAN.
-- Reconstruct: **Keep / Ditch** per rail (ditched rails are left out of SphereSfM). **Re-gen WAN** on one rail. After Reconstruct finishes, always load the **newest** kept-rail sparse.
+- Reconstruct: **Keep / Ditch** per rail (ditched rails are left out of SphereSfM). **Re-gen WAN** on one rail. After Reconstruct finishes, always load the **newest** kept-rail sparse. Cube-face PNGs are **gnomonic** pinholes (Index #57).
 
 ---
 
@@ -279,11 +279,23 @@ Typical geometry-mode coverage at 8192 (SplatKit bathroom): forward 0.85/0.73, o
 ['', 'my_scene_hires', 'exhaustive', 'stop', 0, 8192, 0.0066, 10, 32768, 4, 1.5, 4, 30, 1, 'camera_major', '*.png', 1, 0, False]
 ```
 
-Replace `my_scene_hires` with the Votion scene name. Hires width **8192**. Matcher `exhaustive`. Training images are **pinhole cube faces**, not equirect.
+Replace `my_scene_hires` with the Votion scene name. Hires width **8192**. Matcher `exhaustive`. Training images are **gnomonic pinhole cube faces**, not equirect and not the raw `sphere_cubic_reprojecer` sample (Index #57).
 
 Add-path node 90 hires width **4096** — copy as-is.
 
 Train cap ~**3M** Gaussians.
+
+---
+
+## Gnomonic cube faces (locked 2026-09-08)
+
+A bowed splat ground is **not** leftover ERP in the trainer. LiteGS trains on `colmap/images/` + `SIMPLE_PINHOLE`. alpine_01 cameras.bin is already 90° (`f = W/2`). The PNGs `sphere_cubic_reprojecer` wrote still smiled (~31 % line sag on `frame_00000` front) while a true gnomonic remap of the same `equirect_hires` frame is ~0.2 %.
+
+**Do this (product):** after SphereSfM, rewrite every cube-face PNG by shooting the pinhole ray through the parent `SPHERE` pose into the ERP (`engine/sfm/cubic_reproject.py`). Keep poses and K. Reconstruct then **Retrain** (do not Continue a checkpoint fitted to the old faces).
+
+**Do not:** run vanilla COLMAP pinhole on raw equirect; non-rigid un-bend of `points3D` (cameras and images would disagree). A similarity to level the floor is fine later.
+
+**Later if rails still bowl:** MoGe/HiRes floor-plane prior (HiRes ERP at rail frame 40 already sags in a correct cubemap). Do not skip the gnomonic remap and jump there.
 
 ---
 
@@ -308,7 +320,7 @@ Do not load the Skywork `.ckpt` without `convert_pano_lora.py`.
 
 1. `engine.workers.wan` — one rail per process. Load 14B fp8 + LoRAs, generate, unload, exit. User may re-gen a single rail. Does **not** start HiRes.  
 2. `engine.workers.hires` — only after **Confirm WAN → HiRes**. Geometry-mode composite, write 8K PNGs to disk (**never** as one giant GPU tensor).  
-3. `engine.workers.sfm` — kept rails only. Wipe the previous colmap sparse before this run. Dual-res: low-res proxies for matching, 8K cube faces for training images. Viewport loads this run after the process exits.
+3. `engine.workers.sfm` — kept rails only. Wipe the previous colmap sparse before this run. Dual-res: low-res proxies for matching, 8K cube faces for training images. After SphereSfM, **gnomonic-remap** every face PNG (`engine/sfm/cubic_reproject.py`). Viewport loads this run after the process exits.
 
 Quality: sequential rails on one 3090. HiRes ~11 GB peak (SplatKit, 5090) **after** WAN has exited.
 
@@ -322,7 +334,7 @@ Quality: sequential rails on one 3090. HiRes ~11 GB peak (SplatKit, 5090) **afte
 - [ ] Empty `prompt.txt` blocks Generate.
 - [ ] HiRes frames on disk at 8192×4096; mean coverage logged; not 0.0.
 - [ ] UI shows live validity mask | WAN fill during Generate (not `ref-hires-mask-split.png`). After HiRes, `gate_masks` meaning is white = 8K, black = WAN.
-- [ ] Dual-res COLMAP `images/` are pinhole cube faces, not equirect.
+- [ ] Dual-res COLMAP `images/` are **gnomonic** pinhole cube faces (plaza grout straight on a 90° face), not equirect and not the bowed `sphere_cubic_reprojecer` sample.
 - [ ] In-app train with 3M cap completes without OOM on 3090 after WAN has exited.
 - [ ] SageAttention missing → warning in log, job still completes. If Sage is on: no all-black Wan frames.
 - [ ] Suggest paths fills four distinct archetypes, all starting at the star.
@@ -353,3 +365,5 @@ Quality: sequential rails on one 3090. HiRes ~11 GB peak (SplatKit, 5090) **afte
 - Do not run PanoLRM or keep WorldFM as a parallel engine.
 - Do not claim extra rails fix glass.
 - Do not default `frames` to `0-15,16-/8` while documenting the graph as `0-80/2` — they are two presets.
+- Do not run vanilla COLMAP **pinhole on equirect** frames (that is the bowl). Keep `SPHERE` matching.
+- Do not flatten a bowed splat by warping `points3D` without rewriting the cube-face PNGs.

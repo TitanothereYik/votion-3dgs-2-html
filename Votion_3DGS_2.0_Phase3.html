@@ -492,8 +492,16 @@
           <b>RECONSTRUCT</b><br />
           Keep or ditch rails after WAN. Ditched rails are left out of SphereSfM.
           Re-gen WAN on a hallucinated rail. When loading is done, the viewport always pulls the newest dataset.
+          Cube faces are gnomonic 90° pinholes (Votion remaps sphere_cubic_reprojecer). A bowed splat needs Reconstruct then Retrain, not a bent point cloud.
         </div></details>
         </div>
+      </div>
+      <div class="callout good">
+        Training images are <strong>gnomonic 90° SIMPLE_PINHOLE</strong> cube faces.
+        SphereSfM still matches ERP as <code>SPHERE</code>; Votion then remaps
+        <code>sphere_cubic_reprojecer</code> PNGs so plaza lines stay straight (Index #57, locked 2026-09-08).
+        alpine_01: binary face ~31 % line sag vs ~0.2 % gnomonic. Do not un-bend <code>points3D</code>.
+        Reconstruct, then <strong>Retrain</strong> (do not Continue a checkpoint fitted to the old faces).
       </div>
     </section>
 
@@ -521,7 +529,7 @@
         </figure>
         <figure class="fig">
           <img src="media/colmap-sparse.webp" alt="COLMAP sparse reconstruction" />
-          <figcaption>Dual-res SphereSfM → pinhole cube faces. <a href="https://colmap.github.io/">COLMAP</a></figcaption>
+          <figcaption>Dual-res SphereSfM → gnomonic pinhole cube faces. <a href="https://colmap.github.io/">COLMAP</a></figcaption>
         </figure>
         <figure class="fig">
           <img src="media/lightx2v.png" alt="LightX2V distillation" />
@@ -553,7 +561,7 @@
         <li>HiRes frames 8192×4096; mean coverage logged; not 0.0. Product Generate never loads <code>ref-hires-mask-split.png</code>.</li>
         <li>Live split is mask | WAN; click a rail to preview. Generate WAN does not start HiRes.</li>
         <li>Reconstruct Ditch excludes a rail; Re-gen WAN targets one rail; after Reconstruct finishes, newest kept-rail sparse.</li>
-        <li>COLMAP <code>images/</code> are pinhole cube faces, not equirect.</li>
+        <li>COLMAP <code>images/</code> are <strong>gnomonic</strong> pinhole cube faces, not equirect and not the bowed <code>sphere_cubic_reprojecer</code> sample.</li>
         <li>In-app train with 3M cap after WAN process has exited, no OOM on 3090.</li>
         <li>SageAttention missing → log warning, job completes. If Sage is on: no all-black Wan frames.</li>
         <li>Suggest paths fills four distinct archetypes, all starting at the star.</li>
@@ -565,6 +573,7 @@
         <li>Do not enable <code>base_mode=wan</code> as splat default. Do not run PanoLRM.</li>
         <li>Do not claim extra rails fix glass. Do not default frames to <code>0-15,16-/8</code> while the graph is <code>0-80/2</code>.</li>
         <li>Do not auto-start HiRes after WAN. Do not load the dummy split PNG in product UI.</li>
+        <li>Do not run vanilla COLMAP pinhole on raw ERP. Do not un-bend <code>points3D</code> to flatten a bowed splat.</li>
       </ul>
     </section>
     <footer>Votion 3DGS 2.0 · Phase 3 · <a href="Votion_3DGS_2.0_Phase3.md">markdown</a></footer>

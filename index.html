@@ -133,6 +133,7 @@
         <li><strong>Hold-out PSNR (2026-09-07):</strong> optional every-8th-view hold-out reports PSNR each epoch; resolution scale 1 / 0.5 / 0.25.</li>
         <li><strong>Retrain required (2026-09-07):</strong> params-only checkpoints from the retired gsplat trainer are not loadable.</li>
         <li><strong>Step-based schedule (2026-09-07):</strong> SH warm-up one band per clamp(steps / 10, 200, 1000); densify between 5 % and 80 % of the steps (LiteGS ~24 cycles, MCMC Compact one cycle per 100 steps like 3DGS); opacity decay at most every 2000 steps; appends / prunes chunk-exact. Training cameras list + GT compare on the Splat page.</li>
+        <li><strong>Gnomonic cube faces (2026-09-08):</strong> SphereSfM matches ERP as <code>SPHERE</code>. Votion then rewrites every <code>SIMPLE_PINHOLE</code> cube-face PNG as a true gnomonic pinhole of that ERP (<code>engine/sfm/cubic_reproject.py</code>). Do not run vanilla COLMAP pinhole on raw ERP. Do not un-bend <code>points3D</code> to flatten a bowed splat. alpine_01: binary face ~31 % line sag vs ~0.2 % gnomonic. Retrain after Reconstruct.</li>
       </ol>
 
       <h3>Measured on this PC (not guessed)</h3>
@@ -149,6 +150,7 @@
           <tr><td>alpine_01 LiteGS 10k</td><td>972 views, 2.26M Gaussians, ~3.6 min, hold-out PSNR 15.6 dB. Single-view overfit 33.8 dB → raster and optimizer sound; the multi-view gap is WAN + SphereSfM view inconsistency.</td><td>Measured 2026-09-07</td></tr>
           <tr><td>alpine_01 MCMC Compact 10k</td><td>3DGS cadence (75 cycles of 100 steps), MH acceptance 0.43–0.44 (target 0.44), split ratio 3.4–6.8 % per cycle (target 5 %), 19k → 511k Gaussians (77 % below LiteGS at the same 3M budget), hold-out PSNR 15.7 dB, 94 s (re-run 533k / 15.5 dB); appends / prunes chunk-exact</td><td>Measured 2026-09-07</td></tr>
           <tr><td>Viewport transport</td><td>camera change → frame median 33 ms idle; 93 fps idle orbit, 32 fps while training at 182 it/s</td><td>Shared-memory bench 2026-09-07</td></tr>
+          <tr><td>alpine_01 cube-face sag</td><td>SphereSfM <code>frame_00000</code> front PNG ~31 % line sag; true 90° gnomonic of the same ERP ~0.2 %. <code>SIMPLE_PINHOLE</code> f=W/2 (90°).</td><td>Measured 2026-09-08</td></tr>
         </tbody>
       </table>
 

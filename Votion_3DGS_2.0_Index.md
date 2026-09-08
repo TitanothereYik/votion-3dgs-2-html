@@ -87,6 +87,7 @@ These are the only product facts treated as **locked**. Everything else in the p
 54. **Hold-out PSNR (2026-09-07):** optional hold-out eval keeps every 8th SphereSfM view out of training and reports PSNR each epoch (HUD + `splat_meta.json`). Resolution scale 1 / 0.5 / 0.25 trains on downsampled frames.
 55. **Retrain required (2026-09-07):** checkpoints written by the retired gsplat trainer (params only) are not loadable; Continue / Export on one shows “Retrain required”.
 56. **Step-based schedule (2026-09-07):** LiteGS drives densify / SH warm-up by epoch (tuned for ~200-image scenes); Votion scenes have hundreds of small views per epoch and any step count, so SH warms up one band per clamp(steps / 10, 200, 1000) and densify runs between 5 % and 80 % of the steps (opacity decay no more often than every 2000 steps): LiteGS TamingGS in ~24 cycles, MCMC Compact at the 3DGS cadence of one cycle per 100 steps (its Metropolis-Hastings chain and 5 % split target compound per cycle). Appends and prunes are chunk-exact (LiteGS stores Gaussians in fixed chunks; a sub-chunk append would be dropped, a non-multiple prune padded with duplicates). Training cameras list + **GT compare** (render | ground truth) on the Splat page judge convergence.
+57. **Gnomonic cube faces (2026-09-08):** SphereSfM still matches equirect frames as `SPHERE`, then `sphere_cubic_reprojecer` emits `SIMPLE_PINHOLE` 90° cameras. **Votion rewrites every cube-face PNG as a true gnomonic pinhole** of that ERP (`engine/sfm/cubic_reproject.py`, after every Reconstruct). Do **not** run vanilla COLMAP pinhole on raw ERP. Do **not** un-bend `points3D` to flatten a bowed splat — the GT images were the bowl. alpine_01 measured: binary face `frame_00000` front ~31 % line sag vs ~0.2 % on a gnomonic remap of the same `equirect_hires` frame. Retrain after Reconstruct; do not Continue a checkpoint fitted to the old faces. MoGe/HiRes floor-plane prior is a **later** step if rails still bowl after this remap.
 
 ### Measured on this PC (not guessed)
 
@@ -107,7 +108,7 @@ These are the only product facts treated as **locked**. Everything else in the p
 | LiteGS 1-step raster | `litegs raster 1-step: OK loss=0.6010 visible=4096/4096 cluster=128` | `docs/env_report.txt`, 2026-09-07 |
 | alpine_01 LiteGS 10k | 972 SphereSfM views (360² faces + six 2048² pano faces), 2.26M Gaussians at 10k steps, ~3.6 min on the 3090 (~200 it/s at 19k → ~80 it/s at 2.2M), hold-out PSNR 15.6 dB. Single-view overfit reaches 33.8 dB in 600 steps, so the raster + optimizer are sound; the low multi-view PSNR is view inconsistency in the WAN + SphereSfM data (frame 1 alone fits to 30.8 dB, frames 1–3 together only 22.3 dB). | Measured 2026-09-07 |
 | alpine_01 MCMC Compact 10k | 3DGS cadence (75 densify cycles of 100 steps, decay every 2000), MH acceptance 0.43–0.44 (target 0.44), split ratio 3.4–6.8 % per cycle (target 5 %), 19,456 → **510,720** Gaussians (77 % below LiteGS at the same 3M budget), hold-out PSNR **15.7 dB**, 94 s on the 3090 (re-run: 533,120 / 15.5 dB — split sampling is stochastic) (~130 it/s while densifying, ~220 it/s after). Viewport frame: 0 % crushed (<8) / 0 % blown (>247) pixels vs GT. An earlier 24-cycle schedule stalled at 40k because LiteGS drops sub-chunk appends; appends and prunes are now chunk-exact. | Measured 2026-09-07 |
-| Viewport transport | idle camera change → new frame median **33 ms** (p90 39 ms) at 1280×720 / 40k Gaussians; free orbit **93 fps** idle, **32 fps** while training with the step loop at 182 it/s (~15–20 % below idle) | `SharedFrameReader` bench 2026-09-07 |
+| alpine_01 cube-face sag | SphereSfM `frame_00000` front PNG ~31 % quadratic line sag; true 90° gnomonic of the same `equirect_hires/frame_00000.png` ~0.2 %. cameras.bin already `SIMPLE_PINHOLE` f=W/2 (90°). | Measured 2026-09-08 |
 
 ### Still UNKNOWN (do not fill in)
 
@@ -132,7 +133,7 @@ These are the only product facts treated as **locked**. Everything else in the p
   → Plot Camera (`look_forward` / `look_at_target` / `per_point_look`)
   → WAN 2.1 + Matrix-3D pano LoRA (720p ERP, holes filled)   [Phase 3]
   → HiRes Composite geometry mode (reproject 8K; WAN only in holes)
-  → SphereSfM dual-res → COLMAP pinhole dataset
+  → SphereSfM dual-res → gnomonic COLMAP pinhole cube faces
   → In-app LiteGS or MCMC Compact (Gaussian budget, default 3M) → splat.ply (full SH)
   → Optional Open in Brush / LichtFeld / Postshot
 ```

@@ -270,7 +270,7 @@
           </div>
           <div class="desk-view">
             <p class="view-lbl">Happy path</p>
-            <p class="f-hint">2D Images (or 360 / text) → 8K ERP → Compute geometry → rails → Generate → splat.ply (LiteGS or MCMC Compact). Ostris is READY.</p>
+            <p class="f-hint">2D Images (photo pasted back) or 360 / text → 8K ERP → MoGe-2 depth → rails → WorldStereo → splat.ply. Detect fills h_fov. Ostris is READY.</p>
           </div>
         </div>
         <div class="desk-draws">
@@ -280,15 +280,14 @@
           2D Images (default) or 360 / text → 8K ERP → Compute geometry → rails → Generate → splat.ply (LiteGS or MCMC Compact).
           Ostris Edit is native READY. h_fov 10–170, type or drag, default 70. Surroundings always end with no peoples, no cars.
           Left 2:1 Fit / 100% + draggable split. Right 360 is spherical (yaw + pitch). text keeps the trigger prefix.
-          After 2D Images, prompt.txt = outpaint instruction + surroundings. WAN prompt must match the pano.
-          Preview the mesh flight. Four rails usually enough. Do not skip 8K. Extra rails do not fix glass.
+          After 2D Images, the original photo is pasted back and prompt.txt = outpaint instruction + surroundings.
+          Detect fills h_fov. Dragging a rail point does not rebuild Generate. Play writes the rail. Four rails usually enough. Extra rails do not fix glass.
         </div></details>
         </div>
       </div>
       <div class="callout good">
-        Hard rules from the Mickmumpitz video: WAN is capped at 720p / 1440×720 ERP (structure OK, softness is the problem).
-        Sharpness is the 8K reprojection trick, not a bigger video model and <strong>not SeedVR</strong> (tried; slow; little gain).
-        All rails start at the pano-center star so that 8K texture can reproject. Preview the mesh flight before a 14B run.
+        Quality generation is WorldStereo memory-DMD on one 3090. Sharpness is the 8K panorama through the MoGe-2 mesh, not a bigger video model and <strong>not SeedVR</strong>.
+        All rails start at the pano-center star so that 8K texture can reproject. Preview the mesh flight before Generate.
         Four rails is usually enough; extra rails buy volume, not sharper views, and do not fix glass.
         Keep view-dependent reflections (why 3DGS, why Marble was rejected).
       </div>

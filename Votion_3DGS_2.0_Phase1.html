@@ -75,7 +75,10 @@
               <div class="f-drop"><img src="media/matrix3d-i2p.png" alt="Example 2D still" /></div>
               <div class="hfov-row">
                 <label class="f-lab">h_fov</label>
-                <input class="f-in hfov-num" id="hfov-val" type="number" min="10" max="170" step="0.5" value="70" />
+                <span style="display:flex;gap:0.35rem;align-items:center">
+                  <input class="f-in hfov-num" id="hfov-val" type="number" min="10" max="170" step="0.5" value="70" />
+                  <button class="f-btn" type="button">Detect</button>
+                </span>
               </div>
               <input class="f-range" id="hfov" type="range" min="10" max="170" step="0.5" value="70" />
               <p class="f-hint">Type or drag. <code>MickmumpitzPanoWarp</code> INPUT_TYPES <code>10–170</code>, step <code>0.5</code>. Default 70. <strong>Detect</strong> reads the lens EXIF, or a MoGe guess when the photo has no lens tags or was cropped.</p>

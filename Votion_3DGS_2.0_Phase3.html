@@ -157,7 +157,7 @@
         <div class="desk-brand">
           <h3>Votion 3DGS</h3>
           <span class="live">geometry</span>
-          <div class="desk-meta"><span>4 rails</span><span>moge_level 9</span></div>
+          <div class="desk-meta"><span>4 rails</span><span>MoGe-2 depth</span></div>
         </div>
         <div class="desk-stages">
           <a class="done" href="Votion_3DGS_2.0_Phase0.html">Home</a>
@@ -179,30 +179,35 @@
               <button class="f-btn" type="button">Suggest paths</button>
             </div>
             <label class="f-lab">Active rail</label>
-            <select class="f-sel" disabled>
-              <option selected>1 look_at_target · pond</option>
-              <option>2 per_point_look</option>
-              <option>3 per_point_look</option>
-              <option>4 per_point_look</option>
+            <select class="f-sel">
+              <option selected>1 look_forward · forward</option>
+              <option>2 look_forward · back</option>
+              <option>3 look_forward · left</option>
+              <option>4 look_forward · right</option>
             </select>
-            <label class="f-lab">Look</label>
-            <select class="f-sel" disabled>
-              <option selected>look_at_target</option>
-              <option>look_forward</option>
+            <label class="f-lab">Look mode</label>
+            <select class="f-sel">
+              <option>look_at_target</option>
+              <option selected>look_forward</option>
               <option>per_point_look</option>
             </select>
-            <label class="f-lab">Anchors</label>
+            <label class="f-lab">look_at_target</label>
+            <input class="f-in" value="-0.108, 0.073, 1.953" readonly />
+            <label class="f-lab">Anchors (xyz)</label>
             <textarea class="f-ta" readonly>0.000, 0.000, 0.000
-0.199, 0.219, 0.488
--0.184, -0.093, 0.920
--0.065, 0.039, 1.404</textarea>
+0.000, 0.000, 1.500</textarea>
+            <label class="f-lab">length</label>
+            <input class="f-in" value="81" readonly />
+            <label class="f-lab">moge_level (shared, not fps)</label>
+            <input class="f-in" value="9" readonly />
             <div class="f-row">
               <button class="f-btn ghost" type="button">+ Add rail</button>
+              <button class="f-btn ghost" type="button">- Remove rail</button>
             </div>
             <div class="f-row">
               <button class="f-btn pri" type="button">Confirm rails</button>
             </div>
-            <p class="f-hint">Active rail solid on FLOOR/SIDE; others dimmed. Star locked. Confirm gates Generate.</p>
+            <p class="f-hint">Drag a point here. Switching Active rail does not rebuild Generate. Play writes the rail. Re-plot if the depth changed. Confirm rails unlocks Generate.</p>
           </div>
           <div class="desk-view">
             <div class="geo-view">
@@ -237,12 +242,12 @@
           </div>
         </div>
         <div class="desk-draws">
-        <details class="desk-log-draw"><summary>Log</summary><div class="desk-log"><b>STATUS // geometry</b><br />Four clips usually enough. Preview mesh flight before a 14B run.</div></details>
+        <details class="desk-log-draw"><summary>Log</summary><div class="desk-log"><b>STATUS // geometry</b><br />depth cache moge2. Drag stays on this page. Play writes the rail.</div></details>
         <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
           <b>GEOMETRY</b><br />
-          Four rails (+ optional 5th). Suggest paths fits this room (cap 8). Active rail solid; others dimmed.
-          Extra rails buy volume, not sharper views, and do not fix glass.
-          Preview the mesh flight before a 14B run. Confirm gates Generate.
+          Four straight rails (+ optional 5th). Depth is one MoGe-2 cache. Active rail solid; others dimmed.
+          Dragging a point or switching Active rail does not rebuild Generate or Reconstruct.
+          Play each rail on this pane, then Confirm rails. A rail plotted on an older depth must be re-plotted first.
         </div></details>
         </div>
       </div>
@@ -328,13 +333,13 @@
 
     <section id="gen-ui">
       <h2><span class="num">05</span>Generate page (dummy)</h2>
-      <p>One 3090 cannot hold 14B + 8K composite + SfM. Rails <strong>sequential</strong>. Empty <code>prompt.txt</code> blocks Generate. WAN and HiRes are <strong>two clicks</strong>.</p>
+      <p>WorldStereo memory-DMD, one 3090. Default is <strong>Joint</strong>: 20 frames per kept rail, split into samples of 20 that share memory. Empty prompt blocks Generate. HiRes all is a separate click.</p>
       <div class="desk">
         <div class="desk-win"><span><strong>Votion 3DGS</strong></span><span class="wbtn">— □ ×</span></div>
         <div class="desk-brand">
           <h3>Votion 3DGS</h3>
-          <span class="live">wan rail 1</span>
-          <div class="desk-meta"><span>8 steps</span><span>1440×720</span></div>
+          <span class="live">worldstereo</span>
+          <div class="desk-meta"><span>joint</span><span>seed 1024</span></div>
         </div>
         <div class="desk-stages">
           <a class="done" href="Votion_3DGS_2.0_Phase0.html">Home</a>
@@ -345,82 +350,76 @@
           <a href="Votion_3DGS_2.0_Phase4.html">Splat</a>
         </div>
         <div class="job-strip">
-          <span class="job-cap">wan · rail 1</span>
+          <span class="job-cap">worldstereo · joint</span>
           <div class="job-bar"><i style="width:38%"></i></div>
           <span class="job-pct">38%</span>
         </div>
         <div class="desk-body">
           <div class="desk-rail">
-            <label class="f-lab">prompt.txt (required)</label>
-            <textarea class="f-ta" readonly>alpine village, mill, pond</textarea>
-            <label class="f-lab">Seed (WAN)</label>
-            <input class="f-in" value="0" readonly />
-            <label class="f-lab">Style suffix (graph id 10, optional)</label>
-            <textarea class="f-ta" readonly>A high quality panoramic video of the scene, photorealistic, very clear, smooth camera movement, ultra-detailed, high resolution. Panorama.</textarea>
-            <label class="f-lab">Negative (graph id 11)</label>
-            <textarea class="f-ta" readonly>The video is not of a high quality, it has a low resolution. Distortion. strange artifacts.</textarea>
-            <label class="f-lab">HiRes frames</label>
-            <select class="f-sel" disabled>
-              <option selected>0-80/2 (graph default, 41)</option>
-              <option>0-15,16-/8 (SplatKit rec, 25)</option>
-              <option>all (81)</option>
+            <label class="f-lab">Mode</label>
+            <select class="f-sel">
+              <option selected>Joint (all rails, one sample)</option>
+              <option>Per rail (21 frames each)</option>
             </select>
-            <label class="f-lab">Debug save</label>
-            <div class="f-radio">
-              <label><input type="radio" checked disabled /> off (product default)</label>
-              <label><input type="radio" disabled /> all (graph widget; disk-heavy)</label>
-            </div>
+            <p class="f-hint">80 frames, 20 per kept rail: 4 samples of 20, sharing memory.</p>
+            <label class="f-lab">Rail order</label>
+            <div class="rail-row"><span>Rail 1</span><span>drag</span></div>
+            <div class="rail-row"><span>Rail 2</span></div>
+            <div class="rail-row"><span>Rail 3</span></div>
+            <div class="rail-row"><span>Rail 4</span></div>
+            <p class="f-hint">Drag to set the order memory is carried across rails.</p>
+            <label class="f-lab">Prompt (required)</label>
+            <textarea class="f-ta" readonly>plaza, glass facade, stone lions</textarea>
+            <label class="f-lab">Seed</label>
+            <input class="f-in" value="1024" readonly />
             <div class="f-row">
-              <button class="f-btn pri" type="button">Generate WAN</button>
+              <button class="f-btn pri" type="button">Generate</button>
               <button class="f-btn ghost" type="button">Stop</button>
             </div>
-            <div class="f-row">
-              <button class="f-btn" type="button">Re-gen selected rail</button>
-            </div>
-            <div class="f-row">
-              <button class="f-btn" type="button">Confirm WAN → HiRes</button>
-            </div>
-            <div class="f-row">
-              <button class="f-btn" type="button">Open frames folder</button>
-            </div>
-            <p class="f-hint">Review 1440×720 first. HiRes does not start with Generate WAN.</p>
+            <div class="f-row"><button class="f-btn ghost" type="button">Start over</button></div>
+            <div class="f-row"><button class="f-btn" type="button">Re-gen selected rail</button></div>
+            <div class="f-row"><button class="f-btn" type="button">HiRes all</button></div>
+            <div class="f-row"><button class="f-btn" type="button">Open frames folder</button></div>
+            <p class="f-hint">Empty prompt blocks Generate. Re-plot rails plotted on an older depth first. Start over clears WorldStereo output and the depth cache. The panorama and rails stay.</p>
           </div>
           <div class="desk-view">
-            <p class="view-lbl">Click a rail number · live mask | WAN</p>
-            <div class="rail-row pick active" role="button" tabindex="0">
-              <span>Rail 1</span>
-              <span>WAN frame 12</span>
-            </div>
+            <p class="view-lbl">Rails · click a number to preview</p>
+            <div class="rail-row pick active" role="button" tabindex="0"><span>Rail 1</span><span>joint</span></div>
             <div class="progress"><i style="width:38%"></i></div>
-            <div class="rail-row pick" role="button" tabindex="0"><span>Rail 2</span><span>done</span></div>
+            <div class="rail-row pick" role="button" tabindex="0"><span>Rail 2</span><span>queued</span></div>
             <div class="rail-row pick" role="button" tabindex="0"><span>Rail 3</span><span>queued</span></div>
             <div class="rail-row pick" role="button" tabindex="0"><span>Rail 4</span><span>queued</span></div>
-            <p class="view-lbl" style="margin-top:0.7rem">left = validity mask · right = WAN fill (live, including low-res)</p>
-            <div class="gate-legend" style="margin:0.2rem 0 0.4rem">
-              <span><i class="sw w"></i>known</span>
-              <span><i class="sw k"></i>hole / WAN</span>
+            <p class="view-lbl" style="margin-top:0.7rem">Live preview · render | mask | keyframe</p>
+            <div class="f-row">
+              <button class="f-btn" type="button">Rail</button>
+              <button class="f-btn pri" type="button">Joint</button>
+              <button class="f-btn" type="button">Fit</button>
+              <button class="f-btn" type="button">100%</button>
             </div>
-            <figure class="mask-split compact" style="margin:0">
-              <img src="media/ref-hires-mask-split.png" alt="Dummy split: black-and-white mask on the left, filled frame on the right" />
-            </figure>
-            <p class="f-hint">This PNG is HTML showcase only. Product never loads it.</p>
+            <div class="gate-legend" style="margin:0.2rem 0 0.4rem">
+              <span>Render</span>
+              <span><i class="sw w"></i>mask · white = empty</span>
+              <span>Keyframe</span>
+            </div>
+            <p class="f-hint">Rail shows the selected rail. Joint plays the whole sample. Guide holes are white. HiRes all composites the 8K pano, the shared layer, then the WorldStereo frame.</p>
           </div>
         </div>
         <div class="desk-draws">
-        <details class="desk-log-draw"><summary>Log</summary><div class="desk-log"><b>STATUS // generate WAN</b><br />engine.workers.wan exits. HiRes waits for Confirm WAN → HiRes.</div></details>
+        <details class="desk-log-draw"><summary>Log</summary><div class="desk-log"><b>STATUS // worldstereo</b><br />joint sample. Stop frees the GPU. HiRes all is a separate click.</div></details>
         <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
           <b>GENERATE</b><br />
-          prompt.txt must describe this pano. Empty blocks WAN. Style suffix is optional. Negative is editable (graph default shown).
-          WAN stays 1440×720. Click a rail to preview. Re-gen a rail if it hallucinated. Confirm WAN before 8K HiRes.
+          Prompt must describe this pano. Empty blocks Generate. Joint is one sample across the kept rails.
+          Per rail is 21 front frames each. Re-gen selected rail is for per-rail mode.
+          Start over clears WorldStereo output and the depth cache. The panorama and your rails stay.
         </div></details>
         </div>
       </div>
-      <p class="desk-cap">Workers: <code>wan</code> (review) then user Confirm then <code>hires</code> then <code>sfm</code>. Dummy split PNG stays here; product uses live frames.</p>
+      <p class="desk-cap">Worker: <code>engine.workers.worldstereo</code>. Preview is three live panes. HiRes all is <code>engine.workers.pinhole_hires</code>.</p>
     </section>
 
     <section id="recon-ui">
       <h2><span class="num">06</span>Reconstruct page (dummy)</h2>
-      <p>Ditch a rail if WAN invented something you do not want. Reconstruct uses kept WAN clips. When loading finishes, the sparse pane is always this run.</p>
+      <p>Ditch a rail if WorldStereo invented something you do not want. Reconstruct uses the kept rails. When loading finishes, the sparse pane is always this run.</p>
       <div class="desk">
         <div class="desk-win"><span><strong>Votion 3DGS</strong></span><span class="wbtn">— □ ×</span></div>
         <div class="desk-brand">
@@ -443,36 +442,36 @@
         <div class="desk-body">
           <div class="desk-rail">
             <label class="f-lab">Rails in dataset</label>
-            <p class="f-hint">Ditch a hallucinated rail, or Re-gen WAN after editing the prompt.</p>
+            <p class="f-hint">Ditch a hallucinated rail, or Re-gen after editing the prompt.</p>
             <div class="rail-keep">
-              <span>Rail 1 · WAN</span>
+              <span>Rail 1</span>
               <div class="f-row">
                 <button class="f-btn" type="button">Keep</button>
-                <button class="f-btn ghost" type="button">Re-gen WAN</button>
+                <button class="f-btn ghost" type="button">Re-gen</button>
               </div>
             </div>
             <div class="rail-keep">
-              <span>Rail 2 · WAN</span>
+              <span>Rail 2</span>
               <div class="f-row">
                 <button class="f-btn" type="button">Keep</button>
-                <button class="f-btn ghost" type="button">Re-gen WAN</button>
+                <button class="f-btn ghost" type="button">Re-gen</button>
               </div>
             </div>
             <div class="rail-keep ditched">
               <span>Rail 3 · ditched</span>
               <div class="f-row">
                 <button class="f-btn ghost" type="button">Ditched</button>
-                <button class="f-btn ghost" type="button">Re-gen WAN</button>
+                <button class="f-btn ghost" type="button">Re-gen</button>
               </div>
             </div>
             <div class="rail-keep">
-              <span>Rail 4 · WAN</span>
+              <span>Rail 4</span>
               <div class="f-row">
                 <button class="f-btn" type="button">Keep</button>
-                <button class="f-btn ghost" type="button">Re-gen WAN</button>
+                <button class="f-btn ghost" type="button">Re-gen</button>
               </div>
             </div>
-            <label class="f-lab">SphereSfM</label>
+            <label class="f-lab">Known-pose dataset</label>
             <button class="f-btn pri" type="button">Reconstruct</button>
             <div class="stat-grid">
               <div><b>num_images</b>246</div>
@@ -492,9 +491,9 @@
         <details class="desk-log-draw"><summary>Log</summary><div class="desk-log"><b>STATUS // reconstruct</b><br />wiped previous colmap · kept clips 3 · sparse/0 this run.</div></details>
         <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
           <b>RECONSTRUCT</b><br />
-          Keep or ditch rails after WAN. Ditched rails are left out of SphereSfM.
-          Re-gen WAN on a hallucinated rail. When loading is done, the viewport always pulls the newest dataset.
-          Cube faces are gnomonic 90° pinholes (Votion remaps sphere_cubic_reprojecer). A bowed splat needs Reconstruct then Retrain, not a bent point cloud.
+          Keep or ditch rails after WorldStereo. Ditched rails are left out of the known-pose dataset.
+          Re-gen jumps back to Generate for that rail. When loading is done, the viewport always pulls the newest dataset.
+          The six extra faces are gnomonic 90° pinholes of the 8K panorama.
         </div></details>
         </div>
       </div>

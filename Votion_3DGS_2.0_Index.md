@@ -35,13 +35,13 @@ These are the only product facts treated as **locked**. Everything else in the p
 2. **Shell:** PySide6 (native Python GUI). Engineering Blueprint look from V1.
 3. **HTML layout:** index + one file per phase.
 4. **Code home:** `D:\Votion3DGS\`. Also copy these docs there when Agent mode is allowed.
-5. **GPU / WAN default:** RTX 3090 24GB. Quality = WAN 2.1 I2V **14B fp8 720p** + LightX2V.
+5. **GPU / Quality generator (amended 2026-10-30, #61):** RTX 3090 24GB. Quality is WorldStereo memory-DMD, not WAN 2.1.
 6. **Weights policy:** if a file exists in ComfyUI, copy into `<install_root>\models`; otherwise download from Hugging Face. Ready files live under `<install_root>\models\` matching Comfy folder names. Dev default install root: `D:\Votion3DGS`. Hub cache is not the Windows user profile (see 28).
 7. **ComfyUI root (you named it):** `D:\ComfyUI_windows_portable_360`
 8. **Do not reuse Comfy `python_embeded`.** Independent Votion venv. Only weights may be copied.
 9. **Venv pin:** Python **3.12** + CUDA **12.8** + current stable PyTorch **cu128** wheel. Exact PyTorch *patch* is **not** pinned here — record it in `requirements.lock` on first successful Phase 0 install.
 10. **Product name:** Votion 3DGS
-11. **Trainer (amended 2026-09-07):** in-app **LiteGS** backend → `splat.ply`. User picks the density controller **LiteGS** (default) or **MCMC Compact** on the Splat page before Train / Retrain. LiteGS = vendored [MooreThreads/LiteGS](https://github.com/MooreThreads/LiteGS) raster + `DensityControllerTamingGS` with the UI Gaussian budget as `target_primitives`. MCMC Compact = Jung & Hong, *MCMC-Guided Compact 3DGS* (SIGGRAPH Asia 2025 TC, section 3.1 only: Metropolis-Hastings adaptive split threshold + stochastic importance prune). Both share the same Gaussian raster (opacity, anisotropic scale, rotation, SH). ADC / Splat Density is not offered. Continue uses the checkpoint’s controller; switching LiteGS ↔ MCMC Compact requires Retrain. Brush / LichtFeld / Postshot stay “Open in…”. The former gsplat Splat3 / MCMC trainer (locked 2026-09-01) is retired; see 48–56. Live train viewport, Stop, uncapped max steps, and Star camera: see 41–47 (locked 2026-09-05).
+11. **Trainer (amended 2026-10-30, #61):** in-app **LiteGS** backend → `splat.ply`. The dataset is known-pose COLMAP under `worldstereo/dataset` (WorldStereo pinholes plus six gnomonic faces of the 8K pano). Train writes `worldstereo/train`. User picks the density controller **LiteGS** (default) or **MCMC Compact** on the Splat page before Train / Retrain. LiteGS = vendored [MooreThreads/LiteGS](https://github.com/MooreThreads/LiteGS) raster + `DensityControllerTamingGS` with the UI Gaussian budget as `target_primitives`. MCMC Compact = Jung & Hong, *MCMC-Guided Compact 3DGS* (SIGGRAPH Asia 2025 TC, section 3.1 only: Metropolis-Hastings adaptive split threshold + stochastic importance prune). Both share the same Gaussian raster (opacity, anisotropic scale, rotation, SH). ADC / Splat Density is not offered. Continue uses the checkpoint’s controller; switching LiteGS ↔ MCMC Compact requires Retrain. Brush / LichtFeld / Postshot stay “Open in…”. The former gsplat Splat3 / MCMC trainer (locked 2026-09-01) is retired; see 48–56. Live train viewport, Stop, uncapped max steps, and Star camera: see 41–47 (locked 2026-09-05).
 12. **Unreal:** Engine **5.5** + **MLSLabsRenderer** (interim) for `splat.ply` playback — [GitHub](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE) · [Fab](https://www.fab.com/listings/f91b57cc-958d-40dd-a455-2535bf00e588). Hold an **update slot** for a better UE renderer later.
 13. **Pano inputs (2.0):** three first-class modes on Phase 1 — **(1) 2D Images → ERP (default)**, **(2) 360 Images**, **(3) text → ERP**. Happy path is (1) then Phase 2 splat then Phase 3 WAN.
 14. **2D Images surroundings:** user types a sentence **or** local **Florence-2** captions the 2D image (editable). Always append **`no peoples, no cars`** at the end (typed or caption). Empty box still blocks Generate. Florence Hub (measured first successful P1 caption): `florence-community/Florence-2-large` rev `4271c66b88cdbc05735372ec13b2360108de5317`.
@@ -88,6 +88,15 @@ These are the only product facts treated as **locked**. Everything else in the p
 55. **Retrain required (2026-09-07):** checkpoints written by the retired gsplat trainer (params only) are not loadable; Continue / Export on one shows “Retrain required”.
 56. **Step-based schedule (2026-09-07):** LiteGS drives densify / SH warm-up by epoch (tuned for ~200-image scenes); Votion scenes have hundreds of small views per epoch and any step count, so SH warms up one band per clamp(steps / 10, 200, 1000) and densify runs between 5 % and 80 % of the steps (opacity decay no more often than every 2000 steps): LiteGS TamingGS in ~24 cycles, MCMC Compact at the 3DGS cadence of one cycle per 100 steps (its Metropolis-Hastings chain and 5 % split target compound per cycle). Appends and prunes are chunk-exact (LiteGS stores Gaussians in fixed chunks; a sub-chunk append would be dropped, a non-multiple prune padded with duplicates). Training cameras list + **GT compare** (render | ground truth) on the Splat page judge convergence.
 57. **Gnomonic cube faces (2026-09-08):** SphereSfM still matches equirect frames as `SPHERE`, then `sphere_cubic_reprojecer` emits `SIMPLE_PINHOLE` 90° cameras. **Votion rewrites every cube-face PNG as a true gnomonic pinhole** of that ERP (`engine/sfm/cubic_reproject.py`, after every Reconstruct). Do **not** run vanilla COLMAP pinhole on raw ERP. Do **not** un-bend `points3D` to flatten a bowed splat — the GT images were the bowl. alpine_01 measured: binary face `frame_00000` front ~31 % line sag vs ~0.2 % on a gnomonic remap of the same `equirect_hires` frame. Retrain after Reconstruct; do not Continue a checkpoint fitted to the old faces. MoGe/HiRes floor-plane prior is a **later** step if rails still bowl after this remap.
+58. **WorldStereo reopen — gate G1 (2026-10-29, Yik):** The rejection of Hunyuan / HY-World 2.0 below (two huge models at once, four GPUs) stays for that stack. Yik reopens one piece only: the standalone WorldStereo memory-DMD model (`FuchengSu/WorldStereo`, Apache-2.0 code, pin in `vendor/worldstereo.sha`), one GPU (RTX 3090), as an experimental Quality generator in `PRD/WorldStereo2_MemoryDMD_FP8_PRD.md`. Do not vendor or import `Tencent-Hunyuan/HY-World-2.0`. Do not bring back WorldMirror, HY-Pano, WorldNav, or HY-World’s 3DGS trainer. WAN 2.1 stays the default and stays installed. The experimental toggle is gate G3, recorded as #60.
+59. **WorldStereo weights — gate G2 (2026-10-29, Yik):** The inference code is Apache-2.0 (`vendor/worldstereo/LICENSE.md`). The official weight repo `hanshanxue/WorldStereo` has no licence file. The FP8 repack `apozz/WorldStereo-fp8` says the overlay is MIT (inherited) and the Wan base is Apache-2.0. HY-World 2.0’s own repo is the Tencent Hunyuan Community License (excludes EU, UK, and Korea). Which of those governs the weights is still **UNKNOWN**. Yik accepts that risk in writing for this experiment. Do not treat the FP8 card’s MIT sentence as a settled licence. Two files inside the WorldStereo pin (`src/sp_utils/parallel_states.py`, `src/sp_utils/communications.py`) also carry a Tencent Hunyuan Community License header; they stay in the pinned tree and are noted in `vendor/worldstereo_NOTICE.md`.
+60. **WorldStereo experimental toggle — gate G3 (2026-10-29, Yik):** WorldStereo may ship on the Generate page as a generator choice, **off by default**, Quality profile only. WAN 2.1 + pano LoRA stays the default and stays installed. Switching back to WAN must leave every WAN output untouched. The control stays disabled, with a tooltip, until the weights row is READY. Fast and Scout do not offer it. **Superseded for the default route by #61.**
+61. **WorldStereo is the Quality route (2026-10-30, Yik):** After reviewing `alpine_02`, Yik makes WorldStereo memory-DMD the only Quality generator. The WAN 2.1 14B generator, pano LoRA, LightX2V, ERP HiRes, and SphereSfM code paths are removed. Git history is the only copy. Leftover `colmap/`, `wan/`, `hires/`, and WAN weights on disk are not deleted by the app. Shared Wan 2.1 parts that WorldStereo loads stay: umT5, CLIP-Vision H, the Wan 2.1 VAE, and the 480P Diffusers config. `4x-UltraSharp` stays for pinhole HiRes hole fill. Up to six views per rail (front, back, left, right, up, down), default all six. Default rails are four straight `look_forward` lines. The weights licence is still UNKNOWN (#59). Yik accepts that risk for the **default** route, not only the experiment. Fast and Scout stay disabled. This is not the §8 bake-off.
+62. **Spaced views are the default frame layout (2026-10-30, Yik):** Six full trajectories made generation about six times one view. Spaced keeps each view's camera steady and gives that view only its slot of the 21 rail frames: front, left, right, up, down, back, then repeat. The six runs are interleaved back into one 21-frame rail. A non-front run adds one anchor frame at rail position 0 so the start image is still a pano cut at the origin; that frame is not kept. Separate (a full trajectory per view) stays available. The short-run timing measurement against the 7439 s alpine_02 front trajectory has not been run; it waits until the GPU is free. **Superseded by #63.**
+63. **Joint all-rail generation (2026-11-04, Yik):** One WorldStereo sample covers every kept rail. The default is 10 frames per rail, 40 frames in one pass, out along one rail and back along the next, starting at the star. Per rail (21 front frames each) stays as the other Generate option. Spaced, six-view Separate, the combined preview, per-view exclude, and Dense are removed. 40 keyframes is past the clip this checkpoint was trained on (21). Quality, time, and VRAM for that 40-frame sample are unmeasured; the run waits until the GPU is free. A longer sequence is the same planner with a higher frame cap, chained through the memory bank.
+64. **Geometry-locked WorldStereo (2026-11-10, Yik):** The guide video is a solid mesh from the 2048x1024 MoGe pano depth, textured with the 8K pano, with the ground plane snapped. After each joint chunk, pixels the guide left empty are lifted with aligned MoGe frame depth into a shared layer under worldstereo/world; later chunks render that layer in their guide. HiRes all composites the 8K pano mesh, then the shared layer, then the frame's own WorldStereo pixels, with a feathered seam. Quality, time, and VRAM are unmeasured until Yik runs it.
+65. **Photo paste and one scene depth (2026-11-10, Yik):** After the 8K tail, 2D Images pastes the original photo back with a feathered seam. Panorama depth is one cache under `outputs/<scene>/depth`, keyed by the panorama hash. The default backend is `moge2`, picked by Yik on 2026-11-11 from the alpine bake-off in `tools/depth_bakeoff.py` (ground fit 0.70 vs 0.58 for `moge1`, facade error 0.0042 vs 0.0055, MIT weights). Geometry, Plot Camera, the guide, and HiRes all read that cache. A rail plotted on an older depth must be re-plotted before Generate; the depth key sits beside each rail in `rails/rail_XX.depth_key`, which Start over keeps. Backends other than `moge1` run in their own venvs under `.venvs/` (`tools/depth_backends/install.ps1`). Detect h_fov reads lens EXIF first and falls back to MoGe. Backend licences: MoGe-2 weights MIT, PaGeR weights CC BY-NC (non-commercial), DAP weights under Meta's DINOv3 licence.
+66. **Geometry editor stays local (2026-11-12):** Dragging a rail point or the look target, and switching Active rail, updates the floor and side views only. It does not rebuild Generate or Reconstruct. The rail file is written when Play starts the mesh flight, and again when the active rail changes, without that rebuild. Confirm rails is what refreshes Generate and Reconstruct.
 
 ### Measured on this PC (not guessed)
 
@@ -109,6 +118,9 @@ These are the only product facts treated as **locked**. Everything else in the p
 | alpine_01 LiteGS 10k | 972 SphereSfM views (360² faces + six 2048² pano faces), 2.26M Gaussians at 10k steps, ~3.6 min on the 3090 (~200 it/s at 19k → ~80 it/s at 2.2M), hold-out PSNR 15.6 dB. Single-view overfit reaches 33.8 dB in 600 steps, so the raster + optimizer are sound; the low multi-view PSNR is view inconsistency in the WAN + SphereSfM data (frame 1 alone fits to 30.8 dB, frames 1–3 together only 22.3 dB). | Measured 2026-09-07 |
 | alpine_01 MCMC Compact 10k | 3DGS cadence (75 densify cycles of 100 steps, decay every 2000), MH acceptance 0.43–0.44 (target 0.44), split ratio 3.4–6.8 % per cycle (target 5 %), 19,456 → **510,720** Gaussians (77 % below LiteGS at the same 3M budget), hold-out PSNR **15.7 dB**, 94 s on the 3090 (re-run: 533,120 / 15.5 dB — split sampling is stochastic) (~130 it/s while densifying, ~220 it/s after). Viewport frame: 0 % crushed (<8) / 0 % blown (>247) pixels vs GT. An earlier 24-cycle schedule stalled at 40k because LiteGS drops sub-chunk appends; appends and prunes are now chunk-exact. | Measured 2026-09-07 |
 | alpine_01 cube-face sag | SphereSfM `frame_00000` front PNG ~31 % quadratic line sag; true 90° gnomonic of the same `equirect_hires/frame_00000.png` ~0.2 %. cameras.bin already `SIMPLE_PINHOLE` f=W/2 (90°). | Measured 2026-09-08 |
+| alpine_01 photo paste | 8192×4096 paste of a 70° crop: 3.7 s, about 2 GiB. Pixels outside the feather are unchanged. | Measured 2026-11-11 |
+| alpine_01 depth bake-off | At 2048×1024, scaled to a 0.20 m camera height. Ground fit / facade error / edge match: MoGe v1 0.58 / 0.0055 / 0.39; MoGe-2 0.70 / 0.0042 / 0.44; PaGeR 0.66 / 0.0050 / 0.45; DAP 0.58 / 0.0052 / 0.42. Yik picked MoGe-2. | `outputs/alpine_01/_work/depth_bakeoff/summary.json`, 2026-11-11 |
+| alpine_01 MoGe-2 cache | 4096×2048, 158 s, scale 0.890, 80.7 % valid. A second read from `depth/` was 0.2 s. | Measured 2026-11-11 |
 
 ### Still UNKNOWN (do not fill in)
 
@@ -131,9 +143,9 @@ These are the only product facts treated as **locked**. Everything else in the p
   → Krea 2 360 pano (2K then 8K)          [Phase 1; 360 Images skips Krea]
   → Compute geometry (MoGe FLOOR + SIDE + star)  [Phase 2]
   → Plot Camera (`look_forward` / `look_at_target` / `per_point_look`)
-  → WAN 2.1 + Matrix-3D pano LoRA (720p ERP, holes filled)   [Phase 3]
-  → HiRes Composite geometry mode (reproject 8K; WAN only in holes)
-  → SphereSfM dual-res → gnomonic COLMAP pinhole cube faces
+  → WorldStereo memory-DMD (up to six pinhole views per rail)   [Quality]
+  → Pinhole HiRes (8K pano through MoGe; UltraSharp only in holes)
+  → Known-pose COLMAP (`worldstereo/dataset`)
   → In-app LiteGS or MCMC Compact (Gaussian budget, default 3M) → splat.ply (full SH)
   → Optional Open in Brush / LichtFeld / Postshot
 ```
@@ -155,13 +167,13 @@ These are the only product facts treated as **locked**. Everything else in the p
 | Slice a 360, run Apple SHARP per face, stitch | Ugly seams; SHARP does not invent off-axis detail; **non-commercial** license |
 | MoGe to line up those SHARP views | Progress, then same two killers: not flexible enough once you move + license |
 | UniSHARP | Fast 360, worlds fall apart quickly once you leave center |
-| Hunyuan / HY-World 2.0 | Two huge models in memory at once; designed for **four GPUs** |
+| Hunyuan / HY-World 2.0 | Two huge models in memory at once; designed for **four GPUs**. **Exception (2026-10-29, #58):** the standalone WorldStereo memory-DMD model, one GPU only |
 | NVIDIA Lyra | 91 GB, Linux-only, ~6 min first start |
 | World Labs Marble | Closed source; small roam; **no working reflections** |
 
 **Selected:** Skywork Matrix-3D = MoGe mesh as camera condition + **LoRA on Wan 2.1** (not a new video model). LoRA trained by flying a virtual 360° drone in **UE5** through **500** game worlds. Votion ports that idea natively (SplatKit `core/`), not ComfyUI.
 
-**V1 is not upgraded.** HunyuanWorld / WorldFM / HY-World 2.0 stay archived.
+**V1 is not upgraded.** HunyuanWorld / WorldFM / the HY-World 2.0 stack stay archived. The only reopen is #58 (standalone WorldStereo, one GPU).
 
 ---
 
@@ -228,11 +240,11 @@ Florence-2 (Phase 1 auto-caption, optional): Microsoft Florence-2 family, Apache
 
 ## VRAM profiles (Quality locked; others from named sources)
 
-| Profile | GPU assumption | WAN | HiRes | Rails | Source |
-|---------|----------------|-----|-------|-------|--------|
-| **Quality (default)** | RTX 3090 24GB | 14B fp8 720p + LightX2V | 8K geometry mode | 4 | You locked this |
-| Fast | 16GB class | **Matrix-3D 5B** (default). GGUF Q4 is not the Fast default. | 8K optional | 2–4 | Locked 2026-09-01. Exact 5B filename from Matrix-3D README at implement — do not invent. |
-| Scout | 12GB class | 5B + low-VRAM | skip | 1–2 | Matrix-3D README (~12GB 5B low-vram) |
+| Profile | GPU assumption | Generator | HiRes | Rails | Source |
+|---------|----------------|-----------|-------|-------|--------|
+| **Quality (default)** | RTX 3090 24GB | WorldStereo memory-DMD FP8 | Pinhole, 2× keyframe | 4 straight | #61, 2026-10-30 |
+| Fast | 16GB class | Not in this build | — | — | Disabled. Do not invent a model name. |
+| Scout | 12GB class | Not in this build | — | — | Disabled. Do not invent a model name. |
 
 Matrix-3D PanoLRM (~80GB in their README) is **out of 2.0**.
 

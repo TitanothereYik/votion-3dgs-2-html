@@ -1,5 +1,7 @@
 # Votion 3DGS 2.0 — Phase 3: WAN, 8K reprojection, multi-rail SfM
 
+**2026-11-12.** Quality generation is WorldStereo memory-DMD (Index #61–#64), not WAN. Panorama depth is one cache, default backend MoGe-2 (Index #65). The SMPL graph numbers below stay as the copied source. Do not treat the WAN widgets as the current Generate page.
+
 **Depends on:** Phase 2 first-splat plumbing (MoGe + one rail + SfM) and Phase 1 8K `pano.png`  
 **Unlocks:** Phase 4 (profiles / installer)  
 **Graph source:** [`docs/260825_MICKMUMPITZ_3DGS-Dataset-Creator_1-0_SMPL.json`](260825_MICKMUMPITZ_3DGS-Dataset-Creator_1-0_SMPL.json)  
@@ -154,6 +156,9 @@ Dummy: [Phase 3 HTML](Votion_3DGS_2.0_Phase3.html#geo-ui). Same Plot Camera chro
 - **Suggest paths** on. Active rail solid on FLOOR/SIDE; others dimmed.
 - **Confirm rails** gates Generate. Play is still on the Preview flight pane only.
 - `moge_level` shared (graph **9** on every Plot Camera). Mixed levels break HiRes cache reuse.
+- **Scene depth (2026-11-11):** Geometry, Plot Camera, the guide, and HiRes read `outputs/<scene>/depth/`, not a fresh MoGe pass each time. The default backend is MoGe-2. A rail plotted on an older depth is stale until it is re-plotted. The depth key sits in `rails/rail_XX.depth_key`, which Start over keeps. Generate refuses to run while any rail is stale.
+- **Guide (2026-11-10):** the floor is filled where the panorama saw it, facade planes are snapped, and thin mask streaks are closed and feathered so the sample fills a region.
+- **Editor (2026-11-12):** dragging a point and switching Active rail do not rebuild Generate or Reconstruct. Play writes the rail file and starts the mesh flight. Confirm rails is the refresh.
 
 Selecting a rail highlights that spline. Preview **this rail** before Confirm. Changing knots after Confirm dirties the rail. Warn if knot 0 ≠ origin (editor also locks it).
 

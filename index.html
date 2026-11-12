@@ -21,7 +21,7 @@
       <div class="meta-row">
         <span>RTX 3090 24GB</span>
         <span>Python 3.12 · CUDA 12.8</span>
-        <span>WAN 14B fp8 + LightX2V</span>
+        <span>WorldStereo memory-DMD FP8</span>
         <span>UE 5.5 MLSLabsRenderer</span>
       </div>
       <figure class="hero-media">
@@ -134,6 +134,11 @@
         <li><strong>Retrain required (2026-09-07):</strong> params-only checkpoints from the retired gsplat trainer are not loadable.</li>
         <li><strong>Step-based schedule (2026-09-07):</strong> SH warm-up one band per clamp(steps / 10, 200, 1000); densify between 5 % and 80 % of the steps (LiteGS ~24 cycles, MCMC Compact one cycle per 100 steps like 3DGS); opacity decay at most every 2000 steps; appends / prunes chunk-exact. Training cameras list + GT compare on the Splat page.</li>
         <li><strong>Gnomonic cube faces (2026-09-08):</strong> SphereSfM matches ERP as <code>SPHERE</code>. Votion then rewrites every <code>SIMPLE_PINHOLE</code> cube-face PNG as a true gnomonic pinhole of that ERP (<code>engine/sfm/cubic_reproject.py</code>). Do not run vanilla COLMAP pinhole on raw ERP. Do not un-bend <code>points3D</code> to flatten a bowed splat. alpine_01: binary face ~31 % line sag vs ~0.2 % gnomonic. Retrain after Reconstruct.</li>
+        <li><strong>WorldStereo is the Quality route (2026-10-30):</strong> WorldStereo memory-DMD replaces WAN 2.1, the pano LoRA, LightX2V, ERP HiRes, and SphereSfM. Git history is the only copy of those paths. Up to six views per rail; the default frame layout later became joint generation. The weights licence is still unknown. Yik accepts that risk for the default route.</li>
+        <li><strong>Joint all-rail generation (2026-11-04):</strong> One WorldStereo sample covers every kept rail. Default is 10 frames per rail, 40 frames, out along one rail and back along the next, starting at the star. Per-rail generation stays as the other option (21 front frames).</li>
+        <li><strong>Geometry-locked guide (2026-11-10):</strong> The guide is a mesh from the panorama depth, textured with the 8K pano, with the ground snapped where the panorama saw it. Facade planes are snapped. Thin mask streaks are removed and the edge is feathered so the model fills a region. Empty guide pixels are lifted into a shared layer for later chunks. HiRes composites the pano mesh, that layer, then the frame.</li>
+        <li><strong>Photo paste and one scene depth (2026-11-11):</strong> After the 8K tail, 2D Images pastes the original photo back with a feathered seam. <strong>Detect</strong> fills h_fov from the lens EXIF, or from a MoGe guess when EXIF is missing or the photo was cropped. Panorama depth is one cache under <code>outputs/&lt;scene&gt;/depth</code>. Yik picked <strong>MoGe-2</strong> (MIT) from the alpine bake-off: ground fit 0.70 vs 0.58 for MoGe v1. PaGeR weights are CC BY-NC. A rail plotted on an older depth must be re-plotted before Generate. The depth key is <code>rails/rail_XX.depth_key</code>, which Start over keeps.</li>
+        <li><strong>Geometry editor stays local (2026-11-12):</strong> Dragging a rail point or switching Active rail updates the floor and side views only. It does not rebuild Generate or Reconstruct. Play writes the rail and starts the mesh flight. Confirm rails is what refreshes the other pages.</li>
       </ol>
 
       <h3>Measured on this PC (not guessed)</h3>
@@ -151,6 +156,9 @@
           <tr><td>alpine_01 MCMC Compact 10k</td><td>3DGS cadence (75 cycles of 100 steps), MH acceptance 0.43–0.44 (target 0.44), split ratio 3.4–6.8 % per cycle (target 5 %), 19k → 511k Gaussians (77 % below LiteGS at the same 3M budget), hold-out PSNR 15.7 dB, 94 s (re-run 533k / 15.5 dB); appends / prunes chunk-exact</td><td>Measured 2026-09-07</td></tr>
           <tr><td>Viewport transport</td><td>camera change → frame median 33 ms idle; 93 fps idle orbit, 32 fps while training at 182 it/s</td><td>Shared-memory bench 2026-09-07</td></tr>
           <tr><td>alpine_01 cube-face sag</td><td>SphereSfM <code>frame_00000</code> front PNG ~31 % line sag; true 90° gnomonic of the same ERP ~0.2 %. <code>SIMPLE_PINHOLE</code> f=W/2 (90°).</td><td>Measured 2026-09-08</td></tr>
+          <tr><td>alpine_01 photo paste</td><td>8192×4096 paste of a 70° crop: 3.7 s, about 2 GiB. Pixels outside the feather are unchanged.</td><td>Measured 2026-11-11</td></tr>
+          <tr><td>alpine_01 depth bake-off</td><td>Ground fit / facade error / edge match: MoGe v1 0.58 / 0.0055 / 0.39; MoGe-2 0.70 / 0.0042 / 0.44; PaGeR 0.66 / 0.0050 / 0.45; DAP 0.58 / 0.0052 / 0.42. Yik picked MoGe-2.</td><td>2026-11-11</td></tr>
+          <tr><td>alpine_01 MoGe-2 cache</td><td>4096×2048, 158 s, scale 0.890, 80.7 % valid. A second read from <code>depth/</code> was 0.2 s.</td><td>Measured 2026-11-11</td></tr>
         </tbody>
       </table>
 
@@ -199,7 +207,7 @@
         </a>
         <a class="pvis" href="Votion_3DGS_2.0_Phase3.html">
           <img src="media/wan-i2v.png" alt="Wan 2.1 image-to-video results" />
-          <span><b>C · P3 WAN</b> 720p hole-fill</span>
+          <span><b>C · P3 WorldStereo</b> memory-DMD hole-fill</span>
         </a>
         <a class="pvis" href="Votion_3DGS_2.0_Phase3.html">
           <img src="media/matrix3d-mesh.png" alt="Matrix-3D mesh-render camera condition" />
@@ -219,11 +227,11 @@
         <div class="pipe-arr">→</div>
         <div class="pipe-node"><b>B P2</b>Compute geometry · 1 rail · SfM</div>
         <div class="pipe-arr">→</div>
-        <div class="pipe-node"><b>C P3</b>WAN 720p hole-fill</div>
+        <div class="pipe-node"><b>C P3</b>WorldStereo memory-DMD</div>
         <div class="pipe-arr">→</div>
         <div class="pipe-node"><b>D</b>HiRes 8K geometry</div>
         <div class="pipe-arr">→</div>
-        <div class="pipe-node"><b>E</b>SphereSfM pinholes</div>
+        <div class="pipe-node"><b>E</b>known-pose COLMAP</div>
         <div class="pipe-arr">→</div>
         <div class="pipe-node out"><b>F</b>LiteGS / MCMC Compact → splat.ply → UE 5.5</div>
       </div>

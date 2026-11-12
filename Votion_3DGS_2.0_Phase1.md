@@ -31,6 +31,8 @@ How-to text is **in the graph** (MarkdownNote id 4). Copy it into the Panorama p
 - **Ostris Edit** (`Krea2OstrisEditModelPatch` + `TextEncodeKrea2OstrisEdit`, pack [ostris/ComfyUI-Krea2-Ostris-Edit](https://github.com/ostris/ComfyUI-Krea2-Ostris-Edit) pin `7756566160c4a1b24bb1bd9f0ff3ced1a83d7547` in the graph): native port **READY** (2026-09-03). 2D Images Generate is enabled. Do **not** shell out to ComfyUI.
 - Surroundings (2D Images): user types a sentence **or** runs **Florence-2** (open-source, local) to caption the 2D image, then **may edit** the box before Generate. Always append **`no peoples, no cars`** (typed or caption). Empty box still blocks Generate. Hub: `florence-community/Florence-2-large` rev `4271c66b88cdbc05735372ec13b2360108de5317`.
 - **h_fov:** slider **and** typed number, default **70**, range **10–170**, step **0.5** (`MickmumpitzPanoWarp` `INPUT_TYPES`). **Live Warp preview** on the 2:1 pane: green `#00ff00` ERP canvas, curved FOV window, `+` crosshair, bar `2048 × 1024` (locked 2026-08-31). That 70 is widget index 3 on `MickmumpitzPanoWarp` titled “Photo on ERP canvas (set h_fov)” (graph title — keep). **Other warp slots stay unnamed** until `INPUT_TYPES` is read from [ComfyUI-Mickmumpitz-Nodes](https://github.com/mickmumpitz/ComfyUI-Mickmumpitz-Nodes) at graph pin `e3df7e1199c8170335fe8c7d3dc0ecf1839d2784`. Raw widget list to copy, do not invent labels: `[2048, 1024, 1, 70, 0, 0, 0, 2, 10, 0.55, "#000000"]` (width/height also linked from ResolutionPicker).
+- **Detect (2026-11-11):** a button beside h_fov. It reads the lens focal length from the photo EXIF when that matches the pixel shape. A crop, or a photo with no lens tags, falls back to a MoGe v1 guess, which can be about 10° off on a straight-on facade. The status line names which source filled the box.
+- **Photo paste (2026-11-11):** after the shared 8K tail on 2D Images, the original photo is pasted back inside the h_fov footprint. The seam is a 128 px cosine feather through a 5-level Laplacian blend (`engine/pano/photo_paste.py`). 360 Images and text clear that paste. The pre-paste 8K file is `_work/pano_before_paste.png`.
 - Generate resolution: **2048×1024** (ResolutionPicker “Pano resolution (keep 2:1)”). Final: **8192×4096** (second ResolutionPicker + `ImageScale` lanczos).
 - ComfyUI required a dummy INPUT IMAGE even in text mode. **Votion must not.**
 
@@ -172,7 +174,8 @@ Florence-2 is a **separate** short job (`engine.workers.caption`) that only fill
 - [ ] Typed surroundings also end with `no peoples, no cars` in `prompt.txt`.
 - [ ] Left 2:1 **Fit / 100%** and a draggable split; right 360 tilts and looks spherical.
 - [ ] After Generate, switching chips away and back still shows the 8K ERP (not the green warp).
-- [ ] **h_fov** accepts a typed value as well as the slider (10–170, step 0.5).
+- [ ] **h_fov** accepts a typed value as well as the slider (10–170, step 0.5). **Detect** fills it from EXIF, or from MoGe when EXIF is missing or the photo was cropped.
+- [ ] **2D Images:** after the 8K tail, the original photo is pasted back with a feathered seam. Pixels outside that footprint stay the generated panorama.
 - [ ] **2D Images** and **text:** final size **measured** (expect 8192×4096) and recorded in `env_report` / scene log.
 - [ ] Same 8K file is what Phase 3 HiRes uses as geometry pano **and** texture.
 

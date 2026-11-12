@@ -78,7 +78,7 @@
                 <input class="f-in hfov-num" id="hfov-val" type="number" min="10" max="170" step="0.5" value="70" />
               </div>
               <input class="f-range" id="hfov" type="range" min="10" max="170" step="0.5" value="70" />
-              <p class="f-hint">Type or drag. <code>MickmumpitzPanoWarp</code> INPUT_TYPES <code>10–170</code>, step <code>0.5</code>. Default 70.</p>
+              <p class="f-hint">Type or drag. <code>MickmumpitzPanoWarp</code> INPUT_TYPES <code>10–170</code>, step <code>0.5</code>. Default 70. <strong>Detect</strong> reads the lens EXIF, or a MoGe guess when the photo has no lens tags or was cropped.</p>
               <label class="f-lab">Surroundings</label>
               <div class="f-radio" id="surr-radios">
                 <label><input type="radio" name="surr" value="type" checked /> Type a sentence</label>
@@ -273,6 +273,7 @@
       <p>
         UltimateSDUpscale node 77 widgets copied as-is. If unportable: MVP = Real-ESRGAN 2× + lanczos and <strong>label</strong> the mismatch.
         Upscaler prompt is a visible box, default <code>High resolution photography</code>, user may edit.
+        On 2D Images, after this tail, the original photo is pasted back inside the h_fov footprint with a feathered seam (2026-11-11). 360 Images and text do not paste.
       </p>
     </section>
 
@@ -286,7 +287,8 @@
         <li>Original 2D region recognizable; outpaint string unchanged; seam not a visible cut.</li>
         <li>Florence-2 fills the surroundings box and appends <code>no peoples, no cars</code>; user can edit; empty manual box blocks Generate.</li>
         <li>Left 2:1 <strong>Fit / 100%</strong> and a draggable split; right 360 tilts and looks spherical.</li>
-        <li><strong>h_fov</strong> accepts a typed value as well as the slider (10–170, step 0.5).</li>
+        <li><strong>h_fov</strong> accepts a typed value as well as the slider (10–170, step 0.5). <strong>Detect</strong> fills it from EXIF, or from MoGe when EXIF is missing or the photo was cropped.</li>
+        <li><strong>2D Images:</strong> after the 8K tail, the original photo is pasted back with a feathered seam. Pixels outside that footprint stay the generated panorama.</li>
         <li><strong>2D Images</strong> and <strong>text:</strong> final size measured (expect 8192×4096).</li>
       </ul>
       <p>Do not shell out to ComfyUI. Do not invent Warp names or strip the trigger / outpaint strings / <code>no peoples, no cars</code>. Do not generate at 8K natively in Krea. Do not skip seam roll.</p>

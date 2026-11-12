@@ -48,11 +48,11 @@
           MoGe <code>pointcloud.ply</code> is not the Unreal asset. V1 Luma/NanoGS superseded.</li>
       </ul>
       <table>
-        <thead><tr><th>Profile</th><th>WAN</th><th>HiRes</th><th>Rails</th></tr></thead>
+        <thead><tr><th>Profile</th><th>Generator</th><th>HiRes</th><th>Rails</th></tr></thead>
         <tbody>
-          <tr><td>Quality</td><td>14B fp8 720p + LightX2V</td><td>8K geometry</td><td>4</td></tr>
-          <tr><td>Fast</td><td>GGUF Q4 or Matrix-3D 5B</td><td>8K optional</td><td>2–4</td></tr>
-          <tr><td>Scout</td><td>5B or skip WAN</td><td>skip</td><td>1</td></tr>
+          <tr><td>Quality</td><td>WorldStereo memory-DMD FP8</td><td>Pinhole, 2× keyframe</td><td>4</td></tr>
+          <tr><td>Fast</td><td>Not in this build</td><td>—</td><td>—</td></tr>
+          <tr><td>Scout</td><td>Not in this build</td><td>—</td><td>—</td></tr>
         </tbody>
       </table>
     </section>
@@ -64,7 +64,7 @@
         <div class="pipe-arr">→</div>
         <div class="pipe-node"><b>Start Menu</b>Launch · Download models · Setup (venv + driver check)</div>
         <div class="pipe-arr">→</div>
-        <div class="pipe-node out"><b>Install dir</b>User-selected folder (default <code>D:\Votion3DGS</code>). Hub cache <code>.hf_cache</code> + <code>models</code> live there. Also test a path with spaces. Do not embed WAN 14B.</div>
+        <div class="pipe-node out"><b>Install dir</b>User-selected folder (default <code>D:\Votion3DGS</code>). Hub cache <code>.hf_cache</code> + <code>models</code> live there. Also test a path with spaces. Weights download after install.</div>
       </div>
     </section>
 
@@ -216,8 +216,8 @@
             <label class="f-lab">Profile (P4 unlocks Fast/Scout)</label>
             <select class="f-sel" disabled>
               <option selected>Quality · 14B + 8K · 4 rails</option>
-              <option>Fast · Matrix-3D 5B · 2–4 rails</option>
-              <option>Scout · skip WAN/HiRes · 1 rail</option>
+              <option>Fast · not in this build</option>
+              <option>Scout · not in this build</option>
             </select>
             <label class="f-lab">config.json</label>
             <p class="f-hint">GPU index, ComfyUI root, Brush/LichtFeld/Postshot paths, last scene, profile, last splat strategy (splat3 / mcmc). No HF tokens.</p>
@@ -234,7 +234,7 @@
           2D Images (default) or 360 / text → 8K ERP → Compute geometry → rails → Generate → splat.ply.
           Ostris Edit is native READY. h_fov 10–170, type or drag, default 70. Surroundings always end with no peoples, no cars.
           Left 2:1 Fit / 100% + draggable split. Right 360 is spherical (yaw + pitch). text keeps the trigger prefix.
-          After 2D Images, prompt.txt = outpaint instruction + surroundings. WAN prompt must match the pano.
+          After 2D Images, the original photo is pasted back. The Generate prompt must describe the panorama.
           Preview the mesh flight. Four rails usually enough. Do not skip 8K. Extra rails do not fix glass.
           In-app train: LiteGS (default) or MCMC Compact. Brush: Directory → outputs/&lt;scene&gt; → Start. Unreal: UE 5.5 + MLSLabsRenderer import splat.ply (full SH).
         </div></details>
@@ -253,7 +253,7 @@
         <li>Fresh Win11 + 3090: Setup → Download Quality models → Launch → <strong>2D Images (or 360 Images / text)</strong> → 8K ERP → rails → Generate → <code>splat.ply</code> without WSL or ComfyUI running. Ostris is READY for 2D Images.</li>
         <li>Splat page: LiteGS (default) and MCMC Compact both train to full-SH <code>splat.ply</code>; switching controller requires Retrain. Setup’s LiteGS build passes on the fresh machine.</li>
         <li>Fast/Scout selectable; Scout skips HiRes.</li>
-        <li>Kill mid-WAN: cancel works; scene reloadable.</li>
+        <li>Stop during Generate: the job ends and the scene reloads.</li>
         <li>Open-in-Explorer works even if Brush is not installed.</li>
         <li>Installer is small relative to the model pack.</li>
         <li>After Download models, Hub cache is under the chosen install dir (<code>.hf_cache</code>), not <code>C:\Users\&lt;user&gt;\.cache\huggingface</code>.</li>
@@ -263,7 +263,7 @@
 
     <section>
       <h2><span class="num">07</span>P5 is not this phase</h2>
-      <p>5B as Fast default, SeedVR2 experiment only (video: slow, little gain vs 8K reproject), macOS, Matrix-3D opt reconstruction — see the <a href="Votion_3DGS_2.0_Index.html#p5">Index appendix</a>.</p>
+      <p>Fast and Scout are not in this build. SeedVR is not the sharpness path. See the <a href="Votion_3DGS_2.0_Index.html#p5">Index appendix</a>.</p>
     </section>
     <footer>Votion 3DGS 2.0 · Phase 4 · <a href="Votion_3DGS_2.0_Phase4.md">markdown</a></footer>
   </div>

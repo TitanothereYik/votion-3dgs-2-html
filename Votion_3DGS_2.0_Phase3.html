@@ -13,9 +13,8 @@
   <div class="wrap">
     <header class="hero">
       <p class="eyebrow">Phase 3 · Depends on P2 splat plumbing + P1 8K pano</p>
-      <h1>WAN, 8K reprojection, multi-rail SfM</h1>
-      <p class="tagline">Native port of the Mickmumpitz dataset graph. Four drones, 720p hole-fill, 8K geometry composite. There is no camera count that produces a perfect scan.</p>
-      <p class="tagline">2026-11-12: Quality generation is WorldStereo memory-DMD, and panorama depth is one MoGe-2 cache. The WAN chrome below is the old graph, kept so the copied widget numbers stay visible.</p>
+      <h1>WorldStereo, HiRes, multi-rail dataset</h1>
+      <p class="tagline">Four rails, one MoGe-2 depth, a WorldStereo joint sample, then pinhole HiRes. Wan 2.1, Matrix-3D, and LightX2V are not in this build.</p>
     </header>
     <nav class="phases">
       <a href="Votion_3DGS_2.0_Index.html">Index</a>
@@ -29,57 +28,25 @@
       <a href="#locked">01 Locked</a>
       <a href="#cameras">02 How many cameras</a>
       <a href="#geo-ui">03 Geometry UI</a>
-      <a href="#wan">04 WAN hole-fill</a>
+      <a href="#wan">04 WorldStereo</a>
       <a href="#gen-ui">05 Generate UI</a>
       <a href="#recon-ui">06 Reconstruct UI</a>
       <a href="#hires">07 HiRes</a>
       <a href="#accept">08 Acceptance</a>
     </nav>
 
-    <figure class="fig contain">
-      <img src="media/matrix3d-arxiv-overview.png" alt="Matrix-3D paper overview of panoramic video generation and 3D lift" />
-      <figcaption>
-        Paper overview of the dataset idea Votion ports natively.
-        Source: <a href="https://arxiv.org/abs/2508.08086">Matrix-3D arXiv:2508.08086</a>
-      </figcaption>
-    </figure>
-
     <section id="locked">
       <h2><span class="num">01</span>Locked facts</h2>
-      <p>
-        Source graph: <code>docs/260825_MICKMUMPITZ_3DGS-Dataset-Creator_1-0_SMPL.json</code>
-        (<code>last_node</code> 175, 77 nodes). Groups: SETUP, LOAD DIFFUSION MODELS, CAMERA PLOT 1–4, WAN INPAINT ×4, ADD TO DATASET.
-      </p>
       <ul>
-        <li>Quality: WAN 2.1 I2V <strong>14B fp8 720p</strong> + LightX2V on RTX 3090 24GB. GGUF loader in the graph is for ≤16 GB cards, not this GPU.</li>
-        <li>LoRA order from JSON links 1 → 2 → 4: UNET fp8 → <strong>pano LoRA 0.98</strong> → <strong>LightX2V 1.0</strong> → <code>ModelSamplingSD3</code> shift <strong>5</strong>.</li>
-        <li>Wan Conditioning widgets <code>[1440, 720, 81, 'black', False]</code> = width, height, length, <code>hole_fill</code>, <code>invert_mask</code>.</li>
-        <li>KSampler stored steps widget is 4; <strong>linked STEPS = 8</strong> (PrimitiveInt id 55). Seed 0, cfg 1, <code>euler</code>, <code>normal</code>, denoise 1.</li>
-        <li>HiRes: <code>base_mode=geometry</code>, <code>output_width=8192</code>, frames <code>0-80/2</code> (graph + node default). <code>0-15,16-/8</code> is an optional preset, not a silent substitute.</li>
-        <li>Four Plot Camera nodes; optional 5th via Add-to-dataset. Each rail owns <code>rail_json</code>.</li>
-        <li>Empty <code>prompt.txt</code> → block WAN. Graph generic positive is not a silent replacement for the scene.</li>
-        <li>SageAttention / Triton-Windows: try; continue if missing. If Sage is on, apply the black-frame patch (vendor pin).</li>
-        <li>Do not use SeedVR as the sharpness path. Sharpness is 8K geometry composite. Do not shell out to ComfyUI.</li>
-        <li>Product never loads <code>ref-hires-mask-split.png</code> (HTML dummy only). Live Generate split: left validity mask, right WAN fill (including low-res). Click a rail number to preview.</li>
-        <li>WAN then <strong>Confirm WAN → HiRes</strong>. HiRes does not auto-start. Reconstruct: Keep / Ditch / Re-gen WAN. After Reconstruct finishes, always the newest kept-rail sparse.</li>
+        <li>Quality generator: WorldStereo memory-DMD FP8 on one RTX 3090. Not Wan 2.1 I2V, not Matrix-3D, not LightX2V.</li>
+        <li>Default mode is Joint: 20 frames per kept rail, samples of 20 that share memory. Per rail is 21 front frames each. Seed 1024.</li>
+        <li>Depth is one MoGe-2 cache. Geometry, Plot Camera, the guide, and HiRes all read it. A stale rail must be re-plotted before Generate.</li>
+        <li>The guide is a mesh of that depth, textured with the 8K panorama. The floor is filled where the panorama saw it. Thin mask streaks are removed and feathered.</li>
+        <li>HiRes all is a separate click. It composites the 8K panorama, the shared layer, then the WorldStereo frame. <code>4x-UltraSharp</code> fills only the holes.</li>
+        <li>Four straight rails, optional 5th. Empty prompt blocks Generate.</li>
+        <li>Do not use SeedVR as the sharpness path. Do not shell out to ComfyUI.</li>
+        <li>Preview is render, mask (white = empty), and keyframe. Reconstruct: Keep / Ditch / Re-gen. The dataset is known-pose COLMAP.</li>
       </ul>
-      <div class="callout warn">
-        Native WAN i2v is the largest P3 unknown. Port Diffusers WanPipeline or Matrix-3D video code on Windows (their README is Linux-tested).
-      </div>
-      <div class="fig-grid">
-        <figure class="fig">
-          <img src="media/wan-i2v.png" alt="Wan 2.1 image-to-video result grid" />
-          <figcaption><a href="https://github.com/Wan-Video/Wan2.1">Wan 2.1</a> I2V — 720p cap</figcaption>
-        </figure>
-        <figure class="fig">
-          <img src="media/lightx2v.png" alt="LightX2V step-distill method figure" />
-          <figcaption><a href="https://github.com/ModelTC/LightX2V">LightX2V</a> — why steps = 8</figcaption>
-        </figure>
-        <figure class="fig">
-          <img src="media/wan-arch.jpg" alt="Wan video DiT architecture diagram" />
-          <figcaption>Wan DiT architecture. Same repo.</figcaption>
-        </figure>
-      </div>
     </section>
 
     <section id="cameras">
@@ -93,11 +60,10 @@
         (garden example: 0.85 at frame 0 → 0.49 at frame 80).
       </p>
       <figure class="fig">
-        <img src="media/matrix3d-dataset.png" alt="Matrix-Pano synthetic dataset samples — many 360 drone paths" />
+        <img src="media/moge-pano-pipeline.png" alt="Panorama split into views for depth, then merged" />
         <figcaption>
-          Matrix-3D trained the pano LoRA by flying a 360° drone through 500 UE5 worlds.
-          Votion reuses that LoRA; we do not re-simulate Unreal.
-          Source: <a href="https://matrix-3d.github.io/">matrix-3d.github.io</a>
+          One MoGe-2 depth for every rail. Extra rails buy volume, not a different depth.
+          Source: <a href="https://github.com/microsoft/MoGe">microsoft/MoGe</a>
         </figcaption>
       </figure>
       <table>
@@ -259,7 +225,7 @@
         </figure>
         <figure class="fig contain">
           <img src="media/matrix3d-mesh.png" alt="Mesh render used as video-generation condition" />
-          <figcaption>Plot Camera control (holes still black). <a href="https://arxiv.org/abs/2508.08086">Matrix-3D</a></figcaption>
+          <figcaption>Plot Camera mesh flight. Holes stay empty until WorldStereo.</figcaption>
         </figure>
         <figure class="fig">
           <img src="media/polyhaven-venice.png" alt="Equirectangular 360 environment" />
@@ -269,65 +235,46 @@
     </section>
 
     <section id="wan">
-      <h2><span class="num">04</span>How WAN fills missing area</h2>
+      <h2><span class="num">04</span>How WorldStereo fills missing area</h2>
       <p>
-        One panorama cannot constrain a 3D scene. The pack invents the missing viewpoints, then reconstructs them with classical SfM.
+        One panorama cannot constrain a 3D scene. The mesh guide leaves holes where the panorama never looked. WorldStereo fills those holes. Known-pose COLMAP writes the dataset. Wan 2.1 I2V, Matrix-3D, and LightX2V are not used.
       </p>
       <div class="pipe">
-        <div class="pipe-node"><b>Control</b>mesh reproject · black = unseen · mask white=known</div>
+        <div class="pipe-node"><b>Guide</b>MoGe-2 mesh · white mask = empty</div>
         <div class="pipe-arr">→</div>
-        <div class="pipe-node"><b>Mask I2V</b>1440×720 · 81 · hole_fill black</div>
+        <div class="pipe-node"><b>WorldStereo</b>joint sample · memory across rails</div>
         <div class="pipe-arr">→</div>
-        <div class="pipe-node"><b>Sample</b>8 steps · cfg 1 · euler · pano LoRA then LightX2V</div>
+        <div class="pipe-node"><b>HiRes</b>8K pano, shared layer, then the frame</div>
         <div class="pipe-arr">→</div>
-        <div class="pipe-node"><b>HiRes geo</b>8K pano back · WAN only in holes</div>
-        <div class="pipe-arr">→</div>
-        <div class="pipe-node out"><b>SfM</b>dual-res COLMAP pinholes</div>
+        <div class="pipe-node out"><b>Dataset</b>known-pose COLMAP</div>
       </div>
       <figure class="fig contain">
         <img src="media/matrix3d-mesh.png" alt="Mesh-conditioned camera path with disocclusions" />
         <figcaption>
-          Step 1: mesh flight. Holes are the assignment WAN gets — not a defect to hide.
-          Flying through a wall is allowed; Wan invents a fitting far side (video). Preview so that is intentional.
+          Mesh flight first. Holes are where the panorama never looked. WorldStereo fills them. Preview the flight before Generate.
         </figcaption>
       </figure>
       <div class="fig-grid">
-        <figure class="fig">
-          <img src="media/wan-i2v.png" alt="Wan 2.1 filling motion from a still" />
-          <figcaption>Step 3: Wan 2.1 I2V. Stays 1440×720.</figcaption>
-        </figure>
         <figure class="fig contain">
           <img src="media/matrix3d-pano-vs-pers.png" alt="Panoramic versus perspective coverage" />
-          <figcaption>Why the clip is ERP, not perspective.</figcaption>
+          <figcaption>The panorama is equirectangular. WorldStereo keyframes are pinholes cut from the guide.</figcaption>
         </figure>
         <figure class="fig">
           <img src="media/matrix3d-scene-a.png" alt="Explorable scene after panoramic video lift" />
           <figcaption>After train: explorable 3DGS, specular still view-dependent (video pond).</figcaption>
         </figure>
       </div>
-      <h3>Prompts</h3>
+      <h3>Prompt</h3>
       <p>
-        SplatKit README: the prompt must describe the <em>actual</em> panorama — a wrong prompt visibly degrades the holes.
-        Product: <strong>positive = <code>prompt.txt</code></strong>. Empty → block Generate.
-        Graph generic (id 10) is an optional style suffix, not a silent replacement:
+        The prompt must describe the actual panorama. An empty prompt blocks Generate.
       </p>
-      <pre>A high quality panoramic video of the scene, photorealistic, very clear, smooth camera movement, ultra-detailed, high resolution. Panorama.</pre>
-      <p>Negative (id 11), copy as-is:</p>
-      <pre>The video is not of a high quality, it has a low resolution. Distortion. strange artifacts.</pre>
-      <h3>What the mask means after HiRes</h3>
+      <h3>What the mask means</h3>
       <div class="gate-legend">
-        <span><i class="sw w"></i>white = real 8K photograph</span>
-        <span><i class="sw k"></i>black = WAN fill (5.7× stretch of 720p)</span>
+        <span><i class="sw w"></i>white = empty, WorldStereo should fill it</span>
+        <span><i class="sw k"></i>black = the guide already has a surface</span>
       </div>
-      <figure class="mask-split">
-        <img src="media/ref-hires-mask-split.png" alt="Split view: HiRes binary gate mask on the left, source 8K equirectangular panorama on the right" />
-        <figcaption>HTML dummy only — product Generate never loads this file. Left = <code>gate_masks</code> after HiRes (white = 8K photograph, black = WAN fill). Right = the 8K pano those whites were reprojected from.</figcaption>
-      </figure>
       <p>
-        Coverage is the white fraction. Typical geometry-mode at 8192 (SplatKit bathroom):
-        forward 0.85/0.73, orbit 0.84/0.71, up 0.91/0.86.
-        Coverage ≈ 0 usually means <code>output_width</code> is too small for the 8K source.
-        The hole region measures ~1.7× softer than the source region — coverage is the lever, not a bigger video model.
+        HiRes keeps the 8K panorama where the mesh can answer, and uses <code>4x-UltraSharp</code> only in the holes.
       </p>
     </section>
 
@@ -498,56 +445,42 @@
         </div>
       </div>
       <div class="callout good">
-        Training images are <strong>gnomonic 90° SIMPLE_PINHOLE</strong> cube faces.
-        SphereSfM still matches ERP as <code>SPHERE</code>; Votion then remaps
-        <code>sphere_cubic_reprojecer</code> PNGs so plaza lines stay straight (Index #57, locked 2026-09-08).
-        alpine_01: binary face ~31 % line sag vs ~0.2 % gnomonic. Do not un-bend <code>points3D</code>.
-        Reconstruct, then <strong>Retrain</strong> (do not Continue a checkpoint fitted to the old faces).
+        Training images are the WorldStereo pinholes plus six gnomonic 90° faces of the 8K panorama.
+        Known-pose COLMAP writes them. SphereSfM is not used.
       </div>
     </section>
 
     <section id="hires">
-      <h2><span class="num">07</span>HiRes (copy, do not “improve”)</h2>
+      <h2><span class="num">07</span>HiRes</h2>
       <p>
-        WAN repaints the whole frame. Fine for video; expensive for a splat (views disagree → blur).
-        <code>geometry</code> mode: the reprojected 8K <em>is</em> the image wherever the mesh can answer.
-        <code>wan</code> mode is for watching video (low-frequency drift) — not the splat default.
+        HiRes all does not repaint the whole frame. Where the MoGe-2 mesh can see the 8K panorama, those pixels stay.
+        <code>4x-UltraSharp</code> is used only in the holes, after the shared layer.
       </p>
       <ul>
-        <li><code>output_width</code> must equal source pano width (8192). Smaller minifies 8K away.</li>
-        <li><code>panorama_geometry</code> must be the same pano Plot Camera / WAN saw. A re-upscale collapses coverage (0.51 → 0.04 measured).</li>
-        <li>Use each Plot Camera’s <code>rail_json</code>, not a shared <code>condition_dir</code>.</li>
-        <li>SMPL frames spec <code>0-80/2</code> (41 frames). Optional preset <code>0-15,16-/8</code> (25 frames, budget near origin). <code>all</code> is 81 and ~10× SfM matching work.</li>
-        <li>Graph <code>debug_save='all'</code> is disk-heavy; product maps it to a Debug checkbox default <strong>off</strong>.</li>
-        <li>Plot Camera <code>moge_level=9</code>, HiRes <code>moge_level=6</code> — copy both; do not silently unify.</li>
-        <li>Graph <code>tone_mode='off'</code>. SplatKit default is <code>luma</code>. Copy <code>off</code>.</li>
-        <li>If Phase 1 pano is not 8192 wide: refuse Quality HiRes.</li>
+        <li>The panorama must be the same file Geometry and Plot Camera used.</li>
+        <li>Depth comes from <code>outputs/&lt;scene&gt;/depth</code>, not a second MoGe pass.</li>
+        <li>If the panorama is not 8192 wide, Quality HiRes refuses.</li>
       </ul>
       <div class="fig-grid">
         <figure class="fig">
-          <img src="media/matrix3d-scene-b.png" alt="Second explorable Matrix-3D scene still" />
-          <figcaption>Quality dataset goal: roam, keep reflections. <a href="https://matrix-3d.github.io/">Matrix-3D</a></figcaption>
-        </figure>
-        <figure class="fig">
           <img src="media/colmap-sparse.webp" alt="COLMAP sparse reconstruction" />
-          <figcaption>Dual-res SphereSfM → gnomonic pinhole cube faces. <a href="https://colmap.github.io/">COLMAP</a></figcaption>
+          <figcaption>Known-pose COLMAP. <a href="https://colmap.github.io/">COLMAP</a></figcaption>
         </figure>
         <figure class="fig">
-          <img src="media/lightx2v.png" alt="LightX2V distillation" />
-          <figcaption>Hole-fill is 8 distilled steps, then 4x-UltraSharp on WAN only.</figcaption>
+          <img src="media/moge-overview.png" alt="MoGe geometry" />
+          <figcaption>MoGe-2 depth is the mesh HiRes reprojects.</figcaption>
         </figure>
       </div>
-      <h3>Models (graph notes)</h3>
+      <h3>Models in this build</h3>
       <table>
         <thead><tr><th>File</th><th>Role</th></tr></thead>
         <tbody>
-          <tr><td><code>Wan2_1-I2V-14B-720P_fp8_e4m3fn.safetensors</code></td><td>Quality UNET</td></tr>
-          <tr><td><code>pano_video_gen_720p_comfy.safetensors</code></td><td>Matrix-3D pano LoRA (Comfy keys)</td></tr>
-          <tr><td><code>lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank64_bf16.safetensors</code></td><td>Distill strength 1</td></tr>
-          <tr><td><code>umt5_xxl_fp8_e4m3fn_scaled.safetensors</code></td><td>CLIP type <code>wan</code></td></tr>
-          <tr><td><code>clip_vision_h.safetensors</code></td><td>CLIP-Vision, encode <code>center</code></td></tr>
-          <tr><td><code>wan_2.1_vae.safetensors</code></td><td>VAE</td></tr>
-          <tr><td><code>4x-UltraSharp.pth</code></td><td>Hole-fill upscaler</td></tr>
+          <tr><td>WorldStereo memory-DMD FP8</td><td>Generate</td></tr>
+          <tr><td><code>dinov2-base</code></td><td>WorldStereo encoder</td></tr>
+          <tr><td><code>umt5_xxl_fp8_e4m3fn_scaled.safetensors</code></td><td>WorldStereo text encoder</td></tr>
+          <tr><td><code>clip_vision_h.safetensors</code></td><td>WorldStereo vision encoder</td></tr>
+          <tr><td>MoGe-2 <code>Ruicheng/moge-2-vitl-normal</code></td><td>Scene depth</td></tr>
+          <tr><td><code>4x-UltraSharp.pth</code></td><td>HiRes holes only</td></tr>
         </tbody>
       </table>
     </section>
@@ -555,25 +488,22 @@
     <section id="accept">
       <h2><span class="num">08</span>Acceptance · risks · do not</h2>
       <ul class="check">
-        <li>Four rails, sequential WAN, four <code>rail_json</code> files that do not overwrite.</li>
-        <li>Optional 5th Add-rail via <code>SphereSfMAddToDatasetDualRes</code> without colliding.</li>
-        <li>WAN resolution measured and recorded in <code>env_report</code> (expect 1440×720 ERP).</li>
-        <li>Empty <code>prompt.txt</code> blocks Generate.</li>
-        <li>HiRes frames 8192×4096; mean coverage logged; not 0.0. Product Generate never loads <code>ref-hires-mask-split.png</code>.</li>
-        <li>Live split is mask | WAN; click a rail to preview. Generate WAN does not start HiRes.</li>
-        <li>Reconstruct Ditch excludes a rail; Re-gen WAN targets one rail; after Reconstruct finishes, newest kept-rail sparse.</li>
-        <li>COLMAP <code>images/</code> are <strong>gnomonic</strong> pinhole cube faces, not equirect and not the bowed <code>sphere_cubic_reprojecer</code> sample.</li>
-        <li>In-app train with 3M cap after WAN process has exited, no OOM on 3090.</li>
-        <li>SageAttention missing → log warning, job completes. If Sage is on: no all-black Wan frames.</li>
+        <li>Four rails, each with its own <code>rails/rail_XX.json</code>.</li>
+        <li>Optional 5th rail. Rail 1 stays.</li>
+        <li>Empty prompt blocks Generate.</li>
+        <li>Preview is render, mask, and keyframe. Generate does not start HiRes.</li>
+        <li>Reconstruct Ditch excludes a rail. Re-gen targets one rail. The newest dataset is shown when loading finishes.</li>
+        <li>COLMAP images are WorldStereo pinholes plus six gnomonic faces of the 8K panorama.</li>
+        <li>Train starts after WorldStereo has exited, Gaussian budget about 3M, on one 3090.</li>
         <li>Suggest paths fills four distinct archetypes, all starting at the star.</li>
       </ul>
       <ul>
-        <li>14B fp8 + 24GB: LightX2V + fp8 file; unload before HiRes (~11 GB peak in SplatKit doc on a 5090).</li>
+        <li>One 3090: finish WorldStereo before HiRes all.</li>
         <li>Do not load Skywork <code>.ckpt</code> without <code>convert_pano_lora.py</code>.</li>
-        <li>Do not stretch WAN to 8K and skip composite. Do not use SeedVR instead of HiRes.</li>
+        <li>Do not skip HiRes and treat the WorldStereo frame as the 8K image. Do not use SeedVR instead of HiRes.</li>
         <li>Do not enable <code>base_mode=wan</code> as splat default. Do not run PanoLRM.</li>
         <li>Do not claim extra rails fix glass. Do not default frames to <code>0-15,16-/8</code> while the graph is <code>0-80/2</code>.</li>
-        <li>Do not auto-start HiRes after WAN. Do not load the dummy split PNG in product UI.</li>
+        <li>Do not auto-start HiRes after Generate.</li>
         <li>Do not run vanilla COLMAP pinhole on raw ERP. Do not un-bend <code>points3D</code> to flatten a bowed splat.</li>
       </ul>
     </section>

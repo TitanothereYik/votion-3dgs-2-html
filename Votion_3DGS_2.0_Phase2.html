@@ -14,7 +14,7 @@
     <header class="hero">
       <p class="eyebrow">Phase 2 · Depends on P1 pano · Unlocks P3</p>
       <h1>Pano → first splat</h1>
-      <p class="tagline">Compute geometry, plot one drone rail, SphereSfM, <code>splat.ply</code>. WAN hole-fill waits for Phase 3.</p>
+      <p class="tagline">MoGe-2 depth, plot the rails, known-pose COLMAP, <code>splat.ply</code>. WorldStereo is Phase 3. Wan 2.1 is not used.</p>
     </header>
     <nav class="phases">
       <a href="Votion_3DGS_2.0_Index.html">Index</a>
@@ -45,7 +45,7 @@
       <p>
         P2 implements SETUP + <strong>CAMERA PLOT 1</strong> from
         <code>docs/260825_MICKMUMPITZ_3DGS-Dataset-Creator_1-0_SMPL.json</code>.
-        CAMERA 2–4, WAN, and HiRes stay in Phase 3.
+        Rails 2–4, WorldStereo, and HiRes stay in Phase 3.
       </p>
       <div class="pipe">
         <div class="pipe-node"><b>P1</b><code>pano.png</code></div>
@@ -71,7 +71,7 @@
         </figure>
         <figure class="fig">
           <img src="media/colmap-sparse.webp" alt="COLMAP sparse reconstruction example" />
-          <figcaption>SphereSfM sparse cloud (orbit this in-app). <a href="https://colmap.github.io/">colmap.github.io</a></figcaption>
+          <figcaption>Known-pose COLMAP cloud (orbit this in-app). <a href="https://colmap.github.io/">colmap.github.io</a></figcaption>
         </figure>
       </div>
     </section>
@@ -266,13 +266,13 @@
           <a href="Votion_3DGS_2.0_Phase4.html">Splat</a>
         </div>
         <div class="job-strip">
-          <span class="job-cap">sfm · SphereSfM</span>
+          <span class="job-cap">known-pose COLMAP</span>
           <div class="job-bar"><i style="width:58%"></i></div>
           <span class="job-pct">58%</span>
         </div>
         <div class="desk-body">
           <div class="desk-rail">
-            <label class="f-lab">SphereSfM</label>
+            <label class="f-lab">Known-pose COLMAP</label>
             <button class="f-btn pri" type="button">Reconstruct</button>
             <div class="stat-grid">
               <div><b>num_images</b>—</div>
@@ -292,7 +292,7 @@
         <details class="desk-log-draw"><summary>Log</summary><div class="desk-log"><b>STATUS // reconstruct</b><br />colmap/sparse/0 after success.</div></details>
         <details class="desk-log-draw"><summary>Help</summary><div class="desk-log">
           <b>RECONSTRUCT</b><br />
-          SphereSfM writes COLMAP pinholes (<code>images/</code> + <code>sparse/0</code>), not WorldFM <code>transforms.json</code>.
+          Known-pose COLMAP writes pinholes (<code>images/</code> + <code>sparse/0</code>) from the WorldStereo cameras. SphereSfM is not used.
           Faces are gnomonic 90° (Votion remaps sphere_cubic_reprojecer). Viewport is the sparse cloud, not cube-face stills.
           P2 is a single trajectory. Dual-res HiRes waits for Phase 3.
         </div></details>

@@ -43,7 +43,7 @@ These are the only product facts treated as **locked**. Everything else in the p
 10. **Product name:** Votion 3DGS
 11. **Trainer (amended 2026-10-30, #61):** in-app **LiteGS** backend → `splat.ply`. The dataset is known-pose COLMAP under `worldstereo/dataset` (WorldStereo pinholes plus six gnomonic faces of the 8K pano). Train writes `worldstereo/train`. User picks the density controller **LiteGS** (default) or **MCMC Compact** on the Splat page before Train / Retrain. LiteGS = vendored [MooreThreads/LiteGS](https://github.com/MooreThreads/LiteGS) raster + `DensityControllerTamingGS` with the UI Gaussian budget as `target_primitives`. MCMC Compact = Jung & Hong, *MCMC-Guided Compact 3DGS* (SIGGRAPH Asia 2025 TC, section 3.1 only: Metropolis-Hastings adaptive split threshold + stochastic importance prune). Both share the same Gaussian raster (opacity, anisotropic scale, rotation, SH). ADC / Splat Density is not offered. Continue uses the checkpoint’s controller; switching LiteGS ↔ MCMC Compact requires Retrain. Brush / LichtFeld / Postshot stay “Open in…”. The former gsplat Splat3 / MCMC trainer (locked 2026-09-01) is retired; see 48–56. Live train viewport, Stop, uncapped max steps, and Star camera: see 41–47 (locked 2026-09-05).
 12. **Unreal:** Engine **5.5** + **MLSLabsRenderer** (interim) for `splat.ply` playback — [GitHub](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE) · [Fab](https://www.fab.com/listings/f91b57cc-958d-40dd-a455-2535bf00e588). Hold an **update slot** for a better UE renderer later.
-13. **Pano inputs (2.0):** three first-class modes on Phase 1 — **(1) 2D Images → ERP (default)**, **(2) 360 Images**, **(3) text → ERP**. Happy path is (1) then Phase 2 splat then Phase 3 WAN.
+13. **Pano inputs (2.0):** three first-class modes on Phase 1 — **(1) 2D Images → ERP (default)**, **(2) 360 Images**, **(3) text → ERP**. Happy path is (1), then MoGe-2 depth, then WorldStereo.
 14. **2D Images surroundings:** user types a sentence **or** local **Florence-2** captions the 2D image (editable). Always append **`no peoples, no cars`** at the end (typed or caption). Empty box still blocks Generate. Florence Hub (measured first successful P1 caption): `florence-community/Florence-2-large` rev `4271c66b88cdbc05735372ec13b2360108de5317`.
 15. **Ostris:** native port **READY** (2026-09-03, pack pin `7756566160c4a1b24bb1bd9f0ff3ced1a83d7547`). 2D Images Generate is enabled. Do **not** shell out to ComfyUI.
 16. **Chrome:** V1 left rail + right viewport + six P0 names as stage chips. Chips **navigate** the six pages. A **job strip** (caption + bar) sits under the chips on every page. **Log** and **Help** are matching bottom drawers (not a Home accordion, not a seventh page).
@@ -150,13 +150,13 @@ These are the only product facts treated as **locked**. Everything else in the p
   → Optional Open in Brush / LichtFeld / Postshot
 ```
 
-**Hard rules from the Mickmumpitz video** ([transcript](https://www.youtube.com/watch?v=eJuYBNrD8HI), not inferred):
+**Hard rules:**
 
-- WAN is capped at 720p / 1440×720 ERP. Structure from Wan is fine; **softness** is the problem. Sharpness is the **8K reprojection trick**, not a bigger video model.
-- **SeedVR** was tried as an upscaler on the Wan views: slow and “didn’t do too much.” It is **not** a sharpness path (P5 experiment only).
-- **All drone rails start from the same origin** (the MoGe star / pano center). That is the only viewpoint that already has the 8K texture, so HiRes can reproject “how every pixel moves.”
-- Mesh control video has **black holes** where the pano never saw. Wan + Matrix-3D LoRA inpaints those holes. Flying **through a wall** is allowed — Wan invents the other side — but the user must **preview the mesh flight** before spending a 14B run.
-- **Four rails is usually enough.** Quality default stays 4. Extra rails buy volume, not per-view fidelity, and do not fix glass. Optional 5th via Add-to-dataset.
+- Quality generation is WorldStereo memory-DMD. Wan 2.1 I2V, Matrix-3D, and LightX2V are not in this build.
+- Sharpness is the 8K panorama through the MoGe-2 mesh. SeedVR is not a sharpness path.
+- **All rails start from the same origin** (the star / pano center). That is the viewpoint that already has the 8K texture.
+- The mesh guide has holes where the panorama never looked. WorldStereo fills them. Preview the mesh flight before Generate.
+- **Four rails is usually enough.** Extra rails buy volume, not per-view fidelity, and do not fix glass. Optional 5th rail.
 - Keep **view-dependent reflections** (Gaussian SH, not a polygon mesh). Marble was rejected for restricted roam **and** dead reflections. Example in the video: a pond that still reflects after splat train.
 - SageAttention is optional for speed; the video also uses the SageAttention **patch to avoid black frames**. If Sage is on, apply that patch. If import fails, run without it (may be slower; watch for black frames).
 
@@ -171,7 +171,7 @@ These are the only product facts treated as **locked**. Everything else in the p
 | NVIDIA Lyra | 91 GB, Linux-only, ~6 min first start |
 | World Labs Marble | Closed source; small roam; **no working reflections** |
 
-**Selected:** Skywork Matrix-3D = MoGe mesh as camera condition + **LoRA on Wan 2.1** (not a new video model). LoRA trained by flying a virtual 360° drone in **UE5** through **500** game worlds. Votion ports that idea natively (SplatKit `core/`), not ComfyUI.
+**Current path:** Krea 2 panorama, MoGe-2 depth, WorldStereo memory-DMD, pinhole HiRes, known-pose COLMAP, LiteGS or MCMC Compact.
 
 **V1 is not upgraded.** HunyuanWorld / WorldFM / the HY-World 2.0 stack stay archived. The only reopen is #58 (standalone WorldStereo, one GPU).
 

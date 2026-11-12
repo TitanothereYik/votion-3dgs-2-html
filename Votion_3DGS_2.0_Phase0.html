@@ -96,7 +96,7 @@
             <label class="f-lab">Download set</label>
             <div class="f-radio">
               <label><input type="radio" checked disabled /> P1 subset (default)</label>
-              <label><input type="radio" disabled /> All (includes WAN 14B)</label>
+              <label><input type="radio" disabled /> All (Krea, WorldStereo, MoGe-2, UltraSharp)</label>
             </div>
             <p class="f-hint">Florence-2 only if captioning is enabled. MoGe is a P2 subset — not this default. Hub cache sits in the install folder (<code>.hf_cache</code>), not <code>C:\Users\…\.cache</code>.</p>
             <div class="f-row">
@@ -112,7 +112,7 @@
               <div><b>wan_2.1_vae</b>queued<div class="progress"><i style="width:0%"></i></div></div>
               <div><b>360 T2I LoRA</b>queued<div class="progress"><i style="width:0%"></i></div></div>
               <div><b>MoGe vitl</b>P2 subset</div>
-              <div><b>WAN 14B fp8</b>P3 — not this default</div>
+              <div><b>WorldStereo FP8</b>Generate</div>
             </div>
             <p class="f-hint">Status machine: <code>MISSING_*</code> | <code>READY</code>. During Download models, each cell has its own bar (queued empty; active file shows % from measured bytes). Subset READY is OK in P0.</p>
           </div>
@@ -127,7 +127,7 @@
           2D Images (default) or 360 / text → 8K ERP → Compute geometry → rails → Generate → splat.ply (LiteGS or MCMC Compact).
           Ostris Edit is native READY. h_fov 10–170, type or drag, default 70. Surroundings always end with no peoples, no cars.
           Left 2:1 Fit / 100% + draggable split. Right 360 is spherical (yaw + pitch). text keeps the trigger prefix.
-          After 2D Images, prompt.txt = outpaint instruction + surroundings. WAN prompt must match the pano.
+          After 2D Images, the original photo is pasted back. The Generate prompt must describe the panorama.
           Preview the mesh flight. Four rails usually enough. Do not skip 8K. Extra rails do not fix glass.
           Download models: Hub cache is the install folder <code>.hf_cache</code>, ready files in <code>models</code>.
         </div></details>
@@ -166,7 +166,7 @@ python tools\env_report.py</pre>
         <div class="pipe-arr">→</div>
         <div class="pipe-node out"><b>4</b>Else <code>MISSING_&lt;id&gt;</code> + Index URL</div>
       </div>
-      <p>Default download set: <strong>P1 subset</strong> (Krea 2 + LoRAs + VAE + CLIP + RealESRGAN; Florence-2 if captioning is enabled). Optional “All” so WAN 14B is not forced before Phase 3. Hub cache never uses <code>C:\Users\&lt;user&gt;\.cache\huggingface</code>. Home status cells each show a progress bar during the download.</p>
+      <p>Default download set: Krea 2, its LoRAs, VAE, and CLIP, plus RealESRGAN. Florence-2 if captioning is enabled. WorldStereo, DINOv2, MoGe-2, and UltraSharp are the Generate set. Hub cache never uses <code>C:\Users\&lt;user&gt;\.cache\huggingface</code>. Home status cells each show a progress bar during the download.</p>
       <div class="fig-grid">
         <figure class="fig">
           <img src="media/krea2-hero.jpg" alt="Krea 2 — Phase 0 default P1 download" />
@@ -218,7 +218,7 @@ python tools\env_report.py</pre>
           <tr><td>LiteGS CUDA build on Windows (MSVC + CUDA 12.8 + torch cu128 headers)</td><td>Spike 0.3 builds locally at Setup (pip route, CMake fallback); passed 2026-09-07 after the <code>compiled_autograd.h</code> nvcc guard and CUDA 12.6 math headers; Brush fallback in P2 if it fails</td></tr>
           <tr><td>Python 3.12 not installed</td><td>Stop before venv</td></tr>
           <tr><td>Driver too old for CUDA 12.8</td><td>nvidia-smi in env_report</td></tr>
-          <tr><td>Disk</td><td>Check free space before WAN 14B</td></tr>
+          <tr><td>Disk</td><td>Check free space before the WorldStereo weights</td></tr>
         </tbody>
       </table>
       <p>Do not wrap Gradio, call WorldFM, vendor full SplatKit until P2, or pin a fictional torch version.</p>

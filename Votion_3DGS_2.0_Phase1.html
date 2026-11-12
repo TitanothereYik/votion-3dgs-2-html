@@ -108,9 +108,9 @@
             <div class="pane" id="pane-360">
               <label class="f-lab">360 file (2:1 only)</label>
               <div class="f-drop">Drop ERP · reject non-2:1 · do not letterbox</div>
-              <label class="f-lab">prompt.txt (WAN later)</label>
+              <label class="f-lab">prompt.txt</label>
               <textarea class="f-ta" readonly>alpine village, mill, pond</textarea>
-              <p class="f-hint">Empty OK in P1. Phase 3 blocks WAN if empty. Store as-is even if not 8192. Quality HiRes refuses other widths unless you Upscale to 8K.</p>
+              <p class="f-hint">Empty is allowed here. Generate blocks an empty prompt. Store the file as-is even if it is not 8192 wide. Quality HiRes refuses other widths unless you Upscale to 8K.</p>
               <label class="f-lab">Upscaler prompt</label>
               <input class="f-in" value="High resolution photography" readonly />
               <div class="f-row">
@@ -125,7 +125,7 @@
               <span class="f-prefix">img-txt-2-360 A full 360 degree equirectangular panorama in 2:1 spherical projection,</span>
               <textarea class="f-ta" readonly>alpine village with a mill and a small pond</textarea>
               <p class="f-hint">User sentence after the comma. Empty scene → block Generate. No 2D image in this mode. After Generate, <code>prompt.txt</code> = locked prefix + sentence.</p>
-              <label class="f-lab">prompt.txt (WAN later)</label>
+              <label class="f-lab">prompt.txt</label>
               <textarea class="f-ta" readonly>img-txt-2-360 A full 360 degree equirectangular panorama in 2:1 spherical projection, alpine village with a mill and a small pond</textarea>
               <label class="f-lab">Seed (TEXT→PANO)</label>
               <input class="f-in" value="322344328372862" readonly />
@@ -194,7 +194,7 @@
       <div class="mode-grid">
         <figure class="fig">
           <img src="media/matrix3d-i2p.png" alt="Single 2D photo as the start of a 3D scene" />
-          <figcaption><strong>2D Images</strong> (default). <a href="https://github.com/SkyworkAI/Matrix-3D">Matrix-3D</a></figcaption>
+          <figcaption><strong>2D Images</strong> (default). Krea outpaint, then the original photo is pasted back.</figcaption>
         </figure>
         <figure class="fig erp">
           <img src="media/polyhaven-venice.png" alt="Equirectangular 360 HDRI" />

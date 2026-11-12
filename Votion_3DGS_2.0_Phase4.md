@@ -45,7 +45,7 @@ Start Menu:
 
 Install dir default: `D:\Votion3DGS` (space-free, matches your code home). Also test a path with spaces. That chosen folder **is** `<install_root>`: Hub cache `.hf_cache\` and ready `models\` live there.
 
-Do **not** embed WAN 14B in the installer.
+Do not embed the model weights in the installer. They download after install.
 
 ---
 

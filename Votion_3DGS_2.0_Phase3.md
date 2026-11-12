@@ -1,6 +1,6 @@
-# Votion 3DGS 2.0 — Phase 3: WAN, 8K reprojection, multi-rail SfM
+# Votion 3DGS 2.0 — Phase 3: WorldStereo, HiRes, multi-rail dataset
 
-**2026-11-12.** Quality generation is WorldStereo memory-DMD (Index #61–#64), not WAN. Panorama depth is one cache, default backend MoGe-2 (Index #65). The SMPL graph numbers below stay as the copied source. Do not treat the WAN widgets as the current Generate page.
+**Current app.** Quality generation is WorldStereo memory-DMD. Depth is one MoGe-2 cache. HiRes is pinhole. Reconstruct is known-pose COLMAP. The knot lists later in this file are the old copied shapes. They are not a Wan, Matrix-3D, or LightX2V pipeline.
 
 **Depends on:** Phase 2 first-splat plumbing (MoGe + one rail + SfM) and Phase 1 8K `pano.png`  
 **Unlocks:** Phase 4 (profiles / installer)  
@@ -11,32 +11,20 @@
 
 ## Goal
 
-Implement the Mickmumpitz **dataset** graph in native Python: four camera rails (optional 5th), WAN 2.1 I2V 14B fp8 + Matrix-3D pano LoRA + LightX2V, **HiRes Composite in geometry mode** from the Phase 1 8K pano, dual-res SphereSfM.
-
-This is the quality leap. WAN stays **1440×720**. Sharpness is the 8K reprojection trick ([video 00:05:00 / 00:14:55](https://www.youtube.com/watch?v=eJuYBNrD8HI)). There is **no camera count that produces a perfect scan** — see [How many camera sets](#how-many-camera-sets).
+Four rails, one MoGe-2 depth, a WorldStereo joint sample, then pinhole HiRes, then known-pose COLMAP. Sharpness is the 8K panorama through the mesh. There is no camera count that produces a perfect scan.
 
 ---
 
 ## Locked facts
 
-- Quality default: WAN 2.1 I2V **14B fp8 720p** + LightX2V on RTX 3090 24GB. Graph also carries a GGUF loader (`wan2.1-i2v-14b-720p-Q4_K_M.gguf`) for ≤16 GB cards — not the 3090 Quality path.
-- LoRA **order from JSON `links` 1→2→4** (do not swap):
-  1. `UNETLoader` id 4 `wan\Wan2_1-I2V-14B-720P_fp8_e4m3fn.safetensors`
-  2. `LoraLoaderModelOnly` id 5 **pano** `pano_video_gen_720p_comfy.safetensors` strength **0.98**
-  3. `LoraLoaderModelOnly` id 7 **LightX2V** `lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank64_bf16.safetensors` strength **1**
-  4. `ModelSamplingSD3` id 8 shift **5**
-- WAN clip: `SplatKit_WanI2VMaskedConditioning` widgets **`[1440, 720, 81, 'black', False]`** = width, height, length, `hole_fill`, `invert_mask`. CLIP-Vision: `clip_vision_h.safetensors`, encode **`center`**. VAE: `wan_2.1_vae.safetensors`. Upscaler title “Upscaler for the WAN hole-fill”: `4x-UltraSharp.pth`.
-- KSampler widgets `[0, 'fixed', 4, 1, 'euler', 'normal', 1]` but **steps is linked** to PrimitiveInt id 55 title **STEPS** = **8**. Effective: seed 0, steps **8**, cfg 1, `euler`, `normal`, denoise 1. The stored `4` is unused.
-- HiRes: `base_mode=geometry`, `output_width=8192`, **frames `0-80/2`** (SMPL widgets + SplatKit node default). The HiRes *doc* recommendation `0-15,16-/8` is a **different** recipe — expose it as an optional preset, do not silently replace the graph default.
-- Four Camera Plot nodes (ids **27, 122, 133, 144**) + optional Add-path id **157**. Each rail owns `rail_json` (shared `condition_dir` overwrites).
-- Rails **share the pano-center origin** (P2 star). Warn if a rail’s first knot is far from origin (coverage will be mostly Wan).
-- Scene prompt **must describe the actual pano** (SplatKit README). Empty `prompt.txt` → block WAN. The graph’s generic CLIP positive is **not** a silent replacement for the scene.
-- SageAttention / Triton-Windows: try; if import fails, continue. Video: SageAttention **patch avoids black frames** — if Sage is on, apply that patch (copy from SplatKit / Kijai at vendor pin).
-- Do **not** upscale Wan views with SeedVR as the sharpness path. Sharpness is HiRes geometry-mode reprojection.
-- Native WAN i2v. Do **not** shell out to hidden ComfyUI.
-- Product Generate never loads `docs/media/ref-hires-mask-split.png` (HTML dummy only). Live split: left validity mask, right WAN fill (including low-res). Click a rail number to preview that rail.
-- WAN and HiRes are **two stages**. Generate WAN, review 720p, re-gen a rail if needed, then **Confirm WAN → HiRes**. HiRes must not auto-start after WAN.
-- Reconstruct: **Keep / Ditch** per rail (ditched rails are left out of SphereSfM). **Re-gen WAN** on one rail. After Reconstruct finishes, always load the **newest** kept-rail sparse. Cube-face PNGs are **gnomonic** pinholes (Index #57).
+- Quality generator: WorldStereo memory-DMD FP8 on one RTX 3090.
+- Default mode is Joint: 20 frames per kept rail, samples of 20 that share memory. Per rail is 21 front frames. Seed 1024.
+- Depth is one MoGe-2 cache. A stale rail must be re-plotted before Generate.
+- HiRes all is a separate click. It keeps the 8K panorama where the mesh can see it, and uses UltraSharp only in the holes.
+- Four straight rails, optional 5th. Each rail owns `rails/rail_XX.json`.
+- Rails share the pano-center star. The prompt must describe the actual panorama. An empty prompt blocks Generate.
+- Preview is render, mask (white = empty), and keyframe. Generate does not start HiRes.
+- Reconstruct: Keep / Ditch / Re-gen. The dataset is known-pose COLMAP, plus six gnomonic faces of the 8K panorama.
 
 ---
 
@@ -304,28 +292,24 @@ A bowed splat ground is **not** leftover ERP in the trainer. LiteGS trains on `c
 
 ---
 
-## Models (from the graph notes)
+## Models in this build
 
 | File | Role |
 |---|---|
-| `Wan2_1-I2V-14B-720P_fp8_e4m3fn.safetensors` | Quality UNET |
-| `wan2.1-i2v-14b-720p-Q4_K_M.gguf` | GGUF alt, not 3090 Quality |
-| `pano_video_gen_720p_comfy.safetensors` | Matrix-3D pano LoRA (Comfy keys) |
-| `lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank64_bf16.safetensors` | Distill |
-| `umt5_xxl_fp8_e4m3fn_scaled.safetensors` | CLIP type `wan` |
-| `clip_vision_h.safetensors` | CLIP-Vision |
-| `wan_2.1_vae.safetensors` | VAE |
-| `4x-UltraSharp.pth` | Hole-fill upscaler |
-
-Do not load the Skywork `.ckpt` without `convert_pano_lora.py`.
+| `WorldStereo-memory-dmd-fp8_e4m3fn_scaled.safetensors` | Generate |
+| `dinov2-base` | WorldStereo encoder |
+| `umt5_xxl_fp8_e4m3fn_scaled.safetensors` | WorldStereo text encoder |
+| `clip_vision_h.safetensors` | WorldStereo vision encoder |
+| MoGe-2 `Ruicheng/moge-2-vitl-normal` | Scene depth |
+| `4x-UltraSharp.pth` | HiRes holes only |
 
 ---
 
 ## Workers
 
-1. `engine.workers.wan` — one rail per process. Load 14B fp8 + LoRAs, generate, unload, exit. User may re-gen a single rail. Does **not** start HiRes.  
-2. `engine.workers.hires` — only after **Confirm WAN → HiRes**. Geometry-mode composite, write 8K PNGs to disk (**never** as one giant GPU tensor).  
-3. `engine.workers.sfm` — kept rails only. Wipe the previous colmap sparse before this run. Dual-res: low-res proxies for matching, 8K cube faces for training images. After SphereSfM, **gnomonic-remap** every face PNG (`engine/sfm/cubic_reproject.py`). Viewport loads this run after the process exits.
+1. `engine.workers.worldstereo` — joint sample, or one rail. Does not start HiRes.
+2. `engine.workers.pinhole_hires` — separate click, HiRes all.
+3. `engine.sfm.known_pose` — kept rails only. WorldStereo pinholes plus six gnomonic faces of the 8K panorama.
 
 Quality: sequential rails on one 3090. HiRes ~11 GB peak (SplatKit, 5090) **after** WAN has exited.
 

@@ -96,7 +96,7 @@ Lookup order per manifest entry:
 3. Else: HF download into `<install_root>\.hf_cache\` (same volume), then hardlink/copy to that dest. Never `C:\Users\<user>\.cache\huggingface`.
 4. Else: status `MISSING_<id>` with the URL from the Index (do not invent a second URL)
 
-P0 may download **manifest-all** or a “P1 subset” (Krea 2 + LoRAs + VAE + CLIP + RealESRGAN; Florence-2 if captioning is enabled). Prefer a checkbox: `P1 subset` vs `All`. Default **P1 subset** so a Quality WAN 14B pull is not forced before Phase 3.
+P0 may download the panorama set (Krea 2, LoRAs, VAE, CLIP, RealESRGAN, Florence-2 if captioning is enabled) or the full set, which adds WorldStereo, DINOv2, MoGe-2, and UltraSharp. Default the panorama set so Generate weights are not forced on first launch.
 
 P2 subset (MoGe `model.pt`) can wait until Phase 2. SphereSfM binary can wait until Phase 2 if the SplatKit download helper is vendored then.
 
@@ -143,7 +143,7 @@ D:\Votion3DGS\
 | gsplat vs 3.12/cu128 | Moot since 2026-09-07 (LiteGS) | Spike in 0.3 now builds LiteGS locally (passed on this PC); fallback Brush in P2 |
 | 3.12 not installed | Not checked | Install before venv |
 | Driver too old for CUDA 12.8 | Not checked | `nvidia-smi` in env_report; stop if driver < 12.8 requirement |
-| Disk | Not measured | Downloader checks free space before WAN 14B |
+| Disk | Not measured | Downloader checks free space before the WorldStereo weights |
 
 ---
 

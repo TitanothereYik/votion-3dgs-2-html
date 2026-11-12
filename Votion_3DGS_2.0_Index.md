@@ -131,7 +131,7 @@ These are the only product facts treated as **locked**. Everything else in the p
 - Harmonize / UltimateSDUpscale extra widget names (copy arrays from the Krea JSON; name from node source at pin).
 - ~~Exact Florence-2 Hub id / revision.~~ **Measured:** `florence-community/Florence-2-large` @ `4271c66`.
 - ~~Native Ostris Edit port on Windows.~~ **READY 2026-09-03.** Do not shell out to ComfyUI.
-- ~~Disk free space on `D:` for ~45–60 GB models.~~ **Measured 2026-09-01:** 142.3 GB free. Downloader still checks before WAN 14B.
+- ~~Disk free space on `D:` for the model download.~~ **Measured 2026-09-01:** 142.3 GB free. The downloader still checks before the WorldStereo weights.
 - ~~Unreal Engine version / playback plugin~~ **Locked (interim):** UE 5.5 + MLSLabsRenderer. **Update slot open** for a future better renderer.
 
 ---
@@ -197,44 +197,36 @@ D:\Votion3DGS\
 
 ---
 
-## Model filenames (from the two ComfyUI graphs you attached)
+## Model files (this build)
 
-Filenames and Hugging Face URLs below are copied from the MarkdownNote nodes in:
+Download into `<install_root>\models\`. Hub blobs land in `<install_root>\.hf_cache\`, not `C:\Users\<user>\.cache\huggingface`. Dev default: `D:\Votion3DGS`.
 
-- `d:\AI_3DGS\260825_MICKMUMPITZ_Krea2-360Pano-Creator_1-0.json`
-- `d:\AI_3DGS\260825_MICKMUMPITZ_3DGS-Dataset-Creator_1-0_SMPL.json`
+### Panorama
 
-Sizes are **not** listed unless a source stated them. Download into `<install_root>\models\…` matching Comfy folder names. Hub blobs land in `<install_root>\.hf_cache\` first (same volume as models), not `C:\Users\<user>\.cache\huggingface`. Dev default: `D:\Votion3DGS`.
+| File | Folder | Source |
+|------|--------|--------|
+| `krea2_turbo_fp8_scaled.safetensors` | diffusion_models | [Comfy-Org/Krea-2](https://huggingface.co/Comfy-Org/Krea-2) |
+| `krea2_t2i_360_erp_lora_v1.safetensors` | loras | [Krea2-360-ERP-LoRAs](https://huggingface.co/mickmumpitz/Krea2-360-ERP-LoRAs) |
+| `krea2_oedit_360_erp_outpaint_lora_v1.safetensors` | loras | same repo |
+| `qwen3vl_4b_fp8_scaled.safetensors` | text_encoders | [Comfy-Org/Krea-2](https://huggingface.co/Comfy-Org/Krea-2) |
+| Krea VAE | vae | panorama decode |
+| `RealESRGAN_x2.pth` | upscale_models | [ai-forever/Real-ESRGAN](https://huggingface.co/ai-forever/Real-ESRGAN) |
 
-### Panorama (Phase 1; downloader can fetch in Phase 0)
+The RTX 50xx nvfp4 Krea file is not the 3090 default.
 
-| File | Comfy folder | URL (from workflow note) |
-|------|----------------|---------------------------|
-| `krea2_turbo_fp8_scaled.safetensors` | diffusion_models | [Comfy-Org/Krea-2](https://huggingface.co/Comfy-Org/Krea-2/resolve/main/diffusion_models/krea2_turbo_fp8_scaled.safetensors) |
-| `krea2_t2i_360_erp_lora_v1.safetensors` | loras | [mickmumpitz/Krea2-360-ERP-LoRAs](https://huggingface.co/mickmumpitz/Krea2-360-ERP-LoRAs/resolve/main/krea2_t2i_360_erp_lora_v1.safetensors) |
-| `krea2_oedit_360_erp_outpaint_lora_v1.safetensors` | loras | [same repo](https://huggingface.co/mickmumpitz/Krea2-360-ERP-LoRAs/resolve/main/krea2_oedit_360_erp_outpaint_lora_v1.safetensors) |
-| `qwen3vl_4b_fp8_scaled.safetensors` | text_encoders | [Comfy-Org/Krea-2](https://huggingface.co/Comfy-Org/Krea-2/resolve/main/text_encoders/qwen3vl_4b_fp8_scaled.safetensors) |
-| `wan_2.1_vae.safetensors` | vae | [Comfy-Org Wan 2.1](https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/vae/wan_2.1_vae.safetensors) |
-| `RealESRGAN_x2.pth` | upscale_models | [ai-forever/Real-ESRGAN](https://huggingface.co/ai-forever/Real-ESRGAN/resolve/main/RealESRGAN_x2.pth) |
+### Generate, depth, and HiRes
 
-Optional (workflow note, RTX 50xx): `krea2_turbo_nvfp4.safetensors` — **not** for the 3090 Quality default.
+| File | Role |
+|------|------|
+| `WorldStereo-memory-dmd-fp8_e4m3fn_scaled.safetensors` | [apozz/WorldStereo-fp8](https://huggingface.co/apozz/WorldStereo-fp8) |
+| `dinov2-base` | [facebook/dinov2-base](https://huggingface.co/facebook/dinov2-base) |
+| `umt5_xxl_fp8_e4m3fn_scaled.safetensors` | WorldStereo text encoder |
+| `clip_vision_h.safetensors` | WorldStereo vision encoder |
+| MoGe-2 `Ruicheng/moge-2-vitl-normal` | scene depth |
+| MoGe v1 `Ruicheng/moge-vitl` `model.pt` | Detect, when a photo has no lens data |
+| `4x-UltraSharp.pth` | HiRes holes only |
 
-### Video / dataset (Phase 3)
-
-| File | Comfy folder | URL (from workflow note) |
-|------|----------------|---------------------------|
-| `Wan2_1-I2V-14B-720P_fp8_e4m3fn.safetensors` | diffusion_models | [Kijai/WanVideo_comfy](https://huggingface.co/Kijai/WanVideo_comfy/blob/main/Wan2_1-I2V-14B-720P_fp8_e4m3fn.safetensors) |
-| `pano_video_gen_720p_comfy.safetensors` | loras | [mickmumpitz/Wan2.1-Pano360-LoRA](https://huggingface.co/mickmumpitz/Wan2.1-Pano360-LoRA/blob/main/pano_video_gen_720p_comfy.safetensors) |
-| `lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank64_bf16.safetensors` | loras | [Kijai Lightx2v](https://huggingface.co/Kijai/WanVideo_comfy/blob/main/Lightx2v/lightx2v_T2V_14B_cfg_step_distill_v2_lora_rank64_bf16.safetensors) |
-| `umt5_xxl_fp8_e4m3fn_scaled.safetensors` | text_encoders | [Comfy-Org](https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/blob/main/split_files/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors) |
-| `clip_vision_h.safetensors` | clip_vision | [Comfy-Org](https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/blob/main/split_files/clip_vision/clip_vision_h.safetensors) |
-| `4x-UltraSharp.pth` | upscale_models | [Kim2091/UltraSharp](https://huggingface.co/Kim2091/UltraSharp/blob/main/4x-UltraSharp.pth) |
-
-GGUF alternative (workflow: “16GB or less”; **not** the 3090 Quality default): `wan2.1-i2v-14b-720p-Q4_K_M.gguf` from [city96](https://huggingface.co/city96/Wan2.1-I2V-14B-720P-gguf).
-
-MoGe checkpoint: Hugging Face `Ruicheng/moge-vitl` `model.pt` (SplatKit default). SphereSfM: `colmap_sphere.exe` auto-download from SplatKit `bin/` (SHA verified there — copy that checksum into our downloader; do not invent one).
-
-Florence-2 (Phase 1 auto-caption, optional): Microsoft Florence-2 family, Apache-2.0. Hub (first successful P1 caption): `florence-community/Florence-2-large` rev `4271c66b88cdbc05735372ec13b2360108de5317`. Always append `no peoples, no cars`. Do not invent a quantized fork.
+Florence-2 (optional caption): `florence-community/Florence-2-large` rev `4271c66b88cdbc05735372ec13b2360108de5317`. Always append `no peoples, no cars`.
 
 ---
 
@@ -246,15 +238,12 @@ Florence-2 (Phase 1 auto-caption, optional): Microsoft Florence-2 family, Apache
 | Fast | 16GB class | Not in this build | — | — | Disabled. Do not invent a model name. |
 | Scout | 12GB class | Not in this build | — | — | Disabled. Do not invent a model name. |
 
-Matrix-3D PanoLRM (~80GB in their README) is **out of 2.0**.
-
 ---
 
 ## P5 stretch (not a 2.0 blocker)
 
-- SeedVR2 as an **experiment only**. Video: they upscaled Wan views with it; it was slow and did little. **Do not** substitute it for 8K geometry-mode reprojection.
-- Matrix-3D optimization reconstruction as an advanced alternative to SphereSfM
-- macOS: SplatKit SphereSfM is Windows/Linux only today
+- SeedVR2 as an experiment only. Do not substitute it for the 8K panorama through the mesh.
+- macOS is not supported. This build is Windows.
 
 ---
 
